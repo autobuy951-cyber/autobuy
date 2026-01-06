@@ -1,0 +1,125 @@
+@baseUrl = http://localhost:3000/api
+
+### ------------------------
+### 1. ÜGYFELEK (CLIENTS)
+### ------------------------
+
+# Minden ügyfél lekérése
+GET {{baseUrl}}/ugyfelek
+
+###
+
+# Új ügyfél hozzáadása
+POST {{baseUrl}}/ugyfelek
+Content-Type: application/json
+
+{
+    "Nev": "Teszt Elek",
+    "Cim": "1234 Budapest, Teszt u. 1.",
+    "Telefonszam": "+36301234567",
+    "Email": "elek@test.com",
+    "igSzam": "123456AB",
+    "SzuletesiDatum": "1990-01-01",
+    "Jogosultsag": "User"
+}
+
+### ------------------------
+### 2. DOLGOZÓK (EMPLOYEES)
+### ------------------------
+
+# Minden dolgozó lekérése
+GET {{baseUrl}}/dolgozok
+
+###
+
+# Új dolgozó hozzáadása
+POST {{baseUrl}}/dolgozok
+Content-Type: application/json
+
+{
+    "nev": "Admin Adél",
+    "jelszo": "titkos123",
+    "jogosultsag": "Admin"
+}
+
+### ------------------------
+### 3. AUTÓK (CARS)
+### ------------------------
+
+# Minden autó lekérése
+GET {{baseUrl}}/autok
+
+###
+
+# Új autó hozzáadása (1. autó)
+POST {{baseUrl}}/autok
+Content-Type: application/json
+
+{
+    "Rendszam": "ABC-123",
+    "Marka": "Toyota",
+    "Modell": "Corolla",
+    "Evjarat": 2020,
+    "Allapot": "Kiváló",
+    "Alvazszam": "WBMW1234567890123"
+}
+
+###
+
+# Új autó hozzáadása (2. autó)
+POST {{baseUrl}}/autok
+Content-Type: application/json
+
+{
+    "Rendszam": "XYZ-987",
+    "Marka": "Ford",
+    "Modell": "Focus",
+    "Evjarat": 2019,
+    "Allapot": "Jó",
+    "Alvazszam": "WF0F1234567890987"
+}
+
+### ------------------------
+### 4. FOGLALÁSOK (RESERVATIONS)
+### ------------------------
+
+# Minden foglalás lekérése
+GET {{baseUrl}}/foglalasok
+
+###
+
+# Új foglalás hozzáadása (Kapcsolódik: AutoID=1, UgyfelID=1)
+# Fontos: Először hozz létre Autót és Ügyfelet!
+POST {{baseUrl}}/foglalasok
+Content-Type: application/json
+
+{
+    "auto_id": 1,
+    "ugyfel_id": 1,
+    "foglalaskezdete": "2023-10-01",
+    "foglalas_vege": "2023-10-05",
+    "Ar": 50000,
+    "Letrehozasdatuma": "2023-09-20"
+}
+
+### ------------------------
+### 5. AUTÓ KI/BEADÁS (LOGS)
+### ------------------------
+
+# Minden napló lekérése
+GET {{baseUrl}}/autokibe
+
+###
+
+# Új kiadás rögzítése (Kapcsolódik: AutoID=1)
+# Fontos: A 'auto_id' mező most már KÖTELEZŐ!
+POST {{baseUrl}}/autokibe
+Content-Type: application/json
+
+{
+    "auto_id": 1,
+    "elvitel": "2023-10-01 08:00",
+    "vissza": "2023-10-05 18:00",
+    "Kilometer_kezdet": 10000,
+    "Kilometer_veg": 10500
+}
