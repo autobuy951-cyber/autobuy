@@ -11,3 +11,9 @@ exports.create = (data, callback) => {
         .then(foglalas => callback(null, foglalas.Foglalasokid))
         .catch(err => callback(err));
 };
+
+exports.delete = (id, callback) => {
+    Foglalas.destroy({ where: { Foglalasokid: id } })
+        .then(deleted => callback(null, deleted))
+        .catch(err => callback(err));
+};

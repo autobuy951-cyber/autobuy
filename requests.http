@@ -23,6 +23,11 @@ Content-Type: application/json
     "Jogosultsag": "User"
 }
 
+###
+
+# Ügyfél törlése ID alapján
+DELETE {{baseUrl}}/ugyfelek/1  
+
 ### ------------------------
 ### 2. DOLGOZÓK (EMPLOYEES)
 ### ------------------------
@@ -41,6 +46,11 @@ Content-Type: application/json
     "jelszo": "titkos123",
     "jogosultsag": "Admin"
 }
+
+###
+
+# Dolgozó törlése ID alapján
+DELETE {{baseUrl}}/dolgozok/1
 
 ### ------------------------
 ### 3. AUTÓK (CARS)
@@ -79,6 +89,11 @@ Content-Type: application/json
     "Alvazszam": "WF0F1234567890987"
 }
 
+###
+
+# Autó törlése ID alapján
+DELETE {{baseUrl}}/autok/1
+
 ### ------------------------
 ### 4. FOGLALÁSOK (RESERVATIONS)
 ### ------------------------
@@ -94,13 +109,18 @@ POST {{baseUrl}}/foglalasok
 Content-Type: application/json
 
 {
-    "auto_id": 1,
-    "ugyfel_id": 1,
+    "auto_id": 2,
+    "ugyfel_id": 2,
     "foglalaskezdete": "2023-10-01",
     "foglalas_vege": "2023-10-05",
     "Ar": 50000,
     "Letrehozasdatuma": "2023-09-20"
 }
+
+###
+
+# Foglalás törlése ID alapján
+DELETE {{baseUrl}}/foglalasok/1
 
 ### ------------------------
 ### 5. AUTÓ KI/BEADÁS (LOGS)
@@ -117,9 +137,14 @@ POST {{baseUrl}}/autokibe
 Content-Type: application/json
 
 {
-    "auto_id": 1,
+    "auto_id": 2,
     "elvitel": "2023-10-01 08:00",
-    "vissza": "2023-10-05 18:00",
+    "vissza": null,
     "Kilometer_kezdet": 10000,
-    "Kilometer_veg": 10500
+    "Kilometer_veg": null
 }
+
+###
+
+# AutoKibe napló törlése ID alapján
+DELETE {{baseUrl}}/autokibe/1
