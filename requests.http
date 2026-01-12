@@ -1,6 +1,7 @@
 @baseUrl = http://localhost:3000/api
 
 
+
 ### ------------------------
 ###  RESET (MINDEN TÖRLÉSE)
 ### ------------------------
@@ -21,6 +22,34 @@ GET {{baseUrl}}/dashboard
 
 # Minden ügyfél lekérése
 GET {{baseUrl}}/ugyfelek
+
+###
+
+# Ügyfelek ABC SZERINTI SZÉTSZEDÉSE - 5 RÉSZRE OSZTVA
+# ==================================================
+
+# 1. RÉSZ: A-E betűs ügyfelek (A, B, C, D, E)
+GET {{baseUrl}}/ugyfelek/tartomany/A-E
+
+###
+
+# 2. RÉSZ: F-J betűs ügyfelek (F, G, H, I, J)
+GET {{baseUrl}}/ugyfelek/tartomany/F-J
+
+###
+
+# 3. RÉSZ: K-O betűs ügyfelek (K, L, M, N, O)
+GET {{baseUrl}}/ugyfelek/tartomany/K-O
+
+###
+
+# 4. RÉSZ: P-T betűs ügyfelek (P, Q, R, S, T)
+GET {{baseUrl}}/ugyfelek/tartomany/P-T
+
+###
+
+# 5. RÉSZ: U-Z betűs ügyfelek (U, V, W, X, Y, Z)
+GET {{baseUrl}}/ugyfelek/tartomany/U-Z
 
 ###
 
@@ -163,5 +192,3 @@ Content-Type: application/json
 
 # AutoKibe napló törlése ID alapján
 DELETE {{baseUrl}}/autokibe/6
-
-
