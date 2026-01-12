@@ -13,3 +13,11 @@ exports.create = (req, res) => {
         res.json({ id: id, message: "Foglalás hozzáadva" });
     });
 };
+
+exports.delete = (req, res) => {
+    foglalasRepository.delete(req.params.id, (err, deleted) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (deleted === 0) return res.status(404).json({ error: "Foglalás nem található" });
+        res.json({ message: "Foglalás törölve" });
+    });
+};

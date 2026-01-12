@@ -11,3 +11,9 @@ exports.create = (data, callback) => {
         .then(auto => callback(null, auto.AutoID))
         .catch(err => callback(err));
 };
+
+exports.delete = (id, callback) => {
+    Auto.destroy({ where: { AutoID: id } })
+        .then(deleted => callback(null, deleted))
+        .catch(err => callback(err));
+};

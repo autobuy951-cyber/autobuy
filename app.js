@@ -2,8 +2,8 @@ const express = require('express');
 const { sequelize } = require('./models');
 
 // Szinkronizálás az adatbázissal
-sequelize.sync({ alter: true })
-    .then(() => console.log('Adatbázis szinkronizálva (schema update)'))
+sequelize.sync()
+    .then(() => console.log('Adatbázis szinkronizálva (újraépítve)'))
     .catch(err => console.error('Hiba az adatbázis szinkronizálásakor:', err));
 
 const app = express();

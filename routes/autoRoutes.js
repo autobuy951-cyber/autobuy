@@ -4,5 +4,6 @@ const autoController = require('../controllers/autoController');
 
 router.get('/', autoController.getAll);
 router.post('/', autoController.create);
+router.delete('/:id', autoController.delete);
 
 module.exports = router;

@@ -11,3 +11,9 @@ exports.create = (data, callback) => {
         .then(autokibe => callback(null, autokibe.Id))
         .catch(err => callback(err));
 };
+
+exports.delete = (id, callback) => {
+    AutoKibe.destroy({ where: { Id: id } })
+        .then(deleted => callback(null, deleted))
+        .catch(err => callback(err));
+};

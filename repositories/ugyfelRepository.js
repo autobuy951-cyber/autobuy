@@ -11,3 +11,9 @@ exports.create = (data, callback) => {
         .then(ugyfel => callback(null, ugyfel.ID))
         .catch(err => callback(err));
 };
+
+exports.delete = (id, callback) => {
+    Ugyfel.destroy({ where: { ID: id } })
+        .then(deleted => callback(null, deleted))
+        .catch(err => callback(err));
+};

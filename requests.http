@@ -1,5 +1,20 @@
 @baseUrl = http://localhost:3000/api
 
+
+### ------------------------
+###  RESET (MINDEN TÖRLÉSE)
+### ------------------------
+
+# Minden adat törlése az adatbázisból
+DELETE {{baseUrl}}/reset
+
+###
+
+# Dashboard megtekintése
+GET {{baseUrl}}/dashboard
+
+
+
 ### ------------------------
 ### 1. ÜGYFELEK (CLIENTS)
 ### ------------------------
@@ -23,6 +38,11 @@ Content-Type: application/json
     "Jogosultsag": "User"
 }
 
+###
+
+# Ügyfél törlése ID alapján
+DELETE {{baseUrl}}/ugyfelek/1
+
 ### ------------------------
 ### 2. DOLGOZÓK (EMPLOYEES)
 ### ------------------------
@@ -41,6 +61,11 @@ Content-Type: application/json
     "jelszo": "titkos123",
     "jogosultsag": "Admin"
 }
+
+###
+
+# Dolgozó törlése ID alapján
+DELETE {{baseUrl}}/dolgozok/3
 
 ### ------------------------
 ### 3. AUTÓK (CARS)
@@ -79,6 +104,11 @@ Content-Type: application/json
     "Alvazszam": "WF0F1234567890987"
 }
 
+###
+
+# Autó törlése ID alapján
+DELETE {{baseUrl}}/autok/1
+
 ### ------------------------
 ### 4. FOGLALÁSOK (RESERVATIONS)
 ### ------------------------
@@ -102,6 +132,11 @@ Content-Type: application/json
     "Letrehozasdatuma": "2023-09-20"
 }
 
+###
+
+# Foglalás törlése ID alapján
+DELETE {{baseUrl}}/foglalasok/1
+
 ### ------------------------
 ### 5. AUTÓ KI/BEADÁS (LOGS)
 ### ------------------------
@@ -117,9 +152,16 @@ POST {{baseUrl}}/autokibe
 Content-Type: application/json
 
 {
-    "auto_id": 1,
+    "auto_id": 2,
     "elvitel": "2023-10-01 08:00",
-    "vissza": "2023-10-05 18:00",
+    "vissza": null,
     "Kilometer_kezdet": 10000,
-    "Kilometer_veg": 10500
+    "Kilometer_veg": null
 }
+
+###
+
+# AutoKibe napló törlése ID alapján
+DELETE {{baseUrl}}/autokibe/6
+
+
