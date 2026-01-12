@@ -1,5 +1,20 @@
 @baseUrl = http://localhost:3000/api
 
+
+### ------------------------
+###  RESET (MINDEN TÖRLÉSE)
+### ------------------------
+
+# Minden adat törlése az adatbázisból
+DELETE {{baseUrl}}/reset
+
+###
+
+# Dashboard megtekintése
+GET {{baseUrl}}/dashboard
+
+
+
 ### ------------------------
 ### 1. ÜGYFELEK (CLIENTS)
 ### ------------------------
@@ -26,7 +41,7 @@ Content-Type: application/json
 ###
 
 # Ügyfél törlése ID alapján
-DELETE {{baseUrl}}/ugyfelek/1  
+DELETE {{baseUrl}}/ugyfelek/1
 
 ### ------------------------
 ### 2. DOLGOZÓK (EMPLOYEES)
@@ -50,7 +65,7 @@ Content-Type: application/json
 ###
 
 # Dolgozó törlése ID alapján
-DELETE {{baseUrl}}/dolgozok/1
+DELETE {{baseUrl}}/dolgozok/3
 
 ### ------------------------
 ### 3. AUTÓK (CARS)
@@ -109,8 +124,8 @@ POST {{baseUrl}}/foglalasok
 Content-Type: application/json
 
 {
-    "auto_id": 2,
-    "ugyfel_id": 2,
+    "auto_id": 1,
+    "ugyfel_id": 1,
     "foglalaskezdete": "2023-10-01",
     "foglalas_vege": "2023-10-05",
     "Ar": 50000,
@@ -147,4 +162,6 @@ Content-Type: application/json
 ###
 
 # AutoKibe napló törlése ID alapján
-DELETE {{baseUrl}}/autokibe/1
+DELETE {{baseUrl}}/autokibe/6
+
+
