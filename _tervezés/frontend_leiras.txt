@@ -1,0 +1,425 @@
+Frontend leírás az adatbázis alapján
+
+Ez a dokumentum leírja a frontend követelményeket az autobuy rendszer adatbázis sémája alapján.
+
+== ENTITÁSOK ÉS MEZŐK ==
+
+1. AUTÓK (autok tábla)
+   - AutoID: Elsődleges kulcs, auto increment
+   - Rendszam: Szöveg
+   - Marka: Szöveg
+   - Modell: Szöveg
+   - Evjarat: Egész szám
+   - Allapot: Szöveg (pl. elérhető, foglalt, karbantartás alatt)
+   - Alvazszam: Szöveg
+
+2. ÜGYFELEK (ugyfelek tábla)
+   - ID: Elsődleges kulcs, auto increment
+   - Nev: Szöveg
+   - Cim: Szöveg
+   - Telefonszam: Szöveg
+   - Email: Szöveg
+   - igSzam: Szöveg (adószám)
+   - SzuletesiDatum: Szöveg (dátum formátumban)
+   - Jogosultsag: Szöveg (jogosítvány típusa)
+
+3. DOLGOZÓK (dolgozok tábla)
+   - id: Elsődleges kulcs, auto increment
+   - nev: Szöveg
+   - jelszo: Szöveg (titkosított tárolás szükséges)
+   - jogosultsag: Szöveg (pl. admin, dolgozó, manager)
+
+4. FOGLALÁSOK (foglalasok tábla)
+   - Foglalasokid: Elsődleges kulcs, auto increment
+   - auto_id: Külső kulcs (Autók.AutoID)
+   - ugyfel_id: Külső kulcs (Ügyfelek.ID)
+   - foglalaskezdete: Szöveg (dátum)
+   - foglalas_vege: Szöveg (dátum)
+   - Ar: Egész szám
+   - Letrehozasdatuma: Szöveg (dátum)
+
+5. AUTÓKIBE (autokibe tábla) - Autókiadás/bérlés rekordok
+   - Id: Elsődleges kulcs, auto increment
+   - auto_id: Külső kulcs (Autók.AutoID)
+   - elvitel: Szöveg (átvétel dátuma/helye)
+   - vissza: Szöveg (visszaadás dátuma/helye)
+   - Kilometer_kezdet: Egész szám
+   - Kilometer_veg: Egész szám
+
+== KAPCSOLATOK ==
+- Egy autóhoz több foglalás tartozhat
+- Egy ügyfélhez több foglalás tartozhat
+- Egy autóhoz több kibe rekord tartozhat
+
+== FRONTEND OLDALAK/KOMPONENSEK ==
+
+1. BEJELENTKEZÉS OLDAL (/login)
+   - Felhasználónév mező (dolgozó név vagy azonosító)
+   - Jelszó mező (rejtett karakterekkel)
+   - "Bejelentkezés" gomb
+   - "Elfelejtett jelszó" link (opcionális)
+   - Validáció: Mindkét mező kötelező
+   - Sikeres bejelentkezés után átirányítás a dashboard-ra
+   - Sikertelen esetén hibaüzenet megjelenítése
+   - Jogosultság alapú menü betöltése (admin/manager/dolgozó)
+
+2. FŐOLDAL/DASHBOARD (/dashboard)
+   - Statisztikai kártyák:
+     * Összes autó száma
+     * Elérhető autók száma
+     * Aktív foglalások száma
+     * Mai bevétel
+   - Gyors műveletek gombok:
+     * Új foglalás
+     * Új autó hozzáadás
+     * Ügyfelek listája
+   - Legutóbbi tevékenységek lista (utolsó 10 foglalás/kibe)
+   - Naptár widget a foglalások megjelenítéséhez
+   - Diagramok: Bevétel hónapokra, autó kihasználtság
+
+3. AUTÓK KEZELÉSE MODUL (/autok)
+
+   3.1 AUTÓK LISTA (/autok/lista)
+      - Táblázat fejléce: Rendszám, Márka-Modell, Évjárat, Állapot, Műveletek
+      - Szűrők: Márka, Modell, Állapot, Évjárat tartomány
+      - Kereső mező (rendszám vagy márka alapján)
+      - Lapozás (20 elem/oldal)
+      - Műveletek oszlop: Megtekintés, Szerkesztés, Törlés, Foglalás hozzáadása
+      - Export gombok: PDF, Excel
+      - "Új autó" gomb a lista felett
+
+   3.2 ÚJ AUTÓ HOZZÁADÁSA (/autok/uj)
+      - Űrlap mezők:
+        * Rendszám (kötelező, egyedi validáció)
+        * Márka (kötelező, legördülő lista népszerű márkákkal)
+        * Modell (kötelező)
+        * Évjárat (kötelező, szám, 1900-2026 között)
+        * Állapot (kötelező, legördülő: elérhető, foglalt, karbantartás, selejt)
+        * Alvázszám (opcionális)
+      - "Mentés" és "Mégse" gombok
+      - Validáció üzenetek minden mező alatt
+
+   3.3 AUTÓ SZERKESZTÉSE (/autok/:id/szerkeszt)
+      - Ugyanaz az űrlap mint az új autónál, de adatok előtöltve
+      - "Frissítés" és "Törlés" gombok
+      - Módosítások naplózása
+
+   3.4 AUTÓ TÖRLÉSE
+      - Megerősítő dialógus: "Biztosan törli az autót?"
+      - Ha van aktív foglalása, figyelmeztetés és tiltás
+
+4. ÜGYFELEK KEZELÉSE MODUL (/ugyfelek)
+
+   4.1 ÜGYFELEK LISTA (/ugyfelek/lista)
+      - Táblázat: Név, Telefonszám, Email, Jogosítvány, Műveletek
+      - Szűrők: Név keresés, Jogosítvány típus
+      - Műveletek: Megtekintés, Szerkesztés, Törlés, Foglalás hozzáadása
+
+   4.2 ÚJ ÜGYFÉL HOZZÁADÁSA (/ugyfelek/uj)
+      - Mezők: Név, Cím, Telefonszám, Email, Adószám, Születési dátum, Jogosítvány
+      - Validáció: Email formátum, telefonszám formátum, kötelező mezők
+      - Születési dátum dátumválasztóval
+
+   4.3 ÜGYFÉL SZERKESZTÉSE (/ugyfelek/:id/szerkeszt)
+      - Adatok előtöltve, ugyanaz az űrlap
+
+5. DOLGOZÓK KEZELÉSE MODUL (/dolgozok) - CSAK ADMIN
+
+   5.1 DOLGOZÓK LISTA (/dolgozok/lista)
+      - Táblázat: Név, Jogosultság, Utolsó bejelentkezés
+      - Admin jogosultság szükséges a megtekintéshez
+
+   5.2 ÚJ DOLGOZÓ (/dolgozok/uj)
+      - Mezők: Név, Jelszó, Jelszó megerősítés, Jogosultság
+      - Jelszó erősség ellenőrzés
+      - Jelszó titkosítás előtt küldés
+
+6. FOGLALÁSOK KEZELÉSE MODUL (/foglalasok)
+
+   6.1 FOGLALÁSOK LISTA (/foglalasok/lista)
+      - Táblázat: Foglalás ID, Autó (rendszám), Ügyfél (név), Kezdés, Végzés, Ár, Státusz
+      - Szűrők: Dátum tartomány, Autó, Ügyfél, Státusz
+      - Színes jelölés: aktív (zöld), lejárt (piros), jövőbeli (kék)
+      - Műveletek: Megtekintés, Szerkesztés, Törlés, Számla generálás
+
+   6.2 ÚJ FOGLALÁS (/foglalasok/uj)
+      - 1. lépés: Ügyfél kiválasztása (keresés név/telefon alapján)
+      - 2. lépés: Elérhető autók listája dátum alapján
+      - 3. lépés: Dátumok kiválasztása (kezdés-végzés)
+      - 4. lépés: Ár kalkuláció és véglegesítés
+      - Automatikus ár számítás (napok száma * napi ár)
+
+   6.3 FOGLALÁS SZERKESZTÉSE (/foglalasok/:id/szerkeszt)
+      - Csak jövőbeli foglalások szerkeszthetők
+      - Dátum módosítás esetén ütközés ellenőrzés
+
+7. AUTÓKIBE KEZELÉSE MODUL (/autokibe)
+
+   7.1 KIBE LISTA (/autokibe/lista)
+      - Táblázat: Auto, Ügyfél, Elvitel dátuma, Vissza dátuma, Km kezdet, Km vég, Műveletek
+      - Szűrők: Dátum, Auto, Státusz (aktív/lezárt)
+
+   7.2 ÚJ KIBE (/autokibe/uj)
+      - Foglalás kiválasztása vagy új létrehozása
+      - Elvitel adatok: dátum, hely, km állás, aláírás
+      - Visszaadáskor: dátum, hely, km állás, esetleges károk dokumentálása
+
+   7.3 KIBE LEZÁRÁSA (/autokibe/:id/lezaras)
+      - Visszaadás adatok rögzítése
+      - Automatikus számla generálás
+      - Km fogyasztás kalkuláció
+
+== API ENDPOINT LEÍRÁS ÉS ADATBÁZIS LEKÉRDEZÉSEK ==
+
+1. HITLESÍTÉS ÉS BIZTONSÁG
+
+   1.1 BEJELENTKEZÉS
+      - POST /api/auth/login
+        * Input: { nev: string, jelszo: string }
+        * Validáció: mezők nem üresek
+        * Lekérdezés: SELECT id, nev, jogosultsag FROM dolgozok WHERE nev = ? AND jelszo = HASH(?)
+        * Output: { success: boolean, token: string, user: {id, nev, jogosultsag} }
+
+   1.2 TOKEN ELLENŐRZÉS
+      - GET /api/auth/verify
+        * Header: Authorization: Bearer <token>
+        * Lekérdezés: JWT token dekódolása és validálása
+
+2. DASHBOARD ÉS STATISZTIKÁK
+
+   2.1 ALAP STATISZTIKÁK
+      - GET /api/dashboard/stats
+        * Lekérdezések:
+          - SELECT COUNT(*) as osszes_auto FROM autok
+          - SELECT COUNT(*) as elerheto_auto FROM autok WHERE Allapot = 'elérhető'
+          - SELECT COUNT(*) as aktiv_foglalas FROM foglalasok WHERE foglalaskezdete <= CURRENT_DATE AND foglalas_vege >= CURRENT_DATE
+          - SELECT COALESCE(SUM(Ar), 0) as mai_bevetel FROM foglalasok WHERE DATE(Letrehozasdatuma) = CURRENT_DATE
+
+   2.2 UTOLSÓ TEVÉKENYSÉGEK
+      - GET /api/dashboard/tevekenysegek?limit=10
+        * Lekérdezés: (SELECT 'foglalas' as tipus, f.Foglalasokid as id, f.Letrehozasdatuma as datum, CONCAT('Foglalás: ', a.Rendszam, ' - ', u.Nev) as leiras FROM foglalasok f JOIN autok a ON f.auto_id = a.AutoID JOIN ugyfelek u ON f.ugyfel_id = u.ID ORDER BY f.Letrehozasdatuma DESC LIMIT ?)
+                   UNION ALL
+                   (SELECT 'kibe' as tipus, k.Id as id, k.elvitel as datum, CONCAT('Kiadás: ', a.Rendszam) as leiras FROM autokibe k JOIN autok a ON k.auto_id = a.AutoID ORDER BY k.elvitel DESC LIMIT ?)
+                   ORDER BY datum DESC LIMIT ?
+
+3. AUTÓK MODUL - SZŰRŐ ÉS KIVÁLOGATÓ VÉGPONTOK
+
+   3.1 AUTÓK LISTÁZÁSA SZŰRŐKKEL
+      - GET /api/autok?page=1&limit=20&marka=BMW&modell=X5&allapot=elérhető&evjarat_min=2010&evjarat_max=2020&rendszam=ABC&sort_by=Evjarat&sort_order=DESC
+        * Lekérdezés: SELECT AutoID, Rendszam, Marka, Modell, Evjarat, Allapot FROM autok
+                     WHERE (Marka LIKE CONCAT('%', ?, '%') OR ? = '')
+                     AND (Modell LIKE CONCAT('%', ?, '%') OR ? = '')
+                     AND (Allapot LIKE CONCAT('%', ?, '%') OR ? = '')
+                     AND (Evjarat >= ? OR ? = 0)
+                     AND (Evjarat <= ? OR ? = 9999)
+                     AND (Rendszam LIKE CONCAT('%', ?, '%') OR ? = '')
+                     ORDER BY CASE WHEN ? = 'Rendszam' THEN Rendszam
+                                  WHEN ? = 'Marka' THEN Marka
+                                  WHEN ? = 'Evjarat' THEN Evjarat END
+                     CASE WHEN ? = 'DESC' THEN DESC ELSE ASC END
+                     LIMIT ? OFFSET ?
+
+   3.2 AUTÓK SZÁMA SZŰRŐKKEL
+      - GET /api/autok/count?marka=BMW&allapot=elérhető
+        * Lekérdezés: SELECT COUNT(*) as total FROM autok WHERE ... (ugyanazok a feltételek)
+
+   3.3 ELÉRHETŐ AUTÓK SZŰRŐ
+      - GET /api/autok/elerheto?kezdet=2024-01-15&veg=2024-01-20&marka=BMW
+        * Lekérdezés: SELECT a.* FROM autok a
+                     WHERE a.Allapot = 'elérhető'
+                     AND (a.Marka LIKE CONCAT('%', ?, '%') OR ? = '')
+                     AND a.AutoID NOT IN (
+                         SELECT f.auto_id FROM foglalasok f
+                         WHERE (f.foglalaskezdete <= ? AND f.foglalas_vege >= ?) OR
+                               (f.foglalaskezdete <= ? AND f.foglalas_vege >= ?) OR
+                               (f.foglalaskezdete >= ? AND f.foglalas_vege <= ?))
+
+   3.4 AUTÓ MÁRKÁK LISTÁJA
+      - GET /api/autok/markak
+        * Lekérdezés: SELECT DISTINCT Marka FROM autok ORDER BY Marka
+
+   3.5 AUTÓ MODELLEK LISTÁJA MÁRKA SZERINT
+      - GET /api/autok/modellek?marka=BMW
+        * Lekérdezés: SELECT DISTINCT Modell FROM autok WHERE Marka = ? ORDER BY Modell
+
+   3.6 EGY AUTÓ LEKÉRDEZÉSE
+      - GET /api/autok/:id
+        * Lekérdezés: SELECT * FROM autok WHERE AutoID = ?
+
+   3.7 ÚJ AUTÓ LÉTREHOZÁSA
+      - POST /api/autok
+        * Input validáció: Rendszam egyedi (SELECT COUNT(*) FROM autok WHERE Rendszam = ? AND AutoID != ?)
+        * Lekérdezés: INSERT INTO autok (Rendszam, Marka, Modell, Evjarat, Allapot, Alvazszam) VALUES (?, ?, ?, ?, ?, ?)
+
+   3.8 AUTÓ FRISSÍTÉSE
+      - PUT /api/autok/:id
+        * Lekérdezés: UPDATE autok SET Rendszam=?, Marka=?, Modell=?, Evjarat=?, Allapot=?, Alvazszam=? WHERE AutoID = ?
+
+   3.9 AUTÓ TÖRLÉSE
+      - DELETE /api/autok/:id
+        * Előellenőrzés: SELECT COUNT(*) FROM foglalasok WHERE auto_id = ? AND foglalas_vege >= CURRENT_DATE
+        * Ha nincs aktív foglalás: DELETE FROM autok WHERE AutoID = ?
+
+4. ÜGYFELEK MODUL - SZŰRŐ ÉS KIVÁLOGATÓ VÉGPONTOK
+
+   4.1 ÜGYFELEK LISTÁZÁSA SZŰRŐKKEL
+      - GET /api/ugyfelek?page=1&limit=20&search=Kovacs&jogosultsag=B&sort_by=Nev&sort_order=ASC
+        * Lekérdezés: SELECT ID, Nev, Cim, Telefonszam, Email, Jogosultsag FROM ugyfelek
+                     WHERE (Nev LIKE CONCAT('%', ?, '%') OR Telefonszam LIKE CONCAT('%', ?, '%') OR Email LIKE CONCAT('%', ?, '%') OR ? = '')
+                     AND (Jogosultsag = ? OR ? = '')
+                     ORDER BY CASE WHEN ? = 'Nev' THEN Nev WHEN ? = 'Telefonszam' THEN Telefonszam END
+                     CASE WHEN ? = 'DESC' THEN DESC ELSE ASC END
+                     LIMIT ? OFFSET ?
+
+   4.2 ÜGYFÉL KERESÉS (AUTOCOMPLETE)
+      - GET /api/ugyfelek/search?q=Kovacs&limit=10
+        * Lekérdezés: SELECT ID, Nev, Telefonszam FROM ugyfelek WHERE Nev LIKE CONCAT('%', ?, '%') ORDER BY Nev LIMIT ?
+
+   4.3 EGY ÜGYFÉL LEKÉRDEZÉSE
+      - GET /api/ugyfelek/:id
+        * Lekérdezés: SELECT * FROM ugyfelek WHERE ID = ?
+
+   4.4 ÚJ ÜGYFÉL
+      - POST /api/ugyfelek
+        * Validáció: Email formátum regexp, Telefonszam formátum
+        * Lekérdezés: INSERT INTO ugyfelek (Nev, Cim, Telefonszam, Email, igSzam, SzuletesiDatum, Jogosultsag) VALUES (?, ?, ?, ?, ?, ?, ?)
+
+   4.5 ÜGYFÉL FRISSÍTÉSE
+      - PUT /api/ugyfelek/:id
+        * Lekérdezés: UPDATE ugyfelek SET Nev=?, Cim=?, Telefonszam=?, Email=?, igSzam=?, SzuletesiDatum=?, Jogosultsag=? WHERE ID = ?
+
+   4.6 ÜGYFÉL TÖRLÉSE
+      - DELETE /api/ugyfelek/:id
+        * Előellenőrzés: SELECT COUNT(*) FROM foglalasok WHERE ugyfel_id = ?
+        * Ha nincs foglalása: DELETE FROM ugyfelek WHERE ID = ?
+
+5. FOGLALÁSOK MODUL - SZŰRŐ ÉS KIVÁLOGATÓ VÉGPONTOK
+
+   5.1 FOGLALÁSOK LISTÁZÁSA SZŰRŐKKEL
+      - GET /api/foglalasok?page=1&limit=20&auto_id=1&ugyfel_id=5&kezdet=2024-01-01&veg=2024-12-31&status=aktiv&sort_by=Letrehozasdatuma&sort_order=DESC
+        * Lekérdezés: SELECT f.Foglalasokid, f.foglalaskezdete, f.foglalas_vege, f.Ar, f.Letrehozasdatuma,
+                             a.Rendszam, a.Marka, a.Modell, u.Nev as UgyfelNev, u.Telefonszam,
+                             CASE WHEN f.foglalas_vege < CURRENT_DATE THEN 'lejart'
+                                  WHEN f.foglalaskezdete <= CURRENT_DATE AND f.foglalas_vege >= CURRENT_DATE THEN 'aktiv'
+                                  ELSE 'jovobeli' END as status
+                     FROM foglalasok f
+                     LEFT JOIN autok a ON f.auto_id = a.AutoID
+                     LEFT JOIN ugyfelek u ON f.ugyfel_id = u.ID
+                     WHERE (f.auto_id = ? OR ? = 0) AND (f.ugyfel_id = ? OR ? = 0)
+                     AND (f.foglalaskezdete >= ? OR ? = '') AND (f.foglalas_vege <= ? OR ? = '')
+                     AND ((? = 'aktiv' AND f.foglalaskezdete <= CURRENT_DATE AND f.foglalas_vege >= CURRENT_DATE) OR
+                          (? = 'lejart' AND f.foglalas_vege < CURRENT_DATE) OR
+                          (? = 'jovobeli' AND f.foglalaskezdete > CURRENT_DATE) OR ? = '')
+                     ORDER BY CASE WHEN ? = 'Letrehozasdatuma' THEN f.Letrehozasdatuma
+                                  WHEN ? = 'foglalaskezdete' THEN f.foglalaskezdete END
+                     CASE WHEN ? = 'DESC' THEN DESC ELSE ASC END
+                     LIMIT ? OFFSET ?
+
+   5.2 FOGLALÁSOK STATISZTIKÁI
+      - GET /api/foglalasok/stats?kezdet=2024-01-01&veg=2024-12-31
+        * Lekérdezések:
+          - SELECT COUNT(*) as osszes, SUM(Ar) as osszeg FROM foglalasok WHERE Letrehozasdatuma >= ? AND Letrehozasdatuma <= ?
+          - SELECT COUNT(*) as aktiv FROM foglalasok WHERE foglalaskezdete <= CURRENT_DATE AND foglalas_vege >= CURRENT_DATE
+
+   5.3 EGY FOGLALÁS LEKÉRDEZÉSE
+      - GET /api/foglalasok/:id
+        * Lekérdezés: SELECT f.*, a.Rendszam, a.Marka, a.Modell, u.Nev, u.Telefonszam, u.Email
+                     FROM foglalasok f
+                     JOIN autok a ON f.auto_id = a.AutoID
+                     JOIN ugyfelek u ON f.ugyfel_id = u.ID
+                     WHERE f.Foglalasokid = ?
+
+   5.4 ÚJ FOGLALÁS
+      - POST /api/foglalasok
+        * Input: { auto_id, ugyfel_id, foglalaskezdete, foglalas_vege, Ar }
+        * Validáció: dátumok helyesek, autó elérhető az adott időszakban
+        * Lekérdezés: INSERT INTO foglalasok (auto_id, ugyfel_id, foglalaskezdete, foglalas_vege, Ar, Letrehozasdatuma)
+                     VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+
+   5.5 FOGLALÁS FRISSÍTÉSE
+      - PUT /api/foglalasok/:id
+        * Csak jövőbeli foglalások módosíthatók
+        * Új dátumok esetén ütközés ellenőrzés
+        * Lekérdezés: UPDATE foglalasok SET auto_id=?, ugyfel_id=?, foglalaskezdete=?, foglalas_vege=?, Ar=? WHERE Foglalasokid = ?
+
+   5.6 FOGLALÁS TÖRLÉSE
+      - DELETE /api/foglalasok/:id
+        * Csak jövőbeli foglalások törölhetők
+        * Lekérdezés: DELETE FROM foglalasok WHERE Foglalasokid = ?
+
+6. AUTÓKIBE MODUL - SZŰRŐ ÉS KIVÁLOGATÓ VÉGPONTOK
+
+   6.1 KIBE LISTÁZÁSA SZŰRŐKKEL
+      - GET /api/autokibe?page=1&limit=20&auto_id=1&status=aktiv&kezdet=2024-01-01&veg=2024-12-31
+        * Lekérdezés: SELECT k.Id, k.elvitel, k.vissza, k.Kilometer_kezdet, k.Kilometer_veg,
+                             a.Rendszam, u.Nev as UgyfelNev,
+                             CASE WHEN k.vissza IS NULL THEN 'aktiv' ELSE 'lezart' END as status
+                     FROM autokibe k
+                     LEFT JOIN autok a ON k.auto_id = a.AutoID
+                     LEFT JOIN foglalasok f ON f.auto_id = a.AutoID
+                     LEFT JOIN ugyfelek u ON f.ugyfel_id = u.ID
+                     WHERE (k.auto_id = ? OR ? = 0)
+                     AND ((? = 'aktiv' AND k.vissza IS NULL) OR (? = 'lezart' AND k.vissza IS NOT NULL) OR ? = '')
+                     AND (k.elvitel >= ? OR ? = '') AND (k.elvitel <= ? OR ? = '')
+                     ORDER BY k.elvitel DESC LIMIT ? OFFSET ?
+
+   6.2 EGY KIBE LEKÉRDEZÉSE
+      - GET /api/autokibe/:id
+        * Lekérdezés: SELECT k.*, a.Rendszam, a.Marka, a.Modell, u.Nev, u.Telefonszam
+                     FROM autokibe k
+                     JOIN autok a ON k.auto_id = a.AutoID
+                     JOIN foglalasok f ON f.auto_id = a.AutoID
+                     JOIN ugyfelek u ON f.ugyfel_id = u.ID
+                     WHERE k.Id = ?
+
+   6.3 ÚJ KIBE
+      - POST /api/autokibe
+        * Lekérdezés: INSERT INTO autokibe (auto_id, elvitel, Kilometer_kezdet) VALUES (?, ?, ?)
+
+   6.4 KIBE LEZÁRÁSA
+      - PUT /api/autokibe/:id/lezaras
+        * Lekérdezés: UPDATE autokibe SET vissza=?, Kilometer_veg=? WHERE Id = ?
+
+7. JELENTÉSEK ÉS EXPORT
+
+   7.1 BEVÉTEL JELENTÉS
+      - GET /api/jelentesek/bevetel?kezdet=2024-01-01&veg=2024-12-31&group_by=honap
+        * Lekérdezés: SELECT DATE_FORMAT(Letrehozasdatuma, CASE WHEN ? = 'honap' THEN '%Y-%m' WHEN ? = 'nap' THEN '%Y-%m-%d' END) as idoszak,
+                             COUNT(*) as foglalasok_szama, SUM(Ar) as osszeg
+                     FROM foglalasok
+                     WHERE Letrehozasdatuma >= ? AND Letrehozasdatuma <= ?
+                     GROUP BY idoszak ORDER BY idoszak
+
+   7.2 AUTÓ KIHASZNÁLTSÁG JELENTÉS
+      - GET /api/jelentesek/kihasznaltsag?kezdet=2024-01-01&veg=2024-12-31&auto_id=
+        * Komplex lekérdezés: autók és foglalásaik alapján számított kihasználtsági százalék
+
+   7.3 EXPORT ENDPOINT-EK
+      - GET /api/export/autok?format=excel&marka=BMW
+      - GET /api/export/ugyfelek?format=pdf&jogosultsag=B
+      - GET /api/export/foglalasok?format=excel&kezdet=2024-01-01&veg=2024-12-31
+
+== ADATBÁZIS INDEXEK JAVASLAT ==
+- autok: Rendszam, Allapot, Marka, Modell, Evjarat
+- ugyfelek: Nev, Telefonszam, Email, Jogosultsag
+- foglalasok: auto_id, ugyfel_id, foglalaskezdete, foglalas_vege, Letrehozasdatuma
+- autokibe: auto_id, elvitel, vissza
+
+== TOVÁBBI KÖVETELMÉNYEK ==
+- Reszponzív design (mobilbarát)
+- Validáció az űrlapokon
+- Hibaüzenetek megjelenítése
+- Sikeres műveletek visszajelzése
+- Dátum mezők naptár widgettel
+- Szám mezők megfelelő formázással
+- Keresés és szűrés minden listán
+- Lapozás nagy listák esetén
+- Export lehetőségek (PDF, Excel) a listákból
+- Jogosultság alapú menü megjelenítés
+- Session kezelés és automatikus kijelentkezés inaktivitás esetén
+
+== NAVIGÁCIÓ STRUKTÚRA ==
+- Főmenü: Dashboard, Autók, Ügyfelek, Foglalások, Kibe, Dolgozók (jogosultságtól függően)
+- Oldalsáv vagy felső menü
+- Breadcrumb navigáció
+- Vissza gombok az űrlapokon
