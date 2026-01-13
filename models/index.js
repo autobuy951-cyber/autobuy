@@ -5,15 +5,15 @@ const Dolgozo = require('./Dolgozo');
 const Foglalas = require('./Foglalas');
 const AutoKibe = require('./AutoKibe');
 
-// Associations
-Auto.hasMany(Foglalas, { foreignKey: 'auto_id', onDelete: 'CASCADE' });
-Foglalas.belongsTo(Auto, { foreignKey: 'auto_id' });
+// Associations WITHOUT foreign key constraints
+Auto.hasMany(Foglalas, { foreignKey: 'auto_id', constraints: false });
+Foglalas.belongsTo(Auto, { foreignKey: 'auto_id', constraints: false });
 
-Ugyfel.hasMany(Foglalas, { foreignKey: 'ugyfel_id', onDelete: 'CASCADE' });
-Foglalas.belongsTo(Ugyfel, { foreignKey: 'ugyfel_id' });
+Ugyfel.hasMany(Foglalas, { foreignKey: 'ugyfel_id', constraints: false });
+Foglalas.belongsTo(Ugyfel, { foreignKey: 'ugyfel_id', constraints: false });
 
-Auto.hasMany(AutoKibe, { foreignKey: 'auto_id', onDelete: 'CASCADE' });
-AutoKibe.belongsTo(Auto, { foreignKey: 'auto_id' });
+Auto.hasMany(AutoKibe, { foreignKey: 'auto_id', constraints: false });
+AutoKibe.belongsTo(Auto, { foreignKey: 'auto_id', constraints: false });
 
 module.exports = {
     sequelize,

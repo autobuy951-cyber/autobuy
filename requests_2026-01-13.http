@@ -1,0 +1,284 @@
+@baseUrl = http://localhost:3000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwibmV2IjoiYWRtaW4iLCJqb2dvc3VsdHNhZyI6ImFkbWluIiwiaWF0IjoxNzY4MjkxNDQxLCJleHAiOjE3NjgzNzc4NDF9.NW1se4CSQsbbfaE5yeizYq-z_kJrbyYL50kQ9b_LO4c
+
+### ========================
+### 2026-01-13 - AUTOBUY API TESZTEK
+### ========================
+
+### ========================
+### 1. HITELESÍTÉS
+### ========================
+
+### 1.1 Dolgozó létrehozása
+POST {{baseUrl}}/dolgozok
+Content-Type: application/json
+
+{
+    "nev": "admin",
+    "jelszo": "admin123",
+    "jogosultsag": "admin"
+}
+
+###
+
+### 1.2 Bejelentkezés
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "nev": "admin",
+    "jelszo": "admin123"
+}
+
+###
+
+### 1.3 Token ellenőrzés
+GET {{baseUrl}}/auth/verify
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 2. DASHBOARD
+### ========================
+
+### 2.1 Statisztikák
+GET {{baseUrl}}/dashboard/stats
+Authorization: Bearer {{token}}
+
+###
+
+### 2.2 Tevékenységek
+GET {{baseUrl}}/dashboard/tevekenysegek?limit=10
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 3. AUTÓK
+### ========================
+
+### 3.1 Autók listázása
+GET {{baseUrl}}/autok
+
+###
+
+### 3.2 Autók szűrés
+GET {{baseUrl}}/autok?page=1&limit=20&marka=BMW&sort_by=Evjarat&sort_order=DESC
+
+###
+
+### 3.3 Elérhető autók
+GET {{baseUrl}}/autok/elerheto?kezdet=2026-01-15&veg=2026-01-20
+
+###
+
+### 3.4 Autó lekérése
+GET {{baseUrl}}/autok/1
+
+###
+
+### 3.5 Új autó
+POST {{baseUrl}}/autok
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Rendszam": "ABC-123",
+    "Marka": "Toyota",
+    "Modell": "Corolla",
+    "Evjarat": 2020,
+    "Allapot": "elérhető",
+    "Alvazszam": "WBMW1234567890123"
+}
+
+###
+
+### 3.6 Autó frissítése
+PUT {{baseUrl}}/autok/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Rendszam": "ABC-123",
+    "Marka": "Toyota",
+    "Modell": "Corolla Hybrid",
+    "Evjarat": 2021,
+    "Allapot": "elérhető",
+    "Alvazszam": "WBMW1234567890123"
+}
+
+###
+
+### 3.7 Autó törlése
+DELETE {{baseUrl}}/autok/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 4. ÜGYFELEK
+### ========================
+
+### 4.1 Ügyfelek listázása
+GET {{baseUrl}}/ugyfelek
+
+###
+
+### 4.2 Ügyfelek szűrés
+GET {{baseUrl}}/ugyfelek?page=1&limit=20&search=Kovacs&sort_by=Nev&sort_order=ASC
+
+###
+
+### 4.3 Ügyfél keresés
+GET {{baseUrl}}/ugyfelek/search?q=Kovacs&limit=10
+
+###
+
+### 4.4 Ügyfelek tartomány
+GET {{baseUrl}}/ugyfelek/tartomany/A-E
+
+###
+
+### 4.5 Ügyfél lekérése
+GET {{baseUrl}}/ugyfelek/1
+
+###
+
+### 4.6 Új ügyfél
+POST {{baseUrl}}/ugyfelek
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Nev": "Teszt Elek",
+    "Cim": "1234 Budapest, Teszt u. 1.",
+    "Telefonszam": "+36301234567",
+    "Email": "elek@test.com",
+    "igSzam": "123456AB",
+    "SzuletesiDatum": "1990-01-01",
+    "Jogosultsag": "B"
+}
+
+###
+
+### 4.7 Ügyfél frissítése
+PUT {{baseUrl}}/ugyfelek/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Nev": "Teszt Elek",
+    "Cim": "1234 Budapest, Teszt u. 1. 2/A",
+    "Telefonszam": "+36301234567",
+    "Email": "elek.teszt@test.com",
+    "igSzam": "123456AB",
+    "SzuletesiDatum": "1990-01-01",
+    "Jogosultsag": "B"
+}
+
+###
+
+### 4.8 Ügyfél törlése
+DELETE {{baseUrl}}/ugyfelek/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 5. DOLGOZÓK
+### ========================
+
+### 5.1 Dolgozók listázása (ADMIN)
+GET {{baseUrl}}/dolgozok
+Authorization: Bearer {{token}}
+
+###
+
+### 5.2 Dolgozó törlése (ADMIN)
+DELETE {{baseUrl}}/dolgozok/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 6. FOGLALÁSOK
+### ========================
+
+### 6.1 Foglalások listázása
+GET {{baseUrl}}/foglalasok
+Authorization: Bearer {{token}}
+
+###
+
+### 6.2 Foglalások szűrés
+GET {{baseUrl}}/foglalasok?status=aktiv&sort_by=Letrehozasdatuma&sort_order=DESC
+Authorization: Bearer {{token}}
+
+###
+
+### 6.3 Új foglalás
+POST {{baseUrl}}/foglalasok
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "auto_id": 1,
+    "ugyfel_id": 1,
+    "foglalaskezdete": "2026-02-01",
+    "foglalas_vege": "2026-02-05"
+}
+
+###
+
+### 6.4 Foglalás törlése
+DELETE {{baseUrl}}/foglalasok/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 7. AUTÓKIBE
+### ========================
+
+### 7.1 Kibe listázása
+GET {{baseUrl}}/autokibe
+Authorization: Bearer {{token}}
+
+###
+
+### 7.2 Kibe szűrés
+GET {{baseUrl}}/autokibe?status=aktiv&auto_id=1
+Authorization: Bearer {{token}}
+
+###
+
+### 7.3 Autó kiadása
+POST {{baseUrl}}/autokibe
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "auto_id": 1,
+    "elvitel": "2026-01-15 10:00:00",
+    "Kilometer_kezdet": 50000
+}
+
+###
+
+### 7.4 Autó visszavétele
+PUT {{baseUrl}}/autokibe/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "vissza": "2026-01-20 14:00:00",
+    "Kilometer_veg": 50500
+}
+
+###
+
+### 7.5 Kibe törlése
+DELETE {{baseUrl}}/autokibe/1
+Authorization: Bearer {{token}}

@@ -1,23 +1,85 @@
-const autoKibeRepository = require('../repositories/autoKibeRepository');
+const { AutoKibe, Auto } = require('../models');
+const { Op } = require('sequelize');
 
-exports.getAll = (req, res) => {
-    autoKibeRepository.getAll((err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+exports.getAll = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, auto_id, status } = req.query;
+        const offset = (page - 1) * limit;
+
+        const whereClause = {};
+        if (auto_id) whereClause.auto_id = auto_id;
+        if (status === 'aktiv') whereClause.vissza = null;
+        if (status === 'lezart') whereClause.vissza = { [Op.ne]: null };
+
+        const { count, rows } = await AutoKibe.findAndCountAll({
+            where: whereClause,
+            include: [{ model: Auto, attributes: ['Rendszam'] }],
+            order: [['elvitel', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        res.json({
+            total: count,
+            page: parseInt(page),
+            totalPages: Math.ceil(count / limit),
+            data: rows
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
 };
 
-exports.create = (req, res) => {
-    autoKibeRepository.create(req.body, (err, id) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: id, message: "Ki/Be adás rögzítve" });
-    });
+exports.create = async (req, res) => {
+    try {
+        const { auto_id, elvitel, Kilometer_kezdet } = req.body;
+
+        const newKibe = await AutoKibe.create({
+            auto_id,
+            elvitel,
+            Kilometer_kezdet
+        });
+
+        res.status(201).json(newKibe);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
 };
 
-exports.delete = (req, res) => {
-    autoKibeRepository.delete(req.params.id, (err, deleted) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (deleted === 0) return res.status(404).json({ error: "Ki/Be adás nem található" });
-        res.json({ message: "Ki/Be adás törölve" });
-    });
+exports.update = async (req, res) => {
+    try {
+        const { vissza, Kilometer_veg } = req.body;
+        const { id } = req.params;
+
+        const [updated] = await AutoKibe.update({
+            vissza,
+            Kilometer_veg
+        }, {
+            where: { Id: id }
+        });
+
+        if (updated) {
+            res.json({ message: 'Rögzítve' });
+        } else {
+            res.status(404).json({ error: 'Nem található' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.delete = async (req, res) => {
+    try {
+        const deleted = await AutoKibe.destroy({
+            where: { Id: req.params.id }
+        });
+        if (deleted) res.json({ message: 'Törölve' });
+        else res.status(404).json({ error: 'Nem található' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
 };

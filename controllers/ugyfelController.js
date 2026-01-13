@@ -1,69 +1,178 @@
-const ugyfelRepository = require('../repositories/ugyfelRepository');
+const { Ugyfel } = require('../models');
+const { Op } = require('sequelize');
 
-exports.getAll = (req, res) => {
-    ugyfelRepository.getAll((err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-};
+exports.getAll = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, sort_by = 'ID', sort_order = 'ASC', search, jogosultsag, nev, telefonszam, email } = req.query;
+        const offset = (page - 1) * limit;
 
-exports.getAlphabetical = (req, res) => {
-    const { page = 1, limit = 20 } = req.query;
+        const whereClause = {};
 
-    ugyfelRepository.getAlphabeticalPaginated(parseInt(page), parseInt(limit), (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(result);
-    });
-};
+        if (search) {
+            whereClause[Op.or] = [
+                { Nev: { [Op.like]: `%${search}%` } },
+                { Telefonszam: { [Op.like]: `%${search}%` } },
+                { Email: { [Op.like]: `%${search}%` } }
+            ];
+        }
 
-exports.getByLetter = (req, res) => {
-    const { betu } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+        if (jogosultsag) whereClause.Jogosultsag = jogosultsag;
+        if (nev) whereClause.Nev = { [Op.like]: `%${nev}%` };
+        if (telefonszam) whereClause.Telefonszam = { [Op.like]: `%${telefonszam}%` };
+        if (email) whereClause.Email = { [Op.like]: `%${email}%` };
 
-    if (!betu || betu.length !== 1) {
-        return res.status(400).json({ error: 'Egy betűt kell megadni' });
+        const { count, rows } = await Ugyfel.findAndCountAll({
+            where: whereClause,
+            order: [[sort_by, sort_order]],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        res.json({
+            total: count,
+            page: parseInt(page),
+            totalPages: Math.ceil(count / limit),
+            data: rows
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    ugyfelRepository.getByLetter(betu.toUpperCase(), parseInt(page), parseInt(limit), (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(result);
-    });
 };
 
-exports.getByLetterRange = (req, res) => {
-    const { tartomany } = req.params;
-    const { page = 1, limit = 20 } = req.query;
-
-    // Parse range like "A-E"
-    const rangeMatch = tartomany.match(/^([A-Z])-([A-Z])$/i);
-    if (!rangeMatch) {
-        return res.status(400).json({ error: 'Helytelen tartomány formátum. Használj: A-E' });
+exports.search = async (req, res) => {
+    try {
+        const { q, limit = 10 } = req.query;
+        const customers = await Ugyfel.findAll({
+            where: {
+                Nev: { [Op.like]: `%${q}%` }
+            },
+            limit: parseInt(limit),
+            attributes: ['ID', 'Nev', 'Telefonszam']
+        });
+        res.json(customers);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
+};
 
-    const startLetter = rangeMatch[1].toUpperCase();
-    const endLetter = rangeMatch[2].toUpperCase();
-
-    if (startLetter > endLetter) {
-        return res.status(400).json({ error: 'A kezdő betű nem lehet nagyobb a végzőnél' });
+exports.getById = async (req, res) => {
+    try {
+        const ugyfel = await Ugyfel.findByPk(req.params.id);
+        if (!ugyfel) return res.status(404).json({ error: 'Ügyfél nem található' });
+        res.json(ugyfel);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-
-    ugyfelRepository.getByLetterRange(startLetter, endLetter, parseInt(page), parseInt(limit), (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(result);
-    });
 };
 
-exports.create = (req, res) => {
-    ugyfelRepository.create(req.body, (err, id) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: id, message: "Ügyfél hozzáadva" });
-    });
+exports.getAlphabetical = async (req, res) => {
+    // Deprecated? Or just list sorted by name?
+    // Implementing as list sorted by name
+    req.query.sort_by = 'Nev';
+    req.query.sort_order = 'ASC';
+    exports.getAll(req, res);
 };
 
-exports.delete = (req, res) => {
-    ugyfelRepository.delete(req.params.id, (err, deleted) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (deleted === 0) return res.status(404).json({ error: "Ügyfél nem található" });
-        res.json({ message: "Ügyfél törölve" });
-    });
+exports.getByLetter = async (req, res) => {
+    try {
+        const { betu } = req.params;
+        const { page = 1, limit = 20 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await Ugyfel.findAndCountAll({
+            where: {
+                Nev: { [Op.like]: `${betu}%` }
+            },
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        res.json({
+            total: count,
+            page: parseInt(page),
+            totalPages: Math.ceil(count / limit),
+            data: rows
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getByLetterRange = async (req, res) => {
+    try {
+        const { tartomany } = req.params; // e.g. A-E
+        const { page = 1, limit = 20 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const [startLetter, endLetter] = tartomany.split('-');
+
+        // This is a bit complex with regex or range in SQL on text. 
+        // Simplest is >= start and < next char after end? Or just regex `^[A-E]`
+        // Since sqlite/sequelize support comparison on text:
+
+        const { count, rows } = await Ugyfel.findAndCountAll({
+            where: {
+                Nev: {
+                    [Op.and]: [
+                        { [Op.gte]: startLetter },
+                        { [Op.lte]: endLetter + 'zzzz' } // hacky suffix to include matches starting with endLetter
+                    ]
+                }
+            },
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        res.json({
+            total: count,
+            page: parseInt(page),
+            totalPages: Math.ceil(count / limit),
+            data: rows
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.create = async (req, res) => {
+    try {
+        const newUgyfel = await Ugyfel.create(req.body);
+        res.status(201).json(newUgyfel);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.update = async (req, res) => {
+    try {
+        const [updated] = await Ugyfel.update(req.body, {
+            where: { ID: req.params.id }
+        });
+        if (updated) {
+            const updatedUgyfel = await Ugyfel.findByPk(req.params.id);
+            res.json(updatedUgyfel);
+        } else {
+            res.status(404).json({ error: 'Ügyfél nem található' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.delete = async (req, res) => {
+    try {
+        // Check if any booking exists?
+        // Let SQL handle constraint or do manual check if generic
+        const deleted = await Ugyfel.destroy({
+            where: { ID: req.params.id }
+        });
+        if (deleted) {
+            res.json({ message: 'Ügyfél törölve' });
+        } else {
+            res.status(404).json({ error: 'Ügyfél nem található' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };

@@ -1,0 +1,49 @@
+BASE URL: http://localhost:3000/api
+
+1. HITELESÍTÉS (AUTH)
+---------------------
+POST    /dolgozok            - Dolgozó létrehozása (Regisztráció)
+POST    /auth/login          - Bejelentkezés
+GET     /auth/verify         - Token ellenőrzés
+
+2. DASHBOARD
+------------
+GET     /dashboard/stats           - Statisztikák lekérdezése
+GET     /dashboard/tevekenysegek   - Tevékenységnapló (limit paraméterrel)
+
+3. AUTÓK (CARS)
+---------------
+GET     /autok                     - Autók listázása (szűréssel: page, limit, marka, sort_by, sort_order)
+GET     /autok/elerheto            - Elérhető autók (kezdet, veg dátummal)
+GET     /autok/:id                 - Egy adott autó lekérése
+POST    /autok                     - Új autó felvétele
+PUT     /autok/:id                 - Autó adatainak módosítása
+DELETE  /autok/:id                 - Autó törlése
+
+4. ÜGYFELEK (CLIENTS)
+---------------------
+GET     /ugyfelek                  - Ügyfelek listázása (szűréssel: page, limit, search, sort_by, sort_order)
+GET     /ugyfelek/search           - Keresés név/email alapján
+GET     /ugyfelek/tartomany/:range - Ügyfelek szűrése betűtartomány szerint (pl. A-E)
+GET     /ugyfelek/:id              - Egy ügyfél lekérése
+POST    /ugyfelek                  - Új ügyfél felvétele
+PUT     /ugyfelek/:id              - Ügyfél adatainak módosítása
+DELETE  /ugyfelek/:id              - Ügyfél törlése
+
+5. DOLGOZÓK (WORKERS)
+---------------------
+GET     /dolgozok                  - Dolgozók listázása (Csak Admin)
+DELETE  /dolgozok/:id              - Dolgozó törlése (Csak Admin)
+
+6. FOGLALÁSOK (RESERVATIONS)
+----------------------------
+GET     /foglalasok                - Foglalások listázása (szűréssel: status, sort_by, sort_order)
+POST    /foglalasok                - Új foglalás rögzítése
+DELETE  /foglalasok/:id            - Foglalás törlése
+
+7. AUTÓKIADÁS/VISSZAVÉTEL (AUTOKIBE)
+------------------------------------
+GET     /autokibe                  - Kiadások listázása (szűréssel: status, auto_id)
+POST    /autokibe                  - Autó kiadása (elvitel dátum, km óra)
+PUT     /autokibe/:id              - Autó visszavétele (vissza dátum, km óra)
+DELETE  /autokibe/:id              - Bejegyzés törlése

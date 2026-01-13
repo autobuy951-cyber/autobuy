@@ -1,59 +1,57 @@
 @baseUrl = http://localhost:3000/api
+@token = 
 
+### ========================
+### RÉGI DOLGOK (EREDETI TESZTEK)
+### ========================
 
-
-### ------------------------
-###  RESET (MINDEN TÖRLÉSE)
-### ------------------------
-
-# Minden adat törlése az adatbázisból
+### RESET (MINDEN TÖRLÉSE)
 DELETE {{baseUrl}}/reset
 
 ###
 
-# Dashboard megtekintése
+### Dashboard megtekintése
 GET {{baseUrl}}/dashboard
 
-
+###
 
 ### ------------------------
-### 1. ÜGYFELEK (CLIENTS)
+### ÜGYFELEK (CLIENTS) - RÉGI
 ### ------------------------
 
-# Minden ügyfél lekérése
+### Minden ügyfél lekérése
 GET {{baseUrl}}/ugyfelek
 
 ###
 
-# Ügyfelek ABC SZERINTI SZÉTSZEDÉSE - 5 RÉSZRE OSZTVA
-# ==================================================
+### Ügyfelek ABC SZERINTI SZÉTSZEDÉSE - 5 RÉSZRE OSZTVA
 
-# 1. RÉSZ: A-E betűs ügyfelek (A, B, C, D, E)
+### 1. RÉSZ: A-E betűs ügyfelek (A, B, C, D, E)
 GET {{baseUrl}}/ugyfelek/tartomany/A-E
 
 ###
 
-# 2. RÉSZ: F-J betűs ügyfelek (F, G, H, I, J)
+### 2. RÉSZ: F-J betűs ügyfelek (F, G, H, I, J)
 GET {{baseUrl}}/ugyfelek/tartomany/F-J
 
 ###
 
-# 3. RÉSZ: K-O betűs ügyfelek (K, L, M, N, O)
+### 3. RÉSZ: K-O betűs ügyfelek (K, L, M, N, O)
 GET {{baseUrl}}/ugyfelek/tartomany/K-O
 
 ###
 
-# 4. RÉSZ: P-T betűs ügyfelek (P, Q, R, S, T)
+### 4. RÉSZ: P-T betűs ügyfelek (P, Q, R, S, T)
 GET {{baseUrl}}/ugyfelek/tartomany/P-T
 
 ###
 
-# 5. RÉSZ: U-Z betűs ügyfelek (U, V, W, X, Y, Z)
+### 5. RÉSZ: U-Z betűs ügyfelek (U, V, W, X, Y, Z)
 GET {{baseUrl}}/ugyfelek/tartomany/U-Z
 
 ###
 
-# Új ügyfél hozzáadása
+### Új ügyfél hozzáadása
 POST {{baseUrl}}/ugyfelek
 Content-Type: application/json
 
@@ -69,19 +67,21 @@ Content-Type: application/json
 
 ###
 
-# Ügyfél törlése ID alapján
+### Ügyfél törlése ID alapján
 DELETE {{baseUrl}}/ugyfelek/1
 
+###
+
 ### ------------------------
-### 2. DOLGOZÓK (EMPLOYEES)
+### DOLGOZÓK (EMPLOYEES) - RÉGI
 ### ------------------------
 
-# Minden dolgozó lekérése
+### Minden dolgozó lekérése
 GET {{baseUrl}}/dolgozok
 
 ###
 
-# Új dolgozó hozzáadása
+### Új dolgozó hozzáadása
 POST {{baseUrl}}/dolgozok
 Content-Type: application/json
 
@@ -93,19 +93,21 @@ Content-Type: application/json
 
 ###
 
-# Dolgozó törlése ID alapján
+### Dolgozó törlése ID alapján
 DELETE {{baseUrl}}/dolgozok/3
 
+###
+
 ### ------------------------
-### 3. AUTÓK (CARS)
+### AUTÓK (CARS) - RÉGI
 ### ------------------------
 
-# Minden autó lekérése
+### Minden autó lekérése
 GET {{baseUrl}}/autok
 
 ###
 
-# Új autó hozzáadása (1. autó)
+### Új autó hozzáadása (1. autó)
 POST {{baseUrl}}/autok
 Content-Type: application/json
 
@@ -120,7 +122,7 @@ Content-Type: application/json
 
 ###
 
-# Új autó hozzáadása (2. autó)
+### Új autó hozzáadása (2. autó)
 POST {{baseUrl}}/autok
 Content-Type: application/json
 
@@ -135,20 +137,22 @@ Content-Type: application/json
 
 ###
 
-# Autó törlése ID alapján
+### Autó törlése ID alapján
 DELETE {{baseUrl}}/autok/1
 
+###
+
 ### ------------------------
-### 4. FOGLALÁSOK (RESERVATIONS)
+### FOGLALÁSOK (RESERVATIONS) - RÉGI
 ### ------------------------
 
-# Minden foglalás lekérése
+### Minden foglalás lekérése
 GET {{baseUrl}}/foglalasok
 
 ###
 
-# Új foglalás hozzáadása (Kapcsolódik: AutoID=1, UgyfelID=1)
-# Fontos: Először hozz létre Autót és Ügyfelet!
+### Új foglalás hozzáadása (Kapcsolódik: AutoID=1, UgyfelID=1)
+### Fontos: Először hozz létre Autót és Ügyfelet!
 POST {{baseUrl}}/foglalasok
 Content-Type: application/json
 
@@ -163,20 +167,22 @@ Content-Type: application/json
 
 ###
 
-# Foglalás törlése ID alapján
+### Foglalás törlése ID alapján
 DELETE {{baseUrl}}/foglalasok/1
 
+###
+
 ### ------------------------
-### 5. AUTÓ KI/BEADÁS (LOGS)
+### AUTÓ KI/BEADÁS (LOGS) - RÉGI
 ### ------------------------
 
-# Minden napló lekérése
+### Minden napló lekérése
 GET {{baseUrl}}/autokibe
 
 ###
 
-# Új kiadás rögzítése (Kapcsolódik: AutoID=1)
-# Fontos: A 'auto_id' mező most már KÖTELEZŐ!
+### Új kiadás rögzítése (Kapcsolódik: AutoID=1)
+### Fontos: A 'auto_id' mező most már KÖTELEZŐ!
 POST {{baseUrl}}/autokibe
 Content-Type: application/json
 
@@ -190,5 +196,498 @@ Content-Type: application/json
 
 ###
 
-# AutoKibe napló törlése ID alapján
+### AutoKibe napló törlése ID alapján
 DELETE {{baseUrl}}/autokibe/6
+
+###
+
+### ========================
+### ÚJ RÉSZLETES API DOKUMENTÁCIÓ
+### ========================
+
+### ========================
+### 1. HITELESÍTÉS
+### ========================
+
+### 1.1 Bejelentkezés
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "nev": "Admin Adél",
+    "jelszo": "titkos123"
+}
+
+###
+
+### 1.2 Token ellenőrzés
+GET {{baseUrl}}/auth/verify
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 2. DASHBOARD ÉS STATISZTIKÁK
+### ========================
+
+### 2.1 Alap statisztikák
+GET {{baseUrl}}/dashboard/stats
+Authorization: Bearer {{token}}
+
+###
+
+### 2.2 Utolsó tevékenységek
+GET {{baseUrl}}/dashboard/tevekenysegek?limit=10
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 3. AUTÓK MODUL
+### ========================
+
+### 3.1 Autók listázása (alapértelmezett)
+GET {{baseUrl}}/autok
+
+###
+
+### 3.1.1 Autók listázása szűrőkkel
+GET {{baseUrl}}/autok?page=1&limit=20&marka=BMW&modell=X5&allapot=elérhető&evjarat_min=2010&evjarat_max=2020&sort_by=Evjarat&sort_order=DESC
+
+###
+
+### 3.1.2 Autók listázása rendszám keresés
+GET {{baseUrl}}/autok?search=ABC
+
+###
+
+### 3.2 Autók száma szűrőkkel (nincs implementálva - opcionális)
+# GET {{baseUrl}}/autok/count?marka=BMW&allapot=elérhető
+
+###
+
+### 3.3 Elérhető autók szűrő
+GET {{baseUrl}}/autok/elerheto?kezdet=2024-01-15&veg=2024-01-20
+
+###
+
+### 3.3.1 Elérhető autók szűrő márkával
+GET {{baseUrl}}/autok/elerheto?kezdet=2024-01-15&veg=2024-01-20&marka=BMW
+
+###
+
+### 3.4 Autó márkák listája (nincs implementálva - opcionális)
+# GET {{baseUrl}}/autok/markak
+
+###
+
+### 3.5 Autó modellek listája márka szerint (nincs implementálva - opcionális)
+# GET {{baseUrl}}/autok/modellek?marka=BMW
+
+###
+
+### 3.6 Egy autó lekérdezése ID alapján
+GET {{baseUrl}}/autok/1
+
+###
+
+### 3.7 Új autó létrehozása
+POST {{baseUrl}}/autok
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Rendszam": "ABC-123",
+    "Marka": "Toyota",
+    "Modell": "Corolla",
+    "Evjarat": 2020,
+    "Allapot": "elérhető",
+    "Alvazszam": "WBMW1234567890123",
+    "NapiAr": 15000
+}
+
+###
+
+### 3.8 Autó frissítése
+PUT {{baseUrl}}/autok/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Rendszam": "ABC-123",
+    "Marka": "Toyota",
+    "Modell": "Corolla Hybrid",
+    "Evjarat": 2021,
+    "Allapot": "elérhető",
+    "Alvazszam": "WBMW1234567890123",
+    "NapiAr": 18000
+}
+
+###
+
+### 3.9 Autó törlése
+DELETE {{baseUrl}}/autok/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 4. ÜGYFELEK MODUL
+### ========================
+
+### 4.1 Ügyfelek listázása (alapértelmezett)
+GET {{baseUrl}}/ugyfelek
+
+###
+
+### 4.1.1 Ügyfelek listázása szűrőkkel
+GET {{baseUrl}}/ugyfelek?page=1&limit=20&search=Kovacs&jogosultsag=B&sort_by=Nev&sort_order=ASC
+
+###
+
+### 4.1.2 Ügyfelek listázása telefonszám szerint
+GET {{baseUrl}}/ugyfelek?telefonszam=06301234567
+
+###
+
+### 4.1.3 Ügyfelek listázása email szerint
+GET {{baseUrl}}/ugyfelek?email=kovacs@example.com
+
+###
+
+### 4.2 Ügyfél keresés (autocomplete)
+GET {{baseUrl}}/ugyfelek/search?q=Kovacs&limit=10
+
+###
+
+### 4.3 Egy ügyfél lekérdezése ID alapján
+GET {{baseUrl}}/ugyfelek/1
+
+###
+
+### 4.4 Ügyfelek ABC szerint (deprecated - használd a 4.1.1-et)
+GET {{baseUrl}}/ugyfelek/abc
+
+###
+
+### 4.5 Ügyfelek betű szerint
+GET {{baseUrl}}/ugyfelek/betuk/K
+
+###
+
+### 4.5.1 Ügyfelek betű szerint lapozással
+GET {{baseUrl}}/ugyfelek/betuk/K?page=1&limit=20
+
+###
+
+### 4.6 Ügyfelek betű tartomány szerint
+GET {{baseUrl}}/ugyfelek/tartomany/A-E
+
+###
+
+### 4.6.1 Ügyfelek tartomány F-J
+GET {{baseUrl}}/ugyfelek/tartomany/F-J
+
+###
+
+### 4.6.2 Ügyfelek tartomány K-O
+GET {{baseUrl}}/ugyfelek/tartomany/K-O
+
+###
+
+### 4.6.3 Ügyfelek tartomány P-T
+GET {{baseUrl}}/ugyfelek/tartomany/P-T
+
+###
+
+### 4.6.4 Ügyfelek tartomány U-Z
+GET {{baseUrl}}/ugyfelek/tartomany/U-Z
+
+###
+
+### 4.7 Új ügyfél létrehozása
+POST {{baseUrl}}/ugyfelek
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Nev": "Teszt Elek",
+    "Cim": "1234 Budapest, Teszt u. 1.",
+    "Telefonszam": "+36301234567",
+    "Email": "elek@test.com",
+    "igSzam": "123456AB",
+    "SzuletesiDatum": "1990-01-01",
+    "Jogosultsag": "B"
+}
+
+###
+
+### 4.8 Ügyfél frissítése
+PUT {{baseUrl}}/ugyfelek/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Nev": "Teszt Elek",
+    "Cim": "1234 Budapest, Teszt u. 1. 2/A",
+    "Telefonszam": "+36301234567",
+    "Email": "elek.teszt@test.com",
+    "igSzam": "123456AB",
+    "SzuletesiDatum": "1990-01-01",
+    "Jogosultsag": "B"
+}
+
+###
+
+### 4.9 Ügyfél törlése
+DELETE {{baseUrl}}/ugyfelek/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 5. DOLGOZÓK MODUL
+### ========================
+
+### 5.1 Dolgozók listázása (CSAK ADMIN)
+GET {{baseUrl}}/dolgozok
+Authorization: Bearer {{token}}
+
+###
+
+### 5.2 Új dolgozó létrehozása
+POST {{baseUrl}}/dolgozok
+Content-Type: application/json
+
+{
+    "nev": "Teszt Béla",
+    "jelszo": "titkos456",
+    "jogosultsag": "user"
+}
+
+###
+
+### 5.3 Dolgozó törlése (CSAK ADMIN)
+DELETE {{baseUrl}}/dolgozok/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 6. FOGLALÁSOK MODUL
+### ========================
+
+### 6.1 Foglalások listázása (alapértelmezett)
+GET {{baseUrl}}/foglalasok
+Authorization: Bearer {{token}}
+
+###
+
+### 6.1.1 Foglalások listázása szűrőkkel
+GET {{baseUrl}}/foglalasok?page=1&limit=20&auto_id=1&ugyfel_id=5&kezdet=2024-01-01&veg=2024-12-31&status=aktiv&sort_by=Letrehozasdatuma&sort_order=DESC
+Authorization: Bearer {{token}}
+
+###
+
+### 6.1.2 Csak aktív foglalások
+GET {{baseUrl}}/foglalasok?status=aktiv
+Authorization: Bearer {{token}}
+
+###
+
+### 6.1.3 Csak lejárt foglalások
+GET {{baseUrl}}/foglalasok?status=lejart
+Authorization: Bearer {{token}}
+
+###
+
+### 6.1.4 Csak jövőbeli foglalások
+GET {{baseUrl}}/foglalasok?status=jovobeli
+Authorization: Bearer {{token}}
+
+###
+
+### 6.2 Foglalások statisztikái (nincs implementálva - opcionális)
+# GET {{baseUrl}}/foglalasok/stats?kezdet=2024-01-01&veg=2024-12-31
+
+###
+
+### 6.3 Egy foglalás lekérdezése ID alapján (nincs implementálva - opcionális)
+# GET {{baseUrl}}/foglalasok/1
+
+###
+
+### 6.4 Új foglalás létrehozása
+POST {{baseUrl}}/foglalasok
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "auto_id": 1,
+    "ugyfel_id": 1,
+    "foglalaskezdete": "2024-02-01",
+    "foglalas_vege": "2024-02-05"
+}
+
+###
+
+### 6.5 Foglalás frissítése (nincs implementálva)
+# PUT {{baseUrl}}/foglalasok/1
+# Content-Type: application/json
+# Authorization: Bearer {{token}}
+# 
+# {
+#     "auto_id": 1,
+#     "ugyfel_id": 1,
+#     "foglalaskezdete": "2024-02-01",
+#     "foglalas_vege": "2024-02-06",
+#     "Ar": 75000
+# }
+
+###
+
+### 6.6 Foglalás törlése
+DELETE {{baseUrl}}/foglalasok/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 7. AUTÓKIBE MODUL
+### ========================
+
+### 7.1 Kibe listázása (alapértelmezett)
+GET {{baseUrl}}/autokibe
+Authorization: Bearer {{token}}
+
+###
+
+### 7.1.1 Kibe listázása szűrőkkel
+GET {{baseUrl}}/autokibe?page=1&limit=20&auto_id=1&status=aktiv
+Authorization: Bearer {{token}}
+
+###
+
+### 7.1.2 Csak aktív kibe rekordok
+GET {{baseUrl}}/autokibe?status=aktiv
+Authorization: Bearer {{token}}
+
+###
+
+### 7.1.3 Csak lezárt kibe rekordok
+GET {{baseUrl}}/autokibe?status=lezart
+Authorization: Bearer {{token}}
+
+###
+
+### 7.2 Egy kibe rekord lekérdezése ID alapján (nincs implementálva - opcionális)
+# GET {{baseUrl}}/autokibe/1
+
+###
+
+### 7.3 Új kibe rekord (autó kiadása)
+POST {{baseUrl}}/autokibe
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "auto_id": 1,
+    "elvitel": "2024-01-15 10:00:00",
+    "Kilometer_kezdet": 50000
+}
+
+###
+
+### 7.4 Kibe lezárása (autó visszavétele)
+PUT {{baseUrl}}/autokibe/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "vissza": "2024-01-20 14:00:00",
+    "Kilometer_veg": 50500
+}
+
+###
+
+### 7.5 Kibe rekord törlése
+DELETE {{baseUrl}}/autokibe/1
+Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 8. JELENTÉSEK ÉS EXPORT (NINCS IMPLEMENTÁLVA - OPCIONÁLIS)
+### ========================
+
+### 8.1 Bevétel jelentés
+# GET {{baseUrl}}/jelentesek/bevetel?kezdet=2024-01-01&veg=2024-12-31&group_by=honap
+# Authorization: Bearer {{token}}
+
+###
+
+### 8.2 Autó kihasználtság jelentés
+# GET {{baseUrl}}/jelentesek/kihasznaltsag?kezdet=2024-01-01&veg=2024-12-31&auto_id=1
+# Authorization: Bearer {{token}}
+
+###
+
+### 8.3 Export autók
+# GET {{baseUrl}}/export/autok?format=excel&marka=BMW
+# Authorization: Bearer {{token}}
+
+###
+
+### 8.4 Export ügyfelek
+# GET {{baseUrl}}/export/ugyfelek?format=pdf&jogosultsag=B
+# Authorization: Bearer {{token}}
+
+###
+
+### 8.5 Export foglalások
+# GET {{baseUrl}}/export/foglalasok?format=excel&kezdet=2024-01-01&veg=2024-12-31
+# Authorization: Bearer {{token}}
+
+###
+
+### ========================
+### 9. TESZT ESETEK
+### ========================
+
+### 9.1 Komplett teszt sorrend
+# 1. Dolgozó létrehozása
+# 2. Bejelentkezés
+# 3. Autó létrehozása
+# 4. Ügyfél létrehozása
+# 5. Foglalás létrehozása
+# 6. Kibe rekord létrehozása
+# 7. Kibe lezárása
+# 8. Dashboard megtekintése
+
+###
+
+### 9.2 Hiba esetek tesztelése
+
+### 9.2.1 Foglalás ütközés tesztelése
+# POST {{baseUrl}}/foglalasok (ugyanaz az autó, átfedő időszak)
+
+###
+
+### 9.2.2 Nem létező autó
+# GET {{baseUrl}}/autok/999
+
+###
+
+### 9.2.3 Nem létező ügyfél
+# GET {{baseUrl}}/ugyfelek/999
+
+###
+
+### 9.2.4 Autó törlése aktív foglalással
+# DELETE {{baseUrl}}/autok/1 (ha van aktív foglalása)
+
+###
+
+### 9.2.5 Hitelesítés nélküli hozzáférés védett végponthoz
+# GET {{baseUrl}}/dolgozok (Authorization header nélkül)
