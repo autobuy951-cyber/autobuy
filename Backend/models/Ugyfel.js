@@ -27,6 +27,9 @@ const Ugyfel = sequelize.define('Ugyfel', {
     },
     Jogosultsag: {
         type: DataTypes.TEXT
+    },
+    Jelszo: {
+        type: DataTypes.TEXT
     }
 }, {
     tableName: 'ugyfelek',

@@ -1,6 +1,6 @@
 <template>
   <div class="login-panel">
-    <h2>Dolgozó Bejelentkezés</h2>
+    <h2>Ügyfél Bejelentkezés</h2>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
         <label for="nev">Felhasználónév:</label>
@@ -23,12 +23,13 @@
       <button type="submit">Bejelentkezés</button>
     </form>
     <p v-if="message" :class="{ 'error': isError, 'success': !isError }">{{ message }}</p>
+    <router-link to="/register" class="register-link">Nincs még fiókja? Regisztráljon!</router-link>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Login',
+  name: 'CustomerLogin',
   data() {
     return {
       email: '',
@@ -43,7 +44,7 @@ export default {
         this.message = 'Bejelentkezés folyamatban...';
         this.isError = false;
 
-        const response = await fetch('http://localhost:3000/api/auth/login', {
+        const response = await fetch('http://localhost:3000/api/auth/login/customer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -65,11 +66,11 @@ export default {
           localStorage.setItem('userId', data.userId);
           localStorage.setItem('jogosultsag', data.jogosultsag);
           localStorage.setItem('nev', this.email);
-          localStorage.setItem('userType', 'employee');
+          localStorage.setItem('userType', 'customer');
 
-          // Redirect to employee dashboard
+          // Redirect to customer dashboard
           setTimeout(() => {
-            this.$router.push('/employee-dashboard');
+            this.$router.push('/customer-dashboard');
           }, 1000);
         } else {
           this.message = data.message || 'Hibás felhasználónév vagy jelszó';
@@ -162,6 +163,20 @@ button:hover {
   background: linear-gradient(135deg, #ff3838 0%, #ff2828 100%);
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6);
+}
+
+.register-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.register-link:hover {
+  color: #ff4757;
 }
 
 .message {

@@ -1,26 +1,34 @@
 <template>
   <div id="app">
     <div class="auth-container">
-      <div class="auth-tabs">
-        <button
-          @click="activeTab = 'login'"
-          :class="{ active: activeTab === 'login' }"
-          class="tab-button"
-        >
-          Bejelentkezés
-        </button>
-        <button
-          @click="activeTab = 'register'"
-          :class="{ active: activeTab === 'register' }"
-          class="tab-button"
-        >
-          Regisztráció
-        </button>
+      <h1 class="app-title">Autobuy</h1>
+      <p class="app-subtitle">Válassza ki a bejelentkezés típusát</p>
+
+      <div class="user-type-selection" v-if="!selectedUserType">
+        <div class="user-type-card" @click="selectUserType('customer')">
+          <h3>Ügyfél</h3>
+          <p>Autó vásárlás és foglalás</p>
+          <div class="icon">👤</div>
+        </div>
+
+        <div class="user-type-card" @click="selectUserType('employee')">
+          <h3>Dolgozó</h3>
+          <p>Autók és ügyfelek kezelése</p>
+          <div class="icon">👨‍💼</div>
+        </div>
+
+        <div class="user-type-card" @click="selectUserType('admin')">
+          <h3>Admin</h3>
+          <p>Rendszer adminisztráció</p>
+          <div class="icon">⚙️</div>
+        </div>
       </div>
 
-      <div class="tab-content">
-        <Login v-if="activeTab === 'login'" />
-        <Register v-if="activeTab === 'register'" />
+      <div class="login-forms" v-if="selectedUserType">
+        <button @click="goBack" class="back-button">← Vissza</button>
+        <CustomerLogin v-if="selectedUserType === 'customer'" />
+        <Login v-if="selectedUserType === 'employee'" />
+        <AdminLogin v-if="selectedUserType === 'admin'" />
       </div>
     </div>
   </div>
@@ -28,17 +36,27 @@
 
 <script>
 import Login from './components/Login.vue'
-import Register from './components/Register.vue'
+import CustomerLogin from './components/CustomerLogin.vue'
+import AdminLogin from './components/AdminLogin.vue'
 
 export default {
   name: 'App',
   components: {
     Login,
-    Register
+    CustomerLogin,
+    AdminLogin
   },
   data() {
     return {
-      activeTab: 'login' // Default to login tab
+      selectedUserType: null
+    }
+  },
+  methods: {
+    selectUserType(type) {
+      this.selectedUserType = type;
+    },
+    goBack() {
+      this.selectedUserType = null;
     }
   }
 }
@@ -61,7 +79,7 @@ export default {
 }
 
 .auth-container {
-  max-width: 500px;
+  max-width: 1200px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
@@ -71,45 +89,98 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.auth-tabs {
-  display: flex;
-  margin-bottom: 30px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 15px;
-  padding: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+
+
+.app-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #ff4757 0%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.tab-button {
-  flex: 1;
-  padding: 15px 25px;
-  background: transparent;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
+.app-subtitle {
   font-size: 16px;
-  font-weight: 600;
   color: #b0b0b0;
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+.user-type-selection {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.user-type-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 25px 20px;
+  cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+  flex: 1;
+  min-width: 200px;
 }
 
-.tab-button:hover {
+.user-type-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 71, 87, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2);
+}
+
+.user-type-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
   color: #ffffff;
+}
+
+.user-type-card p {
+  font-size: 14px;
+  color: #b0b0b0;
+  margin-bottom: 15px;
+}
+
+.icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.login-forms {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.back-button {
+  position: absolute;
+  top: -50px;
+  left: 0;
   background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-}
-
-.tab-button.active {
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
-.tab-content {
-  margin-top: 20px;
-}
+
 </style>

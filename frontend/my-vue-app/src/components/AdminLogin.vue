@@ -1,6 +1,6 @@
 <template>
   <div class="login-panel">
-    <h2>Dolgozó Bejelentkezés</h2>
+    <h2>Admin Bejelentkezés</h2>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
         <label for="nev">Felhasználónév:</label>
@@ -28,7 +28,7 @@
 
 <script>
 export default {
-  name: 'Login',
+  name: 'AdminLogin',
   data() {
     return {
       email: '',
@@ -57,7 +57,14 @@ export default {
         const data = await response.json();
 
         if (response.ok) {
-          this.message = 'Sikeres bejelentkezés! Üdvözöljük!';
+          // Check if user has admin role
+          if (data.jogosultsag !== 'admin') {
+            this.message = 'Nincs jogosultsága az admin felülethez!';
+            this.isError = true;
+            return;
+          }
+
+          this.message = 'Sikeres admin bejelentkezés! Üdvözöljük!';
           this.isError = false;
 
           // Store the token and user data
@@ -65,11 +72,11 @@ export default {
           localStorage.setItem('userId', data.userId);
           localStorage.setItem('jogosultsag', data.jogosultsag);
           localStorage.setItem('nev', this.email);
-          localStorage.setItem('userType', 'employee');
+          localStorage.setItem('userType', 'admin');
 
-          // Redirect to employee dashboard
+          // Redirect to admin dashboard
           setTimeout(() => {
-            this.$router.push('/employee-dashboard');
+            this.$router.push('/admin-dashboard');
           }, 1000);
         } else {
           this.message = data.message || 'Hibás felhasználónév vagy jelszó';
