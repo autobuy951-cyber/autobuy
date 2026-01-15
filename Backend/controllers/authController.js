@@ -43,6 +43,47 @@ exports.login = async (req, res) => {
     }
 };
 
+exports.register = async (req, res) => {
+    try {
+        const { nev, jelszo, jogosultsag = 'user' } = req.body;
+
+        // Check if user already exists
+        const existingUser = await Dolgozo.findOne({ where: { nev } });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Ez a felhasználónév már foglalt' });
+        }
+
+        // Hash the password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(jelszo, saltRounds);
+
+        // Create new user
+        const newUser = await Dolgozo.create({
+            nev,
+            jelszo: hashedPassword,
+            jogosultsag
+        });
+
+        // Generate token for auto-login after registration
+        const token = jwt.sign(
+            { id: newUser.id, nev: newUser.nev, jogosultsag: newUser.jogosultsag },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        res.status(201).json({
+            message: 'Felhasználó sikeresen létrehozva',
+            token: token,
+            expiresIn: 86400,
+            userId: newUser.id,
+            jogosultsag: newUser.jogosultsag
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Hiba a regisztráció során' });
+    }
+};
+
 exports.verify = async (req, res) => {
     try {
         // The token is already verified in middleware
