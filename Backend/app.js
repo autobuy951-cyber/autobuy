@@ -2,11 +2,26 @@ const dotenv = require('dotenv');
 dotenv.config();
 const express = require('express');
 const cors = require('cors');
-const { sequelize } = require('./models');
+const { sequelize, Dolgozo } = require('./models');
+const bcrypt = require('bcrypt');
 
 // Szinkronizálás az adatbázissal
 sequelize.sync()
-    .then(() => console.log('Adatbázis szinkronizálva (újraépítve)'))
+    .then(async () => {
+        console.log('Adatbázis szinkronizálva');
+        // Admin felhasználó létrehozása ha nem létezik
+        const existingAdmin = await Dolgozo.findOne({ where: { nev: 'admin' } });
+        if (!existingAdmin) {
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash('admin123', saltRounds);
+            await Dolgozo.create({
+                nev: 'admin',
+                jelszo: hashedPassword,
+                jogosultsag: 'admin'
+            });
+            console.log('Admin felhasználó létrehozva');
+        }
+    })
     .catch(err => console.error('Hiba az adatbázis szinkronizálásakor:', err));
 
 const app = express();
