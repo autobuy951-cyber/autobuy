@@ -19,8 +19,14 @@ const Auto = sequelize.define('Auto', {
     Evjarat: {
         type: DataTypes.INTEGER
     },
-    Allapot: {
+    elerheto: {
+        type: DataTypes.BOOLEAN
+    },
+    Megjegyzes: {
         type: DataTypes.TEXT
+    },
+    berleheto: {
+        type: DataTypes.BOOLEAN
     },
     Alvazszam: {
         type: DataTypes.TEXT

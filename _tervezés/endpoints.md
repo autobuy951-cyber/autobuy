@@ -1,6 +1,6 @@
 # API Végpontok Dokumentáció
 
-Ez a dokumentum a `requests_2026-01-13.http` fájl alapján készült összegzést tartalmazza.
+
 
 **Base URL**: `http://localhost:3000/api`
 

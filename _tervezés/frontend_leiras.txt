@@ -1,6 +1,6 @@
-Frontend leírás az adatbázis alapján
+backend leírás az adatbázis alapján
 
-Ez a dokumentum leírja a frontend követelményeket az autobuy rendszer adatbázis sémája alapján.
+Ez a dokumentum leírja a backed követelményeket az autobuy rendszer adatbázis sémája alapján.
 
 == ENTITÁSOK ÉS MEZŐK ==
 

@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
     try {
-        const { page = 1, limit = 20, sort_by = 'AutoID', sort_order = 'ASC', search, marka, modell, allapot, evjarat_min, evjarat_max } = req.query;
+        const { page = 1, limit = 20, sort_by = 'AutoID', sort_order = 'ASC', search, marka, modell, elerheto, evjarat_min, evjarat_max } = req.query;
         const offset = (page - 1) * limit;
 
         const whereClause = {};
@@ -18,7 +18,7 @@ exports.getAll = async (req, res) => {
 
         if (marka) whereClause.Marka = { [Op.like]: `%${marka}%` };
         if (modell) whereClause.Modell = { [Op.like]: `%${modell}%` };
-        if (allapot) whereClause.Allapot = allapot;
+        if (elerheto !== undefined) whereClause.elerheto = elerheto === 'true';
 
         if (evjarat_min || evjarat_max) {
             whereClause.Evjarat = {};
@@ -120,7 +120,8 @@ exports.getAvailable = async (req, res) => {
         const availableAutos = await Auto.findAll({
             where: {
                 AutoID: { [Op.notIn]: ids },
-                Allapot: 'elérhető'
+                elerheto: true,
+                berleheto: true
             }
         });
 

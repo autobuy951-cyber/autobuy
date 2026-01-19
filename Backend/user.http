@@ -1,0 +1,94 @@
+@baseUrl = http://localhost:3000/api
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmV2IjoiYWRtaW4iLCJqb2dvc3VsdHNhZyI6ImFkbWluIiwiaWF0IjoxNzY4ODIyNDg4LCJleHAiOjE3Njg5MDg4ODh9.Efy1CNwEU9GHq8Z9J3QG-ipKtwQacLZzhHSxkoVZYyU
+### 1. Bejelentkezés (Auth)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "nev": "admin",
+    "jelszo": "admin123"
+}
+
+### 2. Autók Listázása
+GET {{baseUrl}}/autok
+Authorization: Bearer {{token}}
+
+### 3. Szabad Autók Keresése (Dátum szerint)
+GET {{baseUrl}}/autok/elerheto?kezdet=2026-05-10&veg=2026-05-15
+Authorization: Bearer {{token}}
+
+### 4. Új Autó Felvétele
+POST {{baseUrl}}/autok
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Rendszam": "ABC-123",
+    "Marka": "Toyota",
+    "Modell": "Corolla",
+    "Evjarat": 2024,
+    "berleheto": true,
+    "elerheto": true,
+    "Megjegyzes": "Új autó",
+    "Alvazszam": "TOYOTA123456789"
+}
+
+### 5. Ügyfelek Keresése
+GET {{baseUrl}}/ugyfelek/search?q=Kovács
+Authorization: Bearer {{token}}
+
+### 6. Új Ügyfél Rögzítése
+# @name createCustomer
+POST {{baseUrl}}/ugyfelek
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Nev": "Kovács Péter",
+    "Cim": "1111 Budapest, Fő utca 1.",
+    "Telefonszam": "+36301234567",
+    "Email": "kovacs.peter@example.com",
+    "igSzam": "123456AB",
+    "SzuletesiDatum": "1990-01-01",
+    "Jogosultsag": "ugyfel"
+}
+
+### 7. Foglalás Létrehozása
+POST {{baseUrl}}/foglalasok
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "auto_id": 1,
+    "ugyfel_id": 1,
+    "foglalaskezdete": "2026-05-10",
+    "foglalas_vege": "2026-05-15"
+}
+
+### 8. Autó Kiadása (Handover)
+POST {{baseUrl}}/autokibe
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "auto_id": 1,
+    "elvitel": "2026-05-10",
+    "Kilometer_kezdet": 45200
+}
+
+### 9. Autó Visszavétele (Return)
+# ID-t cserélni a létrejött kiadás ID-jére!
+PUT {{baseUrl}}/autokibe/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "vissza": "2026-05-15",
+    "Kilometer_veg": 45800
+}
+
+### 10. Statisztikák (Dashboard)
+GET {{baseUrl}}/dashboard/stats
+Authorization: Bearer {{token}}

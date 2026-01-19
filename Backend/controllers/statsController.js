@@ -6,7 +6,7 @@ exports.getStats = async (req, res) => {
         const today = new Date().toISOString().slice(0, 10);
 
         const osszesAuto = await Auto.count();
-        const elerhetoAuto = await Auto.count({ where: { Allapot: 'elérhető' } });
+        const elerhetoAuto = await Auto.count({ where: { elerheto: true, berleheto: true } });
         const aktivFoglalas = await Foglalas.count({
             where: {
                 foglalaskezdete: { [Op.lte]: today },
