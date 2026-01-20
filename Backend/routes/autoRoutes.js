@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.get('/', autoController.getAll);
 router.get('/elerheto', autoController.getAvailable);
+router.get('/markak', autoController.getBrands);
 router.get('/:id', autoController.getById);
 router.post('/', authMiddleware, autoController.create);
 router.put('/:id', authMiddleware, autoController.update);

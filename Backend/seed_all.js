@@ -1,7 +1,7 @@
 const { sequelize, Auto, Dolgozo, Ugyfel, Foglalas, AutoKibe } = require('./models');
 
 const BATCH_SIZE = 1000;
-const TOTAL_RECORDS = 100000;
+const TOTAL_RECORDS = 350;
 
 // --- DATA ARRAYS ---
 const lastNames = ['Kovács', 'Nagy', 'Szabó', 'Tóth', 'Varga', 'Kiss', 'Horváth', 'Molnár', 'Németh', 'Farkas', 'Balogh', 'Papp', 'Takács', 'Juhász', 'Lakatos', 'Mészáros', 'Simon', 'Rácz', 'Fekete', 'Szalai'];
@@ -191,6 +191,18 @@ async function run() {
             };
         }, TOTAL_RECORDS, 'AutoKibe');
 
+        // Update car availability based on active bookings
+        console.log('Updating car availability...');
+        await sequelize.query(`
+            UPDATE autok
+            SET berleheto = 0, elerheto = 0
+            WHERE AutoID IN (
+                SELECT DISTINCT auto_id
+                FROM foglalasok
+                WHERE foglalaskezdete <= date('now') AND foglalas_vege >= date('now')
+            )
+        `);
+        console.log('Car availability updated.');
 
         console.log('ALL TABLES seeded successfully!');
     } catch (error) {

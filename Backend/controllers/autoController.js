@@ -131,3 +131,19 @@ exports.getAvailable = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.getBrands = async (req, res) => {
+    try {
+        const brands = await Auto.findAll({
+            attributes: ['Marka'],
+            group: ['Marka'],
+            order: [['Marka', 'ASC']]
+        });
+
+        const brandList = brands.map(brand => brand.Marka);
+        res.json(brandList);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Hiba a márkák lekérésekor' });
+    }
+};

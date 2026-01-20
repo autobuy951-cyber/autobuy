@@ -1,4 +1,4 @@
-const { AutoKibe, Auto } = require('../models');
+const { AutoKibe, Auto, Foglalas } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
@@ -61,6 +61,31 @@ exports.update = async (req, res) => {
         });
 
         if (updated) {
+            // If vissza is provided, update car availability
+            if (vissza) {
+                const autoKibe = await AutoKibe.findByPk(id);
+                if (autoKibe) {
+                    const today = new Date().toISOString().slice(0, 10);
+
+                    // Check if there are any active reservations for this car
+                    const activeReservations = await Foglalas.findAll({
+                        where: {
+                            auto_id: autoKibe.auto_id,
+                            foglalaskezdete: { [Op.lte]: today },
+                            foglalas_vege: { [Op.gte]: today }
+                        }
+                    });
+
+                    if (activeReservations.length === 0) {
+                        // No active reservations, set availability back to true
+                        await Auto.update(
+                            { elerheto: true, berleheto: true },
+                            { where: { AutoID: autoKibe.auto_id } }
+                        );
+                    }
+                }
+            }
+
             res.json({ message: 'Rögzítve' });
         } else {
             res.status(404).json({ error: 'Nem található' });

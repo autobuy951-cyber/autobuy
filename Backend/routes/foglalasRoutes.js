@@ -6,5 +6,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.get('/', authMiddleware, foglalasController.getAll);
 router.post('/', authMiddleware, foglalasController.create);
 router.delete('/:id', authMiddleware, foglalasController.delete);
+router.put('/:id/return', authMiddleware, foglalasController.return);
 
 module.exports = router;

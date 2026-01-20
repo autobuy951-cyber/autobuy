@@ -15,6 +15,14 @@ Content-Type: application/json
 GET {{baseUrl}}/autok
 Authorization: Bearer {{token}}
 
+### 2.1 Márka szerinti keresés
+GET {{baseUrl}}/autok?marka=Toyota 
+Authorization: Bearer {{token}}
+
+### 2.2 Autó márkák listája
+GET {{baseUrl}}/autok/markak
+Authorization: Bearer {{token}}
+
 ### 3. Szabad Autók Keresése (Dátum szerint)
 GET {{baseUrl}}/autok/elerheto?kezdet=2026-05-10&veg=2026-05-15
 Authorization: Bearer {{token}}
@@ -36,7 +44,7 @@ Authorization: Bearer {{token}}
 }
 
 ### 5. Ügyfelek Keresése
-GET {{baseUrl}}/ugyfelek/search?q=Kovács
+GET {{baseUrl}}/ugyfelek/search?q=Kovács j
 Authorization: Bearer {{token}}
 
 ### 6. Új Ügyfél Rögzítése
@@ -61,8 +69,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "auto_id": 1,
-    "ugyfel_id": 1,
+    "auto_id": 3,
+    "ugyfel_id": 64,
     "foglalaskezdete": "2026-05-10",
     "foglalas_vege": "2026-05-15"
 }
@@ -73,20 +81,20 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "auto_id": 1,
+    "auto_id": 3,
     "elvitel": "2026-05-10",
     "Kilometer_kezdet": 45200
 }
 
 ### 9. Autó Visszavétele (Return)
 # ID-t cserélni a létrejött kiadás ID-jére!
-PUT {{baseUrl}}/autokibe/1
+PUT {{baseUrl}}/autokibe/351
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
     "vissza": "2026-05-15",
-    "Kilometer_veg": 45800
+    "Kilometer_veg": 45900
 }
 
 ### 10. Statisztikák (Dashboard)

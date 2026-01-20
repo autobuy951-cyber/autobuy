@@ -1,4 +1,4 @@
-const { Foglalas, Auto, Ugyfel } = require('../models');
+const { Foglalas, Auto, Ugyfel, AutoKibe } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
@@ -92,6 +92,12 @@ exports.create = async (req, res) => {
             Letrehozasdatuma: new Date().toISOString()
         });
 
+        // Set auto availability to false
+        await Auto.update(
+            { elerheto: false, berleheto: false },
+            { where: { AutoID: auto_id } }
+        );
+
         res.status(201).json(newFoglalas);
     } catch (err) {
         console.error(err);
@@ -109,8 +115,73 @@ exports.delete = async (req, res) => {
             return res.status(400).json({ error: 'Csak jövőbeli foglalások törölhetők' });
         }
 
+        const auto_id = foglalas.auto_id;
+
         await foglalas.destroy();
+
+        // Check if there are any active reservations for this car
+        const activeReservations = await Foglalas.findAll({
+            where: {
+                auto_id,
+                foglalaskezdete: { [Op.lte]: today },
+                foglalas_vege: { [Op.gte]: today }
+            }
+        });
+
+        if (activeReservations.length === 0) {
+            // No active reservations, set availability back to true
+            await Auto.update(
+                { elerheto: true, berleheto: true },
+                { where: { AutoID: auto_id } }
+            );
+        }
+
         res.json({ message: 'Foglalás törölve' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.return = async (req, res) => {
+    try {
+        const foglalas = await Foglalas.findByPk(req.params.id);
+        if (!foglalas) return res.status(404).json({ error: 'Foglalás nem található' });
+
+        const { kilometer_veg } = req.body;
+        if (kilometer_veg === undefined) {
+            return res.status(400).json({ error: 'Kilometer vég szükséges' });
+        }
+
+        const today = new Date().toISOString().slice(0, 10);
+
+        // Add to AutoKibe
+        await AutoKibe.create({
+            auto_id: foglalas.auto_id,
+            elvitel: foglalas.foglalaskezdete,
+            vissza: today,
+            Kilometer_kezdet: 0, // Placeholder, as not tracked
+            Kilometer_veg: kilometer_veg
+        });
+
+        // Check if there are any active reservations for this car
+        const activeReservations = await Foglalas.findAll({
+            where: {
+                auto_id: foglalas.auto_id,
+                foglalaskezdete: { [Op.lte]: today },
+                foglalas_vege: { [Op.gte]: today }
+            }
+        });
+
+        if (activeReservations.length === 0) {
+            // No active reservations, set availability back to true
+            await Auto.update(
+                { elerheto: true, berleheto: true },
+                { where: { AutoID: foglalas.auto_id } }
+            );
+        }
+
+        res.json({ message: 'Autó visszaadva' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
