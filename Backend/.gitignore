@@ -10,10 +10,10 @@ node_modules
 verify_*.js
 migrate_*.js
 check_*.js
-seed_*.js
+
 add_*.js
 fix_*.js
 teszt.js
-clear_db.js
+
 app.js
 
