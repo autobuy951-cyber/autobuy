@@ -29,3 +29,23 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Database files
+*.sqlite
+*.sqlite3
+Backend/adatbazis.sqlite
+
+# Backend temporary scripts
+Backend/verify_*.js
+Backend/migrate_*.js
+Backend/check_*.js
+Backend/add_*.js
+Backend/fix_*.js
+Backend/update_*.js
+Backend/seed_large.js
+Backend/teszt.js
+Backend/clear_db.js
+Backend/requests_*.http
+
+# Antigravity artifacts
+.gemini/

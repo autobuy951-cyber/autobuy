@@ -30,6 +30,10 @@ const Auto = sequelize.define('Auto', {
     },
     Alvazszam: {
         type: DataTypes.TEXT
+    },
+    NapiAr: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
     }
 }, {
     tableName: 'autok',

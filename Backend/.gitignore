@@ -1,19 +1,38 @@
-node_modules
-node_modules
-*.log
+# Dependencies
+node_modules/
 
-# Database
+# Logs
+*.log
+combined.log
+error.log
+
+# Database files
 *.sqlite
 *.sqlite3
+adatbazis.sqlite
 
-# Scripts
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary maintenance scripts
 verify_*.js
 migrate_*.js
 check_*.js
-
 add_*.js
 fix_*.js
+update_*.js
+seed_large.js
 teszt.js
+clear_db.js
 
-app.js
+# HTTP request files (backups)
+requests_*.http
 
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

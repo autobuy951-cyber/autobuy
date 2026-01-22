@@ -1,4 +1,5 @@
 const { sequelize, Auto, Dolgozo, Ugyfel, Foglalas, AutoKibe } = require('./models');
+const bcrypt = require('bcrypt');
 
 const BATCH_SIZE = 1000;
 const TOTAL_RECORDS = 350;
@@ -108,12 +109,15 @@ async function run() {
         // 0. Clean slate
         await clearDatabase();
 
+        // Pre-hash password for performance
+        const hashedPassword = await bcrypt.hash('jelszo123', 10);
+
         // 1. Dolgozok (Mixed realistic names)
         await seedTable(Dolgozo, () => {
             const { fullName } = generateName();
             return {
                 nev: fullName,
-                jelszo: 'jelszo123',
+                jelszo: hashedPassword,
                 jogosultsag: Math.random() > 0.9 ? 'admin' : 'dolgozo'
             };
         }, TOTAL_RECORDS, 'Dolgozok');
@@ -129,7 +133,8 @@ async function run() {
                 berleheto: true,
                 elerheto: Math.random() > 0.2 ? true : false, // true = elvihető, false = nem elvihető
                 Megjegyzes: Math.random() > 0.8 ? 'Kisebb sérülés' : null,
-                Alvazszam: generateVin()
+                Alvazszam: generateVin(),
+                NapiAr: getRandomInt(5000, 25000) // Napi bérleti díj 5000-25000 Ft között
             };
         }, TOTAL_RECORDS, 'Autok');
 
@@ -154,7 +159,7 @@ async function run() {
                 igSzam: getRandomInt(100000, 999999) + getRandomItem(['AA', 'BA', 'CA', 'DA']),
                 SzuletesiDatum: getRandomDate(new Date(1960, 0, 1), new Date(2004, 11, 31)),
                 Jogosultsag: 'ugyfel',
-                Jelszo: 'jelszo123'
+                Jelszo: hashedPassword
             };
         }, TOTAL_RECORDS, 'Ugyfelek');
 

@@ -1,259 +1,119 @@
 <template>
   <div class="admin-dashboard">
-    <header class="dashboard-header">
-      <h1>Admin Dashboard</h1>
-      <div class="user-info">
-        <span>Üdvözöljük, {{ userNev }}</span>
-        <button @click="logout" class="logout-btn">Kijelentkezés</button>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>AutoBuy</h1>
+        <div class="role-badge">Admin Panel</div>
       </div>
-    </header>
+      
+      <nav class="sidebar-nav">
+        <button 
+          @click="currentView = 'cars'" 
+          :class="{ active: currentView === 'cars' }"
+          class="nav-item"
+        >
+          🚗 Autók Kezelése
+        </button>
+        <button 
+          @click="currentView = 'customers'" 
+          :class="{ active: currentView === 'customers' }"
+          class="nav-item"
+        >
+          👥 Ügyfelek Kezelése
+        </button>
+        <button 
+          @click="currentView = 'employees'" 
+          :class="{ active: currentView === 'employees' }"
+          class="nav-item"
+        >
+          👔 Dolgozók Kezelése
+        </button>
+        <button 
+          @click="currentView = 'bookings'" 
+          :class="{ active: currentView === 'bookings' }"
+          class="nav-item"
+        >
+          📅 Foglalások
+        </button>
+      </nav>
 
-    <nav class="dashboard-nav">
-      <button @click="activeTab = 'customers'" :class="{ active: activeTab === 'customers' }">
-        Ügyfelek kezelése
-      </button>
-      <button @click="activeTab = 'cars'" :class="{ active: activeTab === 'cars' }">
-        Autók kezelése
-      </button>
-    </nav>
-
-    <main class="dashboard-content">
-      <!-- Ügyfelek hozzáadása -->
-      <div v-if="activeTab === 'customers'" class="form-section">
-        <h2>Új ügyfél hozzáadása</h2>
-        <form @submit.prevent="addCustomer" class="add-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="nev">Név:</label>
-              <input type="text" id="nev" v-model="customerForm.Nev" required>
-            </div>
-            <div class="form-group">
-              <label for="cim">Cím:</label>
-              <input type="text" id="cim" v-model="customerForm.Cim" required>
-            </div>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="avatar">{{ userMonogram }}</div>
+          <div class="user-details">
+            <span class="name">{{ userNev }}</span>
+            <span class="role">Adminisztrátor</span>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="telefonszam">Telefonszám:</label>
-              <input type="text" id="telefonszam" v-model="customerForm.Telefonszam" required>
-            </div>
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input type="email" id="email" v-model="customerForm.Email" required>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="igSzam">Személyi igazolvány szám:</label>
-              <input type="text" id="igSzam" v-model="customerForm.igSzam" required>
-            </div>
-            <div class="form-group">
-              <label for="szuletesiDatum">Születési dátum:</label>
-              <input type="date" id="szuletesiDatum" v-model="customerForm.SzuletesiDatum" required>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="jogosultsag">Jogosultság:</label>
-              <select id="jogosultsag" v-model="customerForm.Jogosultsag" required>
-                <option value="user">Felhasználó</option>
-                <option value="employee">Dolgozó</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="jelszo">Jelszó:</label>
-              <input type="password" id="jelszo" v-model="customerForm.Jelszo" required>
-            </div>
-          </div>
-          <button type="submit" class="submit-btn">Ügyfél hozzáadása</button>
-        </form>
+        </div>
+        <button @click="logout" class="logout-btn">
+          🚪 Kijelentkezés
+        </button>
       </div>
+    </aside>
 
-      <!-- Autók hozzáadása -->
-      <div v-if="activeTab === 'cars'" class="form-section">
-        <h2>Új autó hozzáadása</h2>
-        <form @submit.prevent="addCar" class="add-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="rendszam">Rendszám:</label>
-              <input type="text" id="rendszam" v-model="carForm.Rendszam" required>
-            </div>
-            <div class="form-group">
-              <label for="marka">Márka:</label>
-              <input type="text" id="marka" v-model="carForm.Marka" required>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="modell">Modell:</label>
-              <input type="text" id="modell" v-model="carForm.Modell" required>
-            </div>
-            <div class="form-group">
-              <label for="evjarat">Évjárat:</label>
-              <input type="number" id="evjarat" v-model="carForm.Evjarat" required min="1900" max="2030">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="allapot">Állapot:</label>
-              <select id="allapot" v-model="carForm.Allapot" required>
-                <option value="Új">Új</option>
-                <option value="Használt">Használt</option>
-                <option value="Sérült">Sérült</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="alvazszam">Alvázszám:</label>
-              <input type="text" id="alvazszam" v-model="carForm.Alvazszam" required>
-            </div>
-          </div>
-          <button type="submit" class="submit-btn">Autó hozzáadása</button>
-        </form>
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-bar">
+        <h2>{{ pageTitle }}</h2>
+        <div class="breadcrumbs">Dashboard / {{ pageTitle }}</div>
+      </header>
+
+      <div class="content-wrapper">
+        <transition name="fade" mode="out-in">
+          <CarManager v-if="currentView === 'cars'" />
+          <CustomerManager v-else-if="currentView === 'customers'" />
+          <EmployeeManager v-else-if="currentView === 'employees'" />
+          <BookingManager v-else-if="currentView === 'bookings'" />
+        </transition>
       </div>
     </main>
-
-    <!-- Üzenetek -->
-    <div v-if="message" :class="['message', messageType]">
-      {{ message }}
-    </div>
   </div>
 </template>
 
 <script>
+import CarManager from './admin/CarManager.vue';
+import CustomerManager from './admin/CustomerManager.vue';
+import EmployeeManager from './admin/EmployeeManager.vue';
+import BookingManager from './admin/BookingManager.vue';
+
 export default {
   name: 'AdminDashboard',
+  components: {
+    CarManager,
+    CustomerManager,
+    EmployeeManager,
+    BookingManager
+  },
   data() {
     return {
-      activeTab: 'customers',
-      userNev: localStorage.getItem('nev') || 'Admin',
-      message: '',
-      messageType: 'success',
-      customerForm: {
-        Nev: '',
-        Cim: '',
-        Telefonszam: '',
-        Email: '',
-        igSzam: '',
-        SzuletesiDatum: '',
-        Jogosultsag: 'user',
-        Jelszo: ''
-      },
-      carForm: {
-        Rendszam: '',
-        Marka: '',
-        Modell: '',
-        Evjarat: '',
-        Allapot: 'Új',
-        Alvazszam: ''
+      currentView: 'cars',
+      userNev: localStorage.getItem('nev') || 'Admin'
+    }
+  },
+  computed: {
+    userMonogram() {
+      return this.userNev.charAt(0).toUpperCase();
+    },
+    pageTitle() {
+      switch(this.currentView) {
+        case 'cars': return 'Autók Nyilvántartása';
+        case 'customers': return 'Ügyfelek Adatbázisa';
+        case 'employees': return 'Dolgozók Kezelése';
+        case 'bookings': return 'Foglalások Áttekintése';
+        default: return 'Dashboard';
       }
     }
   },
   mounted() {
-    // Ellenőrizzük, hogy be van-e jelentkezve
     const token = localStorage.getItem('token');
     if (!token) {
       this.$router.push('/');
-      return;
     }
   },
   methods: {
-    async addCustomer() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/ugyfelek', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(this.customerForm)
-        });
-
-        if (response.ok) {
-          this.message = 'Ügyfél sikeresen hozzáadva!';
-          this.messageType = 'success';
-          this.resetCustomerForm();
-        } else {
-          const error = await response.json();
-          this.message = error.error || 'Hiba történt az ügyfél hozzáadásakor';
-          this.messageType = 'error';
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        this.message = 'Hálózati hiba történt';
-        this.messageType = 'error';
-      }
-
-      // Üzenet eltüntetése 5 másodperc után
-      setTimeout(() => {
-        this.message = '';
-      }, 5000);
-    },
-
-    async addCar() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/autok', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(this.carForm)
-        });
-
-        if (response.ok) {
-          this.message = 'Autó sikeresen hozzáadva!';
-          this.messageType = 'success';
-          this.resetCarForm();
-        } else {
-          const error = await response.json();
-          this.message = error.error || 'Hiba történt az autó hozzáadásakor';
-          this.messageType = 'error';
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        this.message = 'Hálózati hiba történt';
-        this.messageType = 'error';
-      }
-
-      // Üzenet eltüntetése 5 másodperc után
-      setTimeout(() => {
-        this.message = '';
-      }, 5000);
-    },
-
-    resetCustomerForm() {
-      this.customerForm = {
-        Nev: '',
-        Cim: '',
-        Telefonszam: '',
-        Email: '',
-        igSzam: '',
-        SzuletesiDatum: '',
-        Jogosultsag: 'user',
-        Jelszo: ''
-      };
-    },
-
-    resetCarForm() {
-      this.carForm = {
-        Rendszam: '',
-        Marka: '',
-        Modell: '',
-        Evjarat: '',
-        Allapot: 'Új',
-        Alvazszam: ''
-      };
-    },
-
     logout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('jogosultsag');
-      localStorage.removeItem('nev');
-      localStorage.removeItem('userType');
+      localStorage.clear();
       this.$router.push('/');
     }
   }
@@ -262,202 +122,171 @@ export default {
 
 <style scoped>
 .admin-dashboard {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-  color: #ffffff;
-  padding: 20px;
-}
-
-.dashboard-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 100vh;
+  background: #121212;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 28px;
-  background: linear-gradient(135deg, #ff4757 0%, #ffffff 100%);
+/* Sidebar Styles */
+.sidebar {
+  width: 280px;
+  background: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header {
+  padding: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin: 0 0 8px 0;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+.role-badge {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.logout-btn {
-  background: rgba(255, 71, 87, 0.8);
-  border: 1px solid rgba(255, 71, 87, 0.3);
-  color: #ffffff;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.logout-btn:hover {
-  background: rgba(255, 71, 87, 1);
-  transform: translateY(-2px);
-}
-
-.dashboard-nav {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 30px;
-  justify-content: center;
-}
-
-.dashboard-nav button {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 12px 24px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-}
-
-.dashboard-nav button:hover,
-.dashboard-nav button.active {
-  background: rgba(255, 71, 87, 0.2);
-  border-color: rgba(255, 71, 87, 0.3);
-  transform: translateY(-2px);
-}
-
-.dashboard-content {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.form-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 30px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.form-section h2 {
-  margin-bottom: 25px;
-  font-size: 24px;
-  text-align: center;
-  color: #ffffff;
-}
-
-.add-form {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.form-row {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.form-group {
+.sidebar-nav {
+  padding: 20px 0;
   flex: 1;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #e0e0e0;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
+.nav-item {
   width: 100%;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #ff4757;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 15px 30px;
-  background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
-  color: white;
+  padding: 16px 30px;
+  background: transparent;
   border: none;
-  border-radius: 12px;
-  cursor: pointer;
+  color: #a0a0a0;
+  text-align: left;
   font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+  color: #fff;
+}
+
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(255, 71, 87, 0.1) 0%, transparent 100%);
+  color: #ff4757;
+  border-left-color: #ff4757;
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: #ff4757;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-details .name {
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
-  margin-top: 20px;
+  color: white;
 }
 
-.submit-btn:hover {
-  background: linear-gradient(135deg, #ff3838 0%, #ff2828 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6);
+.user-details .role {
+  font-size: 12px;
+  color: #888;
 }
 
-.message {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 15px 25px;
-  border-radius: 10px;
-  font-weight: 500;
-  backdrop-filter: blur(20px);
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 1000;
-  max-width: 400px;
-}
-
-.message.success {
-  color: #51cf66;
-  background: rgba(81, 207, 102, 0.1);
-  border-color: rgba(81, 207, 102, 0.3);
-}
-
-.message.error {
   color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.1);
-  border-color: rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-  }
+.logout-btn:hover {
+  background: rgba(255, 71, 87, 0.1);
+  border-color: #ff4757;
+}
 
-  .dashboard-header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #121212;
+}
 
-  .dashboard-nav {
-    flex-direction: column;
-  }
+.top-bar {
+  padding: 30px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.breadcrumbs {
+  color: #666;
+  font-size: 14px;
+}
+
+.content-wrapper {
+  flex: 1;
+  padding: 0 40px 40px 40px;
+  overflow-y: auto;
+}
+
+.placeholder-view {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+/* Transitions */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -11,6 +11,11 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Hibás felhasználónév vagy jelszó' });
         }
 
+        // Csak adminisztrátorok léphetnek be
+        if (user.jogosultsag !== 'admin') {
+            return res.status(403).json({ message: 'Nincs jogosultsága a belépéshez. Csak adminisztrátorok léphetnek be.' });
+        }
+
         // Check if password is hashed (bcrypt hashes start with $2a$, $2b$, or $2y$)
         let isValid = false;
         if (user.jelszo.startsWith('$2')) {

@@ -76,12 +76,18 @@ exports.create = async (req, res) => {
             return res.status(400).json({ error: 'Az autó már foglalt ebben az időszakban' });
         }
 
-        // Calculate price - fixed rate 15000 per day
+        // Fetch the car to get its daily rate (NapiAr)
+        const car = await Auto.findByPk(auto_id);
+        if (!car) {
+            return res.status(404).json({ error: 'Az autó nem található' });
+        }
+
+        // Calculate price using car's daily rate
         const start = new Date(foglalaskezdete);
         const end = new Date(foglalas_vege);
         const diffTime = Math.abs(end - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
-        const Ar = diffDays * 15000;
+        const Ar = diffDays * (car.NapiAr || 15000); // Use car's NapiAr or fallback to 15000
 
         const newFoglalas = await Foglalas.create({
             auto_id,

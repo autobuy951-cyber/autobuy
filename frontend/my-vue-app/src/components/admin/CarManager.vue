@@ -1,0 +1,644 @@
+<template>
+  <div class="car-manager">
+    <div class="toolbar">
+      <div class="search-filters">
+        <div class="input-group">
+          <i class="search-icon">🔍</i>
+          <input 
+            type="text" 
+            v-model="filters.search" 
+            @input="debouncedFetch" 
+            placeholder="Keresés rendszám alapján..."
+          >
+        </div>
+        
+        <select v-model="filters.marka" @change="fetchCars" class="filter-select">
+          <option value="">Minden márka</option>
+          <option v-for="marka in brandOptions" :key="marka" :value="marka">{{ marka }}</option>
+        </select>
+
+        <select v-model="filters.status" @change="fetchCars" class="filter-select">
+          <option value="">Minden státusz</option>
+          <option value="elerheto">Elérhető</option>
+          <option value="foglalt">Foglalt</option>
+        </select>
+      </div>
+
+      <button @click="openCreateModal" class="btn-primary">
+        <span>+</span> Új Autó
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Betöltés...</p>
+    </div>
+
+    <!-- Data Table -->
+    <div v-else class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th @click="sortBy('Rendszam')">Rendszám <span v-if="sort.by === 'Rendszam'">{{ sort.order === 'ASC' ? '▲' : '▼' }}</span></th>
+            <th @click="sortBy('Marka')">Márka/Modell <span v-if="sort.by === 'Marka'">{{ sort.order === 'ASC' ? '▲' : '▼' }}</span></th>
+            <th @click="sortBy('Evjarat')">Évjárat <span v-if="sort.by === 'Evjarat'">{{ sort.order === 'ASC' ? '▲' : '▼' }}</span></th>
+            <th>Napi Ár</th>
+            <th>Státusz</th>
+            <th class="actions-col">Műveletek</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="car in cars" :key="car.AutoID">
+            <td class="font-mono">{{ car.Rendszam }}</td>
+            <td>
+              <div class="car-model">
+                <span class="brand">{{ car.Marka }}</span>
+                <span class="model">{{ car.Modell }}</span>
+              </div>
+            </td>
+            <td>{{ car.Evjarat }}</td>
+            <td class="price">{{ formatPrice(car.NapiAr || 0) }} Ft</td>
+            <td>
+              <span :class="['status-badge', car.elerheto ? 'available' : 'rented']">
+                {{ car.elerheto ? 'Elérhető' : 'Foglalt' }}
+              </span>
+            </td>
+            <td class="actions">
+              <button @click="editCar(car)" class="btn-icon" title="Szerkesztés">✎</button>
+              <button @click="confirmDelete(car)" class="btn-icon delete" title="Törlés">🗑</button>
+            </td>
+          </tr>
+          <tr v-if="cars.length === 0">
+            <td colspan="6" class="no-data">Nincs megjeleníthető adat.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <div class="pagination-info">
+        Összesen: <strong>{{ pagination.total }}</strong> találat
+      </div>
+      <div class="pagination-controls">
+        <button 
+          @click="changePage(pagination.current - 1)" 
+          :disabled="pagination.current === 1"
+          class="btn-page"
+        >
+          &laquo;
+        </button>
+        <span class="page-current">{{ pagination.current }} / {{ pagination.totalPages }}</span>
+        <button 
+          @click="changePage(pagination.current + 1)" 
+          :disabled="pagination.current === pagination.totalPages"
+          class="btn-page"
+        >
+          &raquo;
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+      <div class="modal">
+        <h2>{{ editingCar ? 'Autó szerkesztése' : 'Új autó felvétele' }}</h2>
+        
+        <form @submit.prevent="saveCar" class="modal-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Rendszám</label>
+              <input type="text" v-model="form.Rendszam" required>
+            </div>
+            <div class="form-group">
+              <label>Évjárat</label>
+              <input type="number" v-model="form.Evjarat" required min="1900" max="2030">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Márka</label>
+              <select v-model="form.Marka" required>
+                <option value="">Válassz márkát</option>
+                <option v-for="brand in brandOptions" :key="brand" :value="brand">{{ brand }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Modell</label>
+              <input type="text" v-model="form.Modell" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Napi Ár (Ft)</label>
+              <input type="number" v-model="form.NapiAr" required min="0">
+            </div>
+            <div class="form-group">
+              <label>Elérhető</label>
+              <select v-model="form.elerheto">
+                <option :value="true">Igen</option>
+                <option :value="false">Nem</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Alvázszám</label>
+              <input type="text" v-model="form.Alvazszam" required>
+            </div>
+            <div class="form-group">
+              <label>Bérelhető</label>
+              <select v-model="form.berleheto">
+                <option :value="true">Igen</option>
+                <option :value="false">Nem</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Megjegyzés</label>
+            <textarea v-model="form.Megjegyzes" rows="3"></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" @click="closeModal" class="btn-secondary">Mégse</button>
+            <button type="submit" class="btn-primary">Mentés</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'CarManager',
+  data() {
+    return {
+      cars: [],
+      loading: false,
+      showModal: false,
+      editingCar: null,
+      filters: {
+        search: '',
+        marka: '',
+        status: ''
+      },
+      sort: {
+        by: 'AutoID', // Default sort
+        order: 'DESC'
+      },
+      pagination: {
+        current: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0
+      },
+      brandOptions: ['Toyota', 'BMW', 'Mercedes', 'Audi', 'Ford', 'Opel', 'Suzuki', 'Kia', 'Hyundai', 'Volkswagen'],
+      form: {
+        Rendszam: '',
+        Marka: '',
+        Modell: '',
+        Evjarat: new Date().getFullYear(),
+        NapiAr: 0,
+        elerheto: true,
+        berleheto: true,
+        Alvazszam: '',
+        Megjegyzes: ''
+      }
+    }
+  },
+  mounted() {
+    this.fetchCars();
+  },
+  methods: {
+    async fetchCars() {
+      this.loading = true;
+      try {
+        const token = localStorage.getItem('token');
+        const params = new URLSearchParams({
+          page: this.pagination.current,
+          limit: this.pagination.limit,
+          sort_by: this.sort.by,
+          sort_order: this.sort.order
+        });
+
+        if (this.filters.search) params.append('search', this.filters.search);
+        if (this.filters.marka) params.append('marka', this.filters.marka);
+        if (this.filters.status) {
+          if (this.filters.status === 'elerheto') {
+            params.append('elerheto', 'true');
+          } else if (this.filters.status === 'foglalt') {
+            params.append('elerheto', 'false');
+          }
+        }
+        
+        // Backend API hívás
+        const response = await fetch(`http://localhost:3000/api/autok?${params.toString()}`, {
+           headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Hiba az adatok lekérésekor');
+
+        const data = await response.json();
+        this.cars = data.data; // Backend response structure matched
+        this.pagination.total = data.total;
+        this.pagination.totalPages = data.totalPages;
+
+      } catch (error) {
+        console.error(error);
+        // Toast notification vagy hibaüzenet
+      } finally {
+        this.loading = false;
+      }
+    },
+    debouncedFetch() {
+      // Egyszerű debounce implementáció
+      clearTimeout(this._timer);
+      this._timer = setTimeout(() => {
+        this.pagination.current = 1;
+        this.fetchCars();
+      }, 300);
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.pagination.totalPages) {
+        this.pagination.current = page;
+        this.fetchCars();
+      }
+    },
+    sortBy(field) {
+      if (this.sort.by === field) {
+        this.sort.order = this.sort.order === 'ASC' ? 'DESC' : 'ASC';
+      } else {
+        this.sort.by = field;
+        this.sort.order = 'ASC';
+      }
+      this.fetchCars();
+    },
+    formatPrice(price) {
+      return new Intl.NumberFormat('hu-HU').format(price);
+    },
+    openCreateModal() {
+      this.editingCar = null;
+      this.form = {
+        Rendszam: '',
+        Marka: '',
+        Modell: '',
+        Evjarat: new Date().getFullYear(),
+        NapiAr: 0,
+        elerheto: true,
+        berleheto: true,
+        Alvazszam: '',
+        Megjegyzes: ''
+      };
+      this.showModal = true;
+    },
+    editCar(car) {
+      this.editingCar = car;
+      this.form = { ...car };
+      this.showModal = true;
+    },
+    confirmDelete(car) {
+      if (confirm(`Biztosan törölni szeretnéd a(z) ${car.Rendszam} rendszámú autót?`)) {
+        this.deleteCar(car.AutoID);
+      }
+    },
+    async deleteCar(id) {
+       // Delete logic
+       try {
+         const token = localStorage.getItem('token');
+         await fetch(`http://localhost:3000/api/autok/${id}`, {
+           method: 'DELETE',
+           headers: { 'Authorization': `Bearer ${token}` }
+         });
+         this.fetchCars();
+       } catch (err) {
+         console.error(err);
+       }
+    },
+    closeModal() {
+      this.showModal = false;
+    },
+    async saveCar() {
+      try {
+        const token = localStorage.getItem('token');
+        const url = this.editingCar 
+          ? `http://localhost:3000/api/autok/${this.editingCar.AutoID}`
+          : 'http://localhost:3000/api/autok';
+        
+        const method = this.editingCar ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method: method,
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(this.form)
+        });
+
+        if(response.ok) {
+          this.closeModal();
+          this.fetchCars();
+        } else {
+          const err = await response.json();
+          alert(err.error || 'Hiba történt');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Hálózati hiba történt');
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.car-manager {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.search-filters {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.input-group {
+  position: relative;
+  flex: 1;
+  max-width: 300px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px 10px 10px 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  font-size: 14px;
+}
+
+.filter-select {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.data-table th, .data-table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.data-table th {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.data-table th:hover {
+  color: white;
+}
+
+.font-mono {
+  font-family: monospace;
+  font-size: 1.1em;
+  letter-spacing: 1px;
+}
+
+.car-model {
+  display: flex;
+  flex-direction: column;
+}
+
+.car-model .brand {
+  font-weight: 600;
+}
+
+.car-model .model {
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+.price {
+  font-weight: 600;
+  color: #2ed573;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.status-badge.available {
+  background: rgba(46, 213, 115, 0.15);
+  color: #2ed573;
+  border: 1px solid rgba(46, 213, 115, 0.2);
+}
+
+.status-badge.rented {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 1.1em;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn-icon.delete:hover {
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff4757;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-page {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-page:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-current {
+  margin: 0 12px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: #1e1e1e;
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 90%;
+  max-width: 700px;
+}
+
+.modal h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #ff4757;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+</style>
