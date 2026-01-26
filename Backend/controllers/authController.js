@@ -103,11 +103,12 @@ exports.verify = async (req, res) => {
 
 exports.loginCustomer = async (req, res) => {
     try {
-        const { nev, jelszo } = req.body;
-        const user = await Ugyfel.findOne({ where: { Nev: nev } });
+        const { email, jelszo } = req.body;
+        // Keresés Email alapján
+        const user = await Ugyfel.findOne({ where: { Email: email } });
 
         if (!user) {
-            return res.status(401).json({ message: 'Hibás felhasználónév vagy jelszó' });
+            return res.status(401).json({ message: 'Hibás email cím vagy jelszó' });
         }
 
         // Check if password is hashed (bcrypt hashes start with $2a$, $2b$, or $2y$)
@@ -121,7 +122,7 @@ exports.loginCustomer = async (req, res) => {
         }
 
         if (!isValid) {
-            return res.status(401).json({ message: 'Hibás felhasználónév vagy jelszó' });
+            return res.status(401).json({ message: 'Hibás email cím vagy jelszó' });
         }
 
         const token = jwt.sign(
@@ -134,7 +135,8 @@ exports.loginCustomer = async (req, res) => {
             token: token,
             expiresIn: 86400,
             userId: user.ID,
-            jogosultsag: user.Jogosultsag || 'customer'
+            jogosultsag: user.Jogosultsag || 'customer',
+            nev: user.Nev // Visszaküldjük a nevet is, ha a frontendnek kellene
         });
     } catch (err) {
         console.error(err);
@@ -144,12 +146,20 @@ exports.loginCustomer = async (req, res) => {
 
 exports.registerCustomer = async (req, res) => {
     try {
-        const { nev, jelszo, jogosultsag = 'customer', ...otherFields } = req.body;
+        const { nev, jelszo, email, jogosultsag = 'customer', ...otherFields } = req.body;
 
-        // Check if user already exists
-        const existingUser = await Ugyfel.findOne({ where: { Nev: nev } });
+        // Check if user already exists (by Name OR Email)
+        const existingUser = await Ugyfel.findOne({
+            where: {
+                [require('sequelize').Op.or]: [
+                    { Nev: nev },
+                    { Email: email || '' }
+                ]
+            }
+        });
+
         if (existingUser) {
-            return res.status(400).json({ message: 'Ez a felhasználónév már foglalt' });
+            return res.status(400).json({ message: 'Ez a felhasználónév vagy email már foglalt' });
         }
 
         // Hash the password
@@ -159,6 +169,7 @@ exports.registerCustomer = async (req, res) => {
         // Create new customer
         const newUser = await Ugyfel.create({
             Nev: nev,
+            Email: email, // Explicitly map email
             Jelszo: hashedPassword,
             Jogosultsag: jogosultsag,
             ...otherFields

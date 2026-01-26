@@ -23,6 +23,7 @@
       <button type="submit">Bejelentkezés</button>
     </form>
     <p v-if="message" :class="{ 'error': isError, 'success': !isError }">{{ message }}</p>
+    <router-link to="/register/employee" class="register-link">Nincs még fiókja? Regisztráljon!</router-link>
   </div>
 </template>
 
@@ -87,44 +88,49 @@ export default {
 
 <style scoped>
 .login-panel {
-  max-width: 400px;
+  max-width: 650px; /* Increased from 550px */
   margin: 0 auto;
-  padding: 0;
-  background: transparent;
+  padding: 60px 50px; /* Increased padding */
+  background: rgba(0, 0, 0, 0.2); /* Slightly darker for better contrast */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px; /* More rounded */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 .login-panel h2 {
   color: #ffffff;
-  margin-bottom: 25px;
-  font-weight: 300;
-  font-size: 28px;
+  margin-bottom: 40px;
+  font-weight: 700;
+  font-size: 36px; /* Larger title */
   text-align: center;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 30px; /* More spacing */
 }
 
 label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   color: #e0e0e0;
-  font-weight: 500;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 16px; /* Larger label */
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 input {
   width: 100%;
-  padding: 15px 20px;
+  padding: 18px 25px; /* Larger input padding */
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  border-radius: 16px;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 18px; /* Larger input text */
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
@@ -132,36 +138,48 @@ input {
 input:focus {
   outline: none;
   border-color: #ff4757;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 25px rgba(255, 71, 87, 0.4);
   transform: translateY(-2px);
-}
-
-input::placeholder {
-  color: #b0b0b0;
 }
 
 button {
   width: 100%;
-  padding: 15px 30px;
+  padding: 20px 30px; /* Larger button */
   background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 20px; /* Larger button text */
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
-  margin-top: 10px;
+  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.5);
+  margin-top: 20px;
 }
 
 button:hover {
   background: linear-gradient(135deg, #ff3838 0%, #ff2828 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(255, 71, 87, 0.7);
+}
+
+.register-link {
+  display: block;
+  text-align: center;
+  margin-top: 30px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px; /* Larger link */
+  transition: color 0.3s ease;
+  opacity: 0.8;
+}
+
+.register-link:hover {
+  color: #ff4757;
+  opacity: 1;
 }
 
 .message {
@@ -186,5 +204,26 @@ button:hover {
   background: rgba(81, 207, 102, 0.1);
   border-color: rgba(81, 207, 102, 0.3);
   box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
+}
+
+@media (max-width: 480px) {
+  .login-panel {
+    padding: 40px 25px;
+    margin: 0 15px;
+    width: auto;
+  }
+  .login-panel h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  input {
+    padding: 12px 15px;
+    font-size: 16px; /* Prevents auto-zoom on iOS */
+  }
+
+  button {
+    padding: 12px 20px;
+  }
 }
 </style>

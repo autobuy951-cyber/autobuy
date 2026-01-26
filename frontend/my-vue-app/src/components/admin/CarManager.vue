@@ -53,8 +53,13 @@
             <td class="font-mono">{{ car.Rendszam }}</td>
             <td>
               <div class="car-model">
-                <span class="brand">{{ car.Marka }}</span>
-                <span class="model">{{ car.Modell }}</span>
+                <div v-if="car.KepURL" class="car-thumb">
+                  <img :src="car.KepURL" alt="Auto" />
+                </div>
+                <div>
+                  <span class="brand">{{ car.Marka }}</span>
+                  <span class="model">{{ car.Modell }}</span>
+                </div>
               </div>
             </td>
             <td>{{ car.Evjarat }}</td>
@@ -160,6 +165,16 @@
           </div>
 
           <div class="form-group">
+            <label>Kép feltöltése (Opcionális)</label>
+            <div class="file-upload-container">
+              <input type="file" @change="handleFileUpload" accept="image/*" class="file-input">
+              <div v-if="previewImage || form.KepURL" class="image-preview">
+                <img :src="previewImage || form.KepURL" alt="Preview">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Megjegyzés</label>
             <textarea v-model="form.Megjegyzes" rows="3"></textarea>
           </div>
@@ -198,6 +213,8 @@ export default {
         total: 0,
         totalPages: 0
       },
+      selectedFile: null,
+      previewImage: null,
       brandOptions: ['Toyota', 'BMW', 'Mercedes', 'Audi', 'Ford', 'Opel', 'Suzuki', 'Kia', 'Hyundai', 'Volkswagen'],
       form: {
         Rendszam: '',
@@ -208,6 +225,7 @@ export default {
         elerheto: true,
         berleheto: true,
         Alvazszam: '',
+        KepURL: '',
         Megjegyzes: ''
       }
     }
@@ -284,6 +302,8 @@ export default {
     },
     openCreateModal() {
       this.editingCar = null;
+      this.selectedFile = null;
+      this.previewImage = null;
       this.form = {
         Rendszam: '',
         Marka: '',
@@ -299,6 +319,8 @@ export default {
     },
     editCar(car) {
       this.editingCar = car;
+      this.selectedFile = null;
+      this.previewImage = null;
       this.form = { ...car };
       this.showModal = true;
     },
@@ -323,6 +345,19 @@ export default {
     closeModal() {
       this.showModal = false;
     },
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      this.selectedFile = file;
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewImage = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
     async saveCar() {
       try {
         const token = localStorage.getItem('token');
@@ -332,13 +367,29 @@ export default {
         
         const method = this.editingCar ? 'PUT' : 'POST';
 
+        // Use FormData for file upload
+        const formData = new FormData();
+        
+        // Append all form fields
+        for (const key in this.form) {
+          if (this.form[key] !== null && this.form[key] !== undefined) {
+             formData.append(key, this.form[key]);
+          }
+        }
+
+        // Append file if selected
+        if (this.selectedFile) {
+          formData.append('kep', this.selectedFile);
+        }
+
+        // Remove Content-Type header to let browser set boundary
         const response = await fetch(url, {
           method: method,
           headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Authorization': `Bearer ${token}`
+            // Content-Type NOT set for FormData
           },
-          body: JSON.stringify(this.form)
+          body: formData
         });
 
         if(response.ok) {
@@ -465,7 +516,22 @@ export default {
 
 .car-model {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.car-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.car-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .car-model .brand {
@@ -638,7 +704,29 @@ export default {
   cursor: pointer;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.file-input {
+  color: #fff;
+}
+
+.image-preview {
+  width: 100%;
+  max-width: 200px;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

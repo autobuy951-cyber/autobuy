@@ -34,6 +34,10 @@ const Auto = sequelize.define('Auto', {
     NapiAr: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+    },
+    KepURL: {
+        type: DataTypes.TEXT,
+        allowNull: true
     }
 }, {
     tableName: 'autok',

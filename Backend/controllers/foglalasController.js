@@ -8,7 +8,15 @@ exports.getAll = async (req, res) => {
 
         const whereClause = {};
         if (auto_id) whereClause.auto_id = auto_id;
-        if (ugyfel_id) whereClause.ugyfel_id = ugyfel_id;
+
+        // Ha nem admin, csak a saját foglalásait láthatja
+        if (req.userData && req.userData.jogosultsag !== 'admin') {
+            whereClause.ugyfel_id = req.userData.id;
+        } else if (ugyfel_id) {
+            // Ha admin és kért specific ügyfelet
+            whereClause.ugyfel_id = ugyfel_id;
+        }
+
         if (kezdet) whereClause.foglalaskezdete = { [Op.gte]: kezdet };
         if (veg) whereClause.foglalas_vege = { [Op.lte]: veg };
 
@@ -26,7 +34,7 @@ exports.getAll = async (req, res) => {
         const { count, rows } = await Foglalas.findAndCountAll({
             where: whereClause,
             include: [
-                { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell'] },
+                { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'KepURL'] },
                 { model: Ugyfel, attributes: ['Nev', 'Telefonszam'] }
             ],
             order: [[sort_by, sort_order]],
@@ -57,7 +65,18 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { auto_id, ugyfel_id, foglalaskezdete, foglalas_vege } = req.body;
+        // Support both snake_case (Backend standard) and PascalCase (Frontend standard)
+        let { auto_id, ugyfel_id, foglalaskezdete, foglalas_vege } = req.body;
+
+        // Fallback for Frontend inputs
+        if (!auto_id) auto_id = req.body.AutoId;
+        if (!ugyfel_id) ugyfel_id = req.body.UgyfelId;
+        if (!foglalaskezdete) foglalaskezdete = req.body.FoglalasDatuma;
+        if (!foglalas_vege) foglalas_vege = req.body.VisszahozasDatuma;
+
+        if (!auto_id || !ugyfel_id || !foglalaskezdete || !foglalas_vege) {
+            return res.status(400).json({ error: 'Hiányzó adatok (auto_id, ugyfel_id, kezdés, vég)' });
+        }
 
         // Validate overlap
         const overlaps = await Foglalas.findAll({
@@ -116,9 +135,20 @@ exports.delete = async (req, res) => {
         const foglalas = await Foglalas.findByPk(req.params.id);
         if (!foglalas) return res.status(404).json({ error: 'Foglalás nem található' });
 
+        // Security check: Only owner or admin can delete
+        if (req.userData && req.userData.jogosultsag !== 'admin') {
+            if (foglalas.ugyfel_id !== req.userData.id) {
+                return res.status(403).json({ error: 'Nincs jogosultsága törölni más foglalását' });
+            }
+        }
+
         const today = new Date().toISOString().slice(0, 10);
-        if (foglalas.foglalaskezdete <= today) {
-            return res.status(400).json({ error: 'Csak jövőbeli foglalások törölhetők' });
+
+        // Admin user can delete any reservation, but customers can only delete future ones
+        if (!req.userData || req.userData.jogosultsag !== 'admin') {
+            if (foglalas.foglalaskezdete <= today) {
+                return res.status(400).json({ error: 'Csak jövőbeli foglalások törölhetők' });
+            }
         }
 
         const auto_id = foglalas.auto_id;

@@ -57,7 +57,15 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const newAuto = await Auto.create(req.body);
+        const autoData = { ...req.body };
+        if (req.file) {
+            // Construct the full URL for the image
+            const protocol = req.protocol;
+            const host = req.get('host');
+            autoData.KepURL = `${protocol}://${host}/uploads/cars/${req.file.filename}`;
+        }
+
+        const newAuto = await Auto.create(autoData);
         res.status(201).json(newAuto);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -66,7 +74,14 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        const [updated] = await Auto.update(req.body, {
+        const autoData = { ...req.body };
+        if (req.file) {
+            const protocol = req.protocol;
+            const host = req.get('host');
+            autoData.KepURL = `${protocol}://${host}/uploads/cars/${req.file.filename}`;
+        }
+
+        const [updated] = await Auto.update(autoData, {
             where: { AutoID: req.params.id }
         });
         if (updated) {
@@ -98,8 +113,16 @@ exports.delete = async (req, res) => {
 exports.getAvailable = async (req, res) => {
     try {
         const { kezdet, veg } = req.query;
+
+        // Ha nincs dátum megadva, adjuk vissza az összes alapvetően elérhető autót
         if (!kezdet || !veg) {
-            return res.status(400).json({ error: 'Kezdő és vég dátum megadása kötelező' });
+            const availableAutos = await Auto.findAll({
+                where: {
+                    elerheto: true,
+                    berleheto: true
+                }
+            });
+            return res.json(availableAutos);
         }
 
         const foglaltAutoIds = await Foglalas.findAll({
