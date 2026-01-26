@@ -40,6 +40,7 @@
             <th>Ügyfél</th>
             <th>Autó</th>
             <th>Időszak</th>
+            <th>Ár</th>
             <th>Státusz</th>
             <th class="actions-col">Műveletek</th>
           </tr>
@@ -66,13 +67,16 @@
               </div>
             </td>
             <td>
+              <span class="price-cell">{{ formatPrice(booking.Ar) }} Ft</span>
+            </td>
+            <td>
               <span :class="['status-badge', getStatus(booking)]">
                 {{ getStatusLabel(booking) }}
               </span>
             </td>
             <td class="actions">
               <button @click="editBooking(booking)" class="btn-icon" title="Szerkesztés">✎</button>
-              <button @click="confirmDelete(booking)" class="btn-icon delete" title="Törlés">🗑</button>
+              <button v-if="isAdmin" @click="confirmDelete(booking)" class="btn-icon delete" title="Törlés">🗑</button>
             </td>
           </tr>
           <tr v-if="bookings.length === 0">
@@ -122,12 +126,31 @@
            </div>
            <div class="form-group">
              <label>Ügyfél</label>
-             <select v-model="form.ugyfel_id" required>
-               <option value="">Válassz ügyfelet...</option>
-               <option v-for="customer in availableCustomers" :key="customer.ID" :value="customer.ID">
-                 {{ customer.Nev }} ({{ customer.Email }})
-               </option>
-             </select>
+             <div class="custom-select-wrapper" v-click-outside="() => showCustomerDropdown = false">
+               <input 
+                 type="text" 
+                 v-model="customerSearchQuery" 
+                 @focus="showCustomerDropdown = true"
+                 placeholder="Kezdje el gépelni a nevet..."
+                 class="search-dropdown-input"
+               >
+               <input type="hidden" v-model="form.ugyfel_id" required> <!-- Hidden input for validation if needed, or rely on form check -->
+               
+               <div v-if="showCustomerDropdown" class="dropdown-list">
+                 <div 
+                   v-for="customer in filteredCustomers" 
+                   :key="customer.ID" 
+                   @click="selectCustomer(customer)"
+                   class="dropdown-item"
+                 >
+                   <span class="customer-name">{{ customer.Nev }}</span>
+                   <span class="customer-email">{{ customer.Email }}</span>
+                 </div>
+                 <div v-if="filteredCustomers.length === 0" class="dropdown-item no-result">
+                   Nincs találat.
+                 </div>
+               </div>
+             </div>
            </div>
            <div class="form-row">
              <div class="form-group">
@@ -162,6 +185,21 @@
 <script>
 export default {
   name: 'BookingManager',
+  directives: {
+    'click-outside': {
+      mounted(el, binding) {
+        el.clickOutsideEvent = function(event) {
+          if (!(el === event.target || el.contains(event.target))) {
+            binding.value(event, el);
+          }
+        };
+        document.body.addEventListener('click', el.clickOutsideEvent);
+      },
+      unmounted(el) {
+        document.body.removeEventListener('click', el.clickOutsideEvent);
+      }
+    }
+  },
   data() {
     return {
       bookings: [],
@@ -186,10 +224,20 @@ export default {
         foglalaskezdete: '',
         foglalas_vege: '',
         Ar: 0
-      }
+      },
+      customerSearchQuery: '',
+      showCustomerDropdown: false
     }
   },
   computed: {
+    filteredCustomers() {
+      if (!this.customerSearchQuery) return this.availableCustomers;
+      const query = this.customerSearchQuery.toLowerCase();
+      return this.availableCustomers.filter(customer => 
+        customer.Nev.toLowerCase().includes(query) || 
+        customer.Email.toLowerCase().includes(query)
+      );
+    },
     selectedCarDailyRate() {
       if (!this.form.auto_id) return 0;
       const car = this.availableCars.find(c => c.AutoID === this.form.auto_id);
@@ -205,9 +253,24 @@ export default {
     },
     calculatedPrice() {
       return this.rentalDays * this.selectedCarDailyRate;
+    },
+    isAdmin() {
+      return localStorage.getItem('jogosultsag') === 'admin';
     }
   },
   watch: {
+    // Watch for modal opening/editing to reset or set search query
+    editingBooking(newVal) {
+      if (newVal && newVal.Ugyfel) {
+        this.customerSearchQuery = newVal.Ugyfel.Nev;
+      }
+    },
+    // Also watch showModal to clear query on new booking
+    showModal(isOpen) {
+      if (isOpen && !this.editingBooking) {
+        this.customerSearchQuery = '';
+      }
+    },
     calculatedPrice(newPrice) {
       this.form.Ar = newPrice;
     }
@@ -356,6 +419,11 @@ export default {
         console.error(err);
         alert('Hálózati hiba történt');
       }
+     },
+    selectCustomer(customer) {
+      this.form.ugyfel_id = customer.ID;
+      this.customerSearchQuery = customer.Nev;
+      this.showCustomerDropdown = false;
     },
     async confirmDelete(booking) {
       if (confirm(`Biztosan törölni szeretnéd a(z) #${booking.Foglalasokid} foglalást?`)) {
@@ -502,7 +570,7 @@ export default {
   color: rgba(255, 255, 255, 0.4);
 }
 
-.price {
+.price, .price-cell {
   font-weight: 600;
   color: #2ed573;
 }
@@ -667,5 +735,58 @@ export default {
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
+}
+.custom-select-wrapper {
+  position: relative;
+}
+
+.search-dropdown-input {
+  width: 100%;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #2d2d2d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-top: 5px;
+  z-index: 1001;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: white;
+}
+
+.customer-email {
+  font-size: 0.8em;
+  color: #aaa;
 }
 </style>

@@ -5,6 +5,7 @@ import CustomerDashboard from './components/CustomerDashboard.vue'
 import Register from './components/Register.vue'
 import EmployeeRegister from './components/EmployeeRegister.vue'
 import AdminRegister from './components/AdminRegister.vue'
+import EmployeeDashboard from './components/EmployeeDashboard.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     path: '/admin-dashboard',
     name: 'AdminDashboard',
     component: AdminDashboard
+  },
+  {
+    path: '/employee-dashboard',
+    name: 'EmployeeDashboard',
+    component: EmployeeDashboard
   },
   {
     path: '/customer-dashboard',

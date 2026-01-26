@@ -23,7 +23,6 @@
       <button type="submit">Bejelentkezés</button>
     </form>
     <p v-if="message" :class="{ 'error': isError, 'success': !isError }">{{ message }}</p>
-    <router-link to="/register/admin" class="register-link">Nincs még fiókja? Regisztráljon!</router-link>
   </div>
 </template>
 
@@ -94,143 +93,114 @@ export default {
 </script>
 
 <style scoped>
+/* Master Login Style (Admin Variant) */
 .login-panel {
-  max-width: 650px; /* Increased from 550px */
-  margin: 0 auto;
-  padding: 60px 50px; /* Increased padding */
-  background: rgba(0, 0, 0, 0.2); /* Slightly darker for better contrast */
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 30px; /* More rounded */
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  max-width: 500px;
+  width: 90%;
+  margin: 80px auto;
+  padding: 60px 50px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  text-align: left;
 }
 
 .login-panel h2 {
   color: #ffffff;
   margin-bottom: 40px;
   font-weight: 700;
-  font-size: 36px; /* Larger title */
+  font-size: 32px;
   text-align: center;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  letter-spacing: 1px;
+  background: linear-gradient(to right, #ffffff, #a0a0a0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
 }
 
 .form-group {
-  margin-bottom: 30px; /* More spacing */
+  margin-bottom: 24px;
 }
 
 label {
   display: block;
-  margin-bottom: 12px;
-  color: #e0e0e0;
-  font-weight: 600;
-  font-size: 16px; /* Larger label */
+  margin-bottom: 8px;
+  color: #b0b0b0;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 input {
   width: 100%;
-  padding: 18px 25px; /* Larger input padding */
+  padding: 16px 20px;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   color: #ffffff;
-  font-size: 18px; /* Larger input text */
+  font-size: 16px;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  font-family: inherit;
 }
 
 input:focus {
   outline: none;
-  border-color: #ff4757;
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 25px rgba(255, 71, 87, 0.4);
-  transform: translateY(-2px);
+  border-color: #ff4757; /* Admin Red */
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
 }
 
 button {
   width: 100%;
-  padding: 20px 30px; /* Larger button */
-  background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+  padding: 16px;
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%); /* Admin Red Gradient */
   color: white;
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 20px; /* Larger button text */
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.5);
-  margin-top: 20px;
+  margin-top: 10px;
+  text-transform: uppercase;
+  box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
 }
 
 button:hover {
-  background: linear-gradient(135deg, #ff3838 0%, #ff2828 100%);
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(255, 71, 87, 0.7);
-}
-
-.register-link {
-  display: block;
-  text-align: center;
-  margin-top: 30px;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 16px; /* Larger link */
-  transition: color 0.3s ease;
-  opacity: 0.8;
-}
-
-.register-link:hover {
-  color: #ff4757;
-  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(255, 71, 87, 0.4);
 }
 
 .message {
-  margin-top: 20px;
-  padding: 15px 20px;
-  border-radius: 12px;
-  font-weight: 500;
+  margin-top: 25px;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 14px;
   text-align: center;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 500;
 }
 
 .error {
   color: #ff6b6b;
   background: rgba(255, 107, 107, 0.1);
-  border-color: rgba(255, 107, 107, 0.3);
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(255, 107, 107, 0.2);
 }
 
 .success {
   color: #51cf66;
   background: rgba(81, 207, 102, 0.1);
-  border-color: rgba(81, 207, 102, 0.3);
-  box-shadow: 0 4px 15px rgba(81, 207, 102, 0.2);
+  border: 1px solid rgba(81, 207, 102, 0.2);
 }
 
 @media (max-width: 480px) {
   .login-panel {
-    padding: 40px 25px;
-    margin: 0 15px;
-    width: auto;
-  }
-  .login-panel h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-
-  input {
-    padding: 12px 15px;
-    font-size: 16px; /* Prevents auto-zoom on iOS */
-  }
-
-  button {
-    padding: 12px 20px;
+    width: 85%;
+    padding: 40px 30px;
+    margin: 40px auto;
   }
 }
 </style>

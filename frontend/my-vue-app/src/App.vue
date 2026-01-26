@@ -12,7 +12,7 @@ export default {
 
 <style>
 #app {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -20,5 +20,7 @@ export default {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  background-attachment: fixed; /* Ensures background stays fixed while scrolling */
 }
 </style>

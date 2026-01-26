@@ -9,8 +9,8 @@ exports.getAll = async (req, res) => {
         const whereClause = {};
         if (auto_id) whereClause.auto_id = auto_id;
 
-        // Ha nem admin, csak a saját foglalásait láthatja
-        if (req.userData && req.userData.jogosultsag !== 'admin') {
+        // Ha nem admin és nem dolgozó, csak a saját foglalásait láthatja
+        if (req.userData && req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo') {
             whereClause.ugyfel_id = req.userData.id;
         } else if (ugyfel_id) {
             // Ha admin és kért specific ügyfelet
