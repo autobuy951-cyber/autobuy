@@ -1,0 +1,34 @@
+📈 Következő Lépések (Opcionális)
+Ha tovább szeretnéd fejleszteni a design rendszert:
+
+CSS változók használata a komponens CSS fájlokban is
+Dark/Light mode támogatás CSS változókkal
+Admin manager komponensek CSS kiemelése (ha szükséges)
+Animációs library integrálása (pl. animate.css)
+Új Projekt Struktúra
+src/
+├── styles/                    ← ÚJ! Közös stílusok
+│   ├── variables.css          ← Design tokenek
+│   ├── common.css             ← Újrafelhasználható komponensek
+│   ├── login.css              ← Login stílusok (kék)
+│   ├── admin-login.css        ← Admin login (piros)
+│   └── register.css           ← Regisztrációs stílusok
+├── components/
+│   ├── CustomerDashboard.vue
+│   ├── CustomerDashboard.css  ← Komponens CSS
+│   ├── AdminDashboard.vue
+│   ├── AdminDashboard.css
+│   ├── EmployeeDashboard.vue
+│   ├── EmployeeDashboard.css
+│   ├── LoginPage.vue
+│   ├── LoginPage.css
+│   ├── CustomerLogin.vue      ← Használja: ../styles/login.css
+│   ├── Login.vue              ← Használja: ../styles/login.css
+│   ├── AdminLogin.vue         ← Használja: ../styles/admin-login.css
+│   ├── EmployeeRegister.vue   ← Használja: ../styles/register.css
+│   ├── AdminRegister.vue      ← Használja: ../styles/register.css
+│   └── admin/
+│       ├── CarManager.vue     ← Inline scoped CSS (komplex UI)
+│       ├── CustomerManager.vue
+│       ├── EmployeeManager.vue
+│       └── BookingManager.vue
