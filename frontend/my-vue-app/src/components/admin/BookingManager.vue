@@ -3,15 +3,25 @@
     <div class="toolbar">
       <div class="search-filters">
         <div class="input-group">
-          <i class="search-icon">🔍</i>
-          <input 
-            type="text" 
-            v-model="filters.search" 
-            @input="debouncedFetch" 
-            placeholder="Keresés ügyfél vagy dátum..."
+          <i class="search-icon">👤</i>
+          <input
+            type="text"
+            v-model="filters.nameSearch"
+            @input="debouncedFetch"
+            placeholder="Ügyfél név keresése..."
           >
         </div>
-        
+
+        <div class="input-group">
+          <i class="search-icon">📅</i>
+          <input
+            type="date"
+            v-model="filters.dateSearch"
+            @change="fetchBookings"
+            placeholder="Dátum keresése..."
+          >
+        </div>
+
         <select v-model="filters.status" @change="fetchBookings" class="filter-select">
           <option value="">Minden státusz</option>
           <option value="aktiv">Aktív</option>
@@ -209,7 +219,8 @@ export default {
       showModal: false,
       editingBooking: null,
       filters: {
-        search: '',
+        nameSearch: '',
+        dateSearch: '',
         status: ''
       },
       pagination: {
@@ -231,11 +242,10 @@ export default {
   },
   computed: {
     filteredCustomers() {
-      if (!this.customerSearchQuery) return this.availableCustomers;
-      const query = this.customerSearchQuery.toLowerCase();
-      return this.availableCustomers.filter(customer => 
-        customer.Nev.toLowerCase().includes(query) || 
-        customer.Email.toLowerCase().includes(query)
+      if (!this.customerSearchQuery || this.customerSearchQuery.trim() === '') return this.availableCustomers;
+      const query = this.customerSearchQuery.toLowerCase().trim();
+      return this.availableCustomers.filter(customer =>
+        customer.Nev && customer.Nev.toLowerCase().includes(query)
       );
     },
     selectedCarDailyRate() {
@@ -248,7 +258,7 @@ export default {
       const start = new Date(this.form.foglalaskezdete);
       const end = new Date(this.form.foglalas_vege);
       const diffTime = Math.abs(end - start);
-      const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
+      const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return days > 0 ? days : 0;
     },
     calculatedPrice() {
@@ -313,11 +323,13 @@ export default {
         });
 
         if (this.filters.status) params.append('status', this.filters.status);
-        
+        if (this.filters.nameSearch) params.append('name_search', this.filters.nameSearch);
+        if (this.filters.dateSearch) params.append('date_search', this.filters.dateSearch);
+
         const response = await fetch(`http://localhost:3000/api/foglalasok?${params.toString()}`, {
            headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (!response.ok) throw new Error('Hiba az adatok lekérésekor');
 
         const data = await response.json();

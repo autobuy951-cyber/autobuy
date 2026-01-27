@@ -4,7 +4,9 @@
       <h1>Ügyfél Dashboard</h1>
       <div class="user-info">
         <span>Üdvözöljük, {{ userNev }}</span>
-        <button @click="logout" class="logout-btn">Kijelentkezés</button>
+        <button @click="logout" class="logout-btn">
+          🚪 Kijelentkezés
+        </button>
       </div>
     </header>
 
@@ -290,7 +292,7 @@ export default {
       const start = new Date(this.reservationForm.startDate);
       const end = new Date(this.reservationForm.returnDate);
       const diffTime = end - start;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 mert beleértjük az első napot is
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return diffDays > 0 ? diffDays : 0;
     },
     totalPrice() {

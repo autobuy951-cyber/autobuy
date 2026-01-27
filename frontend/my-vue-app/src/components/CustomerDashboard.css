@@ -486,6 +486,21 @@
     border-radius: 8px;
 }
 
+.logout-btn {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ff6b6b;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 71, 87, 0.1);
+    border-color: #ff4757;
+}
+
 @media (max-width: 768px) {
     .cars-grid {
         grid-template-columns: 1fr;

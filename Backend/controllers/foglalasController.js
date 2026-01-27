@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
     try {
-        const { page = 1, limit = 20, sort_by = 'Letrehozasdatuma', sort_order = 'DESC', auto_id, ugyfel_id, kezdet, veg, status } = req.query;
+        const { page = 1, limit = 20, sort_by = 'Letrehozasdatuma', sort_order = 'DESC', auto_id, ugyfel_id, kezdet, veg, status, name_search, date_search } = req.query;
         const offset = (page - 1) * limit;
 
         const whereClause = {};
@@ -31,12 +31,32 @@ exports.getAll = async (req, res) => {
             whereClause.foglalaskezdete = { [Op.gt]: today };
         }
 
+        const includeOptions = [
+            { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'KepURL'] },
+            { model: Ugyfel, attributes: ['Nev', 'Telefonszam'] }
+        ];
+
+        // Add search functionality
+        if (name_search) {
+            includeOptions[1] = {
+                model: Ugyfel,
+                attributes: ['Nev', 'Telefonszam'],
+                where: {
+                    Nev: { [Op.like]: `%${name_search}%` }
+                }
+            };
+        }
+
+        if (date_search) {
+            whereClause[Op.or] = [
+                { foglalaskezdete: { [Op.like]: `%${date_search}%` } },
+                { foglalas_vege: { [Op.like]: `%${date_search}%` } }
+            ];
+        }
+
         const { count, rows } = await Foglalas.findAndCountAll({
             where: whereClause,
-            include: [
-                { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'KepURL'] },
-                { model: Ugyfel, attributes: ['Nev', 'Telefonszam'] }
-            ],
+            include: includeOptions,
             order: [[sort_by, sort_order]],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -105,7 +125,7 @@ exports.create = async (req, res) => {
         const start = new Date(foglalaskezdete);
         const end = new Date(foglalas_vege);
         const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         const Ar = diffDays * (car.NapiAr || 15000); // Use car's NapiAr or fallback to 15000
 
         const newFoglalas = await Foglalas.create({
