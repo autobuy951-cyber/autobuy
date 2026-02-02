@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
     try {
-        const { page = 1, limit = 20, auto_id, status } = req.query;
+        const { page = 1, limit = 20, auto_id, status, search } = req.query;
         const offset = (page - 1) * limit;
 
         const whereClause = {};
@@ -11,9 +11,18 @@ exports.getAll = async (req, res) => {
         if (status === 'aktiv') whereClause.vissza = null;
         if (status === 'lezart') whereClause.vissza = { [Op.ne]: null };
 
+        const includeClause = [{ model: Auto, attributes: ['Rendszam'] }];
+
+        // If searching by license plate, add condition to include
+        if (search) {
+            includeClause[0].where = {
+                Rendszam: { [Op.iLike]: `%${search}%` }
+            };
+        }
+
         const { count, rows } = await AutoKibe.findAndCountAll({
             where: whereClause,
-            include: [{ model: Auto, attributes: ['Rendszam'] }],
+            include: includeClause,
             order: [['elvitel', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)

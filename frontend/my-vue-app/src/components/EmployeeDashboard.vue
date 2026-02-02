@@ -8,26 +8,33 @@
       </div>
       
       <nav class="sidebar-nav">
-        <button 
-          @click="currentView = 'cars'" 
+        <button
+          @click="currentView = 'cars'"
           :class="{ active: currentView === 'cars' }"
           class="nav-item"
         >
           🚗 Autók Listája
         </button>
-        <button 
-          @click="currentView = 'customers'" 
+        <button
+          @click="currentView = 'customers'"
           :class="{ active: currentView === 'customers' }"
           class="nav-item"
         >
           👥 Ügyfelek Listája
         </button>
-        <button 
-          @click="currentView = 'bookings'" 
+        <button
+          @click="currentView = 'bookings'"
           :class="{ active: currentView === 'bookings' }"
           class="nav-item"
         >
           📅 Foglalások Kezelése
+        </button>
+        <button
+          @click="currentView = 'takenCars'"
+          :class="{ active: currentView === 'takenCars' }"
+          class="nav-item"
+        >
+          🚙 Elvitt Autók
         </button>
       </nav>
 
@@ -58,6 +65,7 @@
           <CarManager v-if="currentView === 'cars'" />
           <CustomerManager v-else-if="currentView === 'customers'" />
           <BookingManager v-else-if="currentView === 'bookings'" />
+          <TakenCarsManager v-else-if="currentView === 'takenCars'" />
         </transition>
       </div>
     </main>
@@ -65,18 +73,20 @@
 </template>
 
 <script>
-// Reusing admin components for now. 
+// Reusing admin components for now.
 // Ideally, we should pass a prop like :is-admin="false" to hide delete/edit buttons if allowed
 import CarManager from './admin/CarManager.vue';
 import CustomerManager from './admin/CustomerManager.vue';
 import BookingManager from './admin/BookingManager.vue';
+import TakenCarsManager from './admin/TakenCarsManager.vue';
 
 export default {
   name: 'EmployeeDashboard',
   components: {
     CarManager,
     CustomerManager,
-    BookingManager
+    BookingManager,
+    TakenCarsManager
   },
   data() {
     return {
@@ -93,6 +103,7 @@ export default {
         case 'cars': return 'Autók Listája';
         case 'customers': return 'Ügyfelek Listája';
         case 'bookings': return 'Foglalások Kezelése';
+        case 'takenCars': return 'Elvitt Autók';
         default: return 'Dashboard';
       }
     }

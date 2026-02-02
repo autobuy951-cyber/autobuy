@@ -47,5 +47,6 @@ Backend/teszt.js
 Backend/clear_db.js
 Backend/requests_*.http
 
+
 # Antigravity artifacts
 .gemini/
