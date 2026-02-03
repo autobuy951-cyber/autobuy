@@ -127,12 +127,31 @@
         <form @submit.prevent="saveBooking">
            <div class="form-group">
              <label>Autó</label>
-             <select v-model="form.auto_id" required>
-               <option value="">Válassz autót...</option>
-               <option v-for="car in availableCars" :key="car.AutoID" :value="car.AutoID">
-                 {{ car.Marka }} {{ car.Modell }} ({{ car.Rendszam }})
-               </option>
-             </select>
+             <div class="custom-select-wrapper" v-click-outside="() => showCarDropdown = false">
+               <input 
+                 type="text" 
+                 v-model="carSearchQuery" 
+                 @focus="showCarDropdown = true"
+                 placeholder="Keresés rendszám, márka vagy modell alapján..."
+                 class="search-dropdown-input"
+               >
+               <input type="hidden" v-model="form.auto_id" required>
+               
+               <div v-if="showCarDropdown" class="dropdown-list">
+                 <div 
+                   v-for="car in filteredCars" 
+                   :key="car.AutoID" 
+                   @click="selectCar(car)"
+                   class="dropdown-item"
+                 >
+                   <span class="car-name">{{ car.Marka }} {{ car.Modell }}</span>
+                   <span class="car-plate">{{ car.Rendszam }}</span>
+                 </div>
+                 <div v-if="filteredCars.length === 0" class="dropdown-item no-result">
+                   Nincs találat.
+                 </div>
+               </div>
+             </div>
            </div>
            <div class="form-group">
              <label>Ügyfél</label>
@@ -237,7 +256,9 @@ export default {
         Ar: 0
       },
       customerSearchQuery: '',
-      showCustomerDropdown: false
+      showCustomerDropdown: false,
+      carSearchQuery: '',
+      showCarDropdown: false
     }
   },
   computed: {
@@ -247,6 +268,28 @@ export default {
       return this.availableCustomers.filter(customer =>
         customer.Nev && customer.Nev.toLowerCase().includes(query)
       );
+    },
+    filteredCars() {
+      if (!this.carSearchQuery || this.carSearchQuery.trim() === '') return this.availableCars;
+      const query = this.carSearchQuery.toLowerCase().trim();
+      // Normalize query by removing spaces and hyphens for license plate matching
+      const normalizedQuery = query.replace(/[\s-]/g, '');
+      
+      return this.availableCars.filter(car => {
+        // For license plate, normalize both the search and the actual plate
+        const normalizedRendszam = car.Rendszam ? car.Rendszam.toLowerCase().replace(/[\s-]/g, '') : '';
+        const rendszamMatch = normalizedRendszam.includes(normalizedQuery);
+        
+        // For brand and model, use regular search
+        const markaMatch = car.Marka && car.Marka.toLowerCase().includes(query);
+        const modellMatch = car.Modell && car.Modell.toLowerCase().includes(query);
+        
+        // Also search in combined "Marka Modell" string (e.g., "Opel C" matches "Opel Corsa")
+        const combinedText = `${car.Marka || ''} ${car.Modell || ''}`.toLowerCase();
+        const combinedMatch = combinedText.includes(query);
+        
+        return rendszamMatch || markaMatch || modellMatch || combinedMatch;
+      });
     },
     selectedCarDailyRate() {
       if (!this.form.auto_id) return 0;
@@ -274,11 +317,15 @@ export default {
       if (newVal && newVal.Ugyfel) {
         this.customerSearchQuery = newVal.Ugyfel.Nev;
       }
+      if (newVal && newVal.Auto) {
+        this.carSearchQuery = `${newVal.Auto.Marka} ${newVal.Auto.Modell} (${newVal.Auto.Rendszam})`;
+      }
     },
     // Also watch showModal to clear query on new booking
     showModal(isOpen) {
       if (isOpen && !this.editingBooking) {
         this.customerSearchQuery = '';
+        this.carSearchQuery = '';
       }
     },
     calculatedPrice(newPrice) {
@@ -437,6 +484,11 @@ export default {
       this.customerSearchQuery = customer.Nev;
       this.showCustomerDropdown = false;
     },
+    selectCar(car) {
+      this.form.auto_id = car.AutoID;
+      this.carSearchQuery = `${car.Marka} ${car.Modell} (${car.Rendszam})`;
+      this.showCarDropdown = false;
+    },
     async confirmDelete(booking) {
       if (confirm(`Biztosan törölni szeretnéd a(z) #${booking.Foglalasokid} foglalást?`)) {
          const token = localStorage.getItem('token');
@@ -497,6 +549,17 @@ export default {
   font-size: 14px;
 }
 
+.input-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.input-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+
 .filter-select {
   padding: 10px 16px;
   border-radius: 8px;
@@ -546,6 +609,28 @@ export default {
 .id-cell {
   font-family: monospace;
   color: #a0a0a0;
+}
+
+.customer-email {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.car-name {
+  font-weight: 600;
+  color: white;
+}
+
+.car-plate {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: monospace;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .user-info {
@@ -696,6 +781,17 @@ export default {
   border-radius: 8px;
   color: white;
 }
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 
 .price-calculation {
   display: flex;

@@ -98,12 +98,31 @@
         <form @submit.prevent="submitCreate" class="modal-form">
           <div class="form-group">
             <label>Autó</label>
-            <select v-model="createForm.auto_id" required>
-              <option value="">Válassz autót...</option>
-              <option v-for="car in availableCars" :key="car.AutoID" :value="car.AutoID">
-                {{ car.Marka }} {{ car.Modell }} ({{ car.Rendszam }})
-              </option>
-            </select>
+            <div class="custom-select-wrapper" v-click-outside="() => showCarDropdown = false">
+              <input 
+                type="text" 
+                v-model="carSearchQuery" 
+                @focus="showCarDropdown = true"
+                placeholder="Keresés rendszám, márka vagy modell alapján..."
+                class="search-dropdown-input"
+              >
+              <input type="hidden" v-model="createForm.auto_id" required>
+              
+              <div v-if="showCarDropdown" class="dropdown-list">
+                <div 
+                  v-for="car in filteredCars" 
+                  :key="car.AutoID" 
+                  @click="selectCar(car)"
+                  class="dropdown-item"
+                >
+                  <span class="car-name">{{ car.Marka }} {{ car.Modell }}</span>
+                  <span class="car-plate">{{ car.Rendszam }}</span>
+                </div>
+                <div v-if="filteredCars.length === 0" class="dropdown-item no-result">
+                  Nincs találat.
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="form-group">
@@ -183,7 +202,48 @@ export default {
         auto_id: '',
         elvitel: new Date().toISOString().slice(0, 10),
         Kilometer_kezdet: 0
+      },
+      carSearchQuery: '',
+      showCarDropdown: false
+    }
+  },
+  directives: {
+    'click-outside': {
+      mounted(el, binding) {
+        el.clickOutsideEvent = function(event) {
+          if (!(el === event.target || el.contains(event.target))) {
+            binding.value(event, el);
+          }
+        };
+        document.body.addEventListener('click', el.clickOutsideEvent);
+      },
+      unmounted(el) {
+        document.body.removeEventListener('click', el.clickOutsideEvent);
       }
+    }
+  },
+  computed: {
+    filteredCars() {
+      if (!this.carSearchQuery || this.carSearchQuery.trim() === '') return this.availableCars;
+      const query = this.carSearchQuery.toLowerCase().trim();
+      // Normalize query by removing spaces and hyphens for license plate matching
+      const normalizedQuery = query.replace(/[\s-]/g, '');
+      
+      return this.availableCars.filter(car => {
+        // For license plate, normalize both the search and the actual plate
+        const normalizedRendszam = car.Rendszam ? car.Rendszam.toLowerCase().replace(/[\s-]/g, '') : '';
+        const rendszamMatch = normalizedRendszam.includes(normalizedQuery);
+        
+        // For brand and model, use regular search
+        const markaMatch = car.Marka && car.Marka.toLowerCase().includes(query);
+        const modellMatch = car.Modell && car.Modell.toLowerCase().includes(query);
+        
+        // Also search in combined "Marka Modell" string (e.g., "Opel C" matches "Opel Corsa")
+        const combinedText = `${car.Marka || ''} ${car.Modell || ''}`.toLowerCase();
+        const combinedMatch = combinedText.includes(query);
+        
+        return rendszamMatch || markaMatch || modellMatch || combinedMatch;
+      });
     }
   },
   mounted() {
@@ -268,7 +328,13 @@ export default {
         elvitel: new Date().toISOString().slice(0, 10),
         Kilometer_kezdet: 0
       };
+      this.carSearchQuery = '';
       this.showCreateModal = true;
+    },
+    selectCar(car) {
+      this.createForm.auto_id = car.AutoID;
+      this.carSearchQuery = `${car.Marka} ${car.Modell} (${car.Rendszam})`;
+      this.showCarDropdown = false;
     },
     closeCreateModal() {
       this.showCreateModal = false;
@@ -515,6 +581,8 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.1);
   width: 90%;
   max-width: 500px;
+  overflow: visible;
+  max-height: 90vh;
 }
 
 .modal h2 {
@@ -526,11 +594,14 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow: visible;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: visible;
 }
 
 .form-group label {
@@ -546,6 +617,16 @@ export default {
   border-radius: 8px;
   color: white;
   font-size: 14px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 .readonly-input {
@@ -594,5 +675,65 @@ export default {
   text-align: center;
   color: rgba(255, 255, 255, 0.5);
   font-style: italic;
+}
+
+.custom-select-wrapper {
+  position: relative;
+}
+
+.search-dropdown-input {
+  width: 100%;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #2d2d2d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-top: 5px;
+  z-index: 9999;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.car-name {
+  font-weight: 600;
+  color: white;
+}
+
+.car-plate {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: monospace;
+}
+
+.no-result {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
 }
 </style>

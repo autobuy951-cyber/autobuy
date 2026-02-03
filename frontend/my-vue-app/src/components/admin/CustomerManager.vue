@@ -579,6 +579,17 @@ export default {
   color: white;
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;

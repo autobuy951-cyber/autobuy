@@ -13,11 +13,28 @@ exports.getAll = async (req, res) => {
 
         const includeClause = [{ model: Auto, attributes: ['Rendszam'] }];
 
-        // If searching by license plate, add condition to include
+        // If searching by license plate, normalize both search and DB value (remove spaces and hyphens)
         if (search) {
+            const normalizedSearch = search.replace(/[\s-]/g, '');
             includeClause[0].where = {
-                Rendszam: { [Op.iLike]: `%${search}%` }
+                Rendszam: {
+                    [Op.iLike]: `%${normalizedSearch}%`
+                }
             };
+            // Use Sequelize.literal to normalize the Rendszam field in the database
+            const { Sequelize } = require('sequelize');
+            includeClause[0].where = Sequelize.where(
+                Sequelize.fn('REPLACE',
+                    Sequelize.fn('REPLACE',
+                        Sequelize.fn('LOWER', Sequelize.col('Auto.Rendszam')),
+                        ' ', ''
+                    ),
+                    '-', ''
+                ),
+                {
+                    [Op.like]: `%${normalizedSearch.toLowerCase()}%`
+                }
+            );
         }
 
         const { count, rows } = await AutoKibe.findAndCountAll({
