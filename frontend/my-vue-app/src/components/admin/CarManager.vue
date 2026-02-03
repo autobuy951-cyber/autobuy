@@ -168,8 +168,11 @@
             <label>Kép feltöltése (Opcionális)</label>
             <div class="file-upload-container">
               <input type="file" @change="handleFileUpload" accept="image/*" class="file-input">
-              <div v-if="previewImage || form.KepURL" class="image-preview">
-                <img :src="previewImage || form.KepURL" alt="Preview">
+              <div v-if="previewImage || form.KepURL" class="image-preview-container">
+                <img :src="previewImage || form.KepURL" alt="Preview" class="image-preview">
+                <button @click="removeImage" type="button" class="remove-image-btn" title="Kép törlése">
+                  🗑
+                </button>
               </div>
             </div>
           </div>
@@ -350,13 +353,23 @@ export default {
       if (!file) return;
 
       this.selectedFile = file;
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         this.previewImage = e.target.result;
       };
       reader.readAsDataURL(file);
+    },
+    removeImage() {
+      this.selectedFile = null;
+      this.previewImage = null;
+      this.form.KepURL = '';
+      // Reset the file input
+      const fileInput = this.$el.querySelector('.file-input');
+      if (fileInput) {
+        fileInput.value = '';
+      }
     },
     async saveCar() {
       try {
@@ -714,6 +727,11 @@ export default {
   color: #fff;
 }
 
+.image-preview-container {
+  position: relative;
+  display: inline-block;
+}
+
 .image-preview {
   width: 100%;
   max-width: 200px;
@@ -728,5 +746,28 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 71, 87, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.remove-image-btn:hover {
+  background: rgba(255, 71, 87, 1);
+  transform: scale(1.1);
 }
 </style>

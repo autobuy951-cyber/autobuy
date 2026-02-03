@@ -1,60 +1,119 @@
 <template>
   <div class="auth-container">
     <h1 class="app-title">Autobuy</h1>
-    <p class="app-subtitle">Válassza ki a bejelentkezés típusát</p>
+    <p class="app-subtitle">Bejelentkezés</p>
 
-    <div class="user-type-selection" v-if="!selectedUserType">
-      <div class="user-type-card" @click="selectUserType('customer')">
-        <h3>Ügyfél</h3>
-        <p>Autó vásárlás és foglalás</p>
-        <div class="icon">👤</div>
-      </div>
-
-      <div class="user-type-card" @click="selectUserType('employee')">
-        <h3>Dolgozó</h3>
-        <p>Autók és ügyfelek kezelése</p>
-        <div class="icon">👨‍💼</div>
-      </div>
-
-      <div class="user-type-card" @click="selectUserType('admin')">
-        <h3>Admin</h3>
-        <p>Rendszer adminisztráció</p>
-        <div class="icon">⚙️</div>
-      </div>
-    </div>
-
-    <div class="login-forms" v-if="selectedUserType">
-      <button @click="goBack" class="back-button">← Vissza</button>
-      <CustomerLogin v-if="selectedUserType === 'customer'" />
-      <Login v-if="selectedUserType === 'employee'" />
-      <AdminLogin v-if="selectedUserType === 'admin'" />
+    <div class="login-form">
+      <form @submit.prevent="handleLogin">
+        <div class="form-group">
+          <label for="nev">Felhasználónév vagy Email:</label>
+          <input
+            type="text"
+            id="nev"
+            v-model="email"
+            placeholder="Adja meg a felhasználónevét vagy email címét"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Jelszó:</label>
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            required
+          />
+        </div>
+        <button type="submit" :disabled="loading">
+          {{ loading ? 'Bejelentkezés...' : 'Bejelentkezés' }}
+        </button>
+      </form>
+      <p v-if="message" :class="{ 'error': isError, 'success': !isError }">{{ message }}</p>
     </div>
   </div>
 </template>
 
 <script>
-import Login from './Login.vue'
-import CustomerLogin from './CustomerLogin.vue'
-import AdminLogin from './AdminLogin.vue'
-
 export default {
   name: 'LoginPage',
-  components: {
-    Login,
-    CustomerLogin,
-    AdminLogin
-  },
   data() {
     return {
-      selectedUserType: null
+      email: '',
+      password: '',
+      message: '',
+      isError: false,
+      loading: false
     }
   },
   methods: {
-    selectUserType(type) {
-      this.selectedUserType = type;
+    async handleLogin() {
+      try {
+        this.loading = true;
+        this.message = 'Bejelentkezés folyamatban...';
+        this.isError = false;
+
+        // Determine if input is email or username
+        const isEmail = this.email.includes('@');
+        const endpoint = isEmail ? '/api/auth/login/customer' : '/api/auth/login';
+        const requestBody = isEmail
+          ? { email: this.email, jelszo: this.password }
+          : { nev: this.email, jelszo: this.password };
+
+        const response = await fetch(`http://localhost:3000${endpoint}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          this.message = 'Sikeres bejelentkezés! Üdvözöljük!';
+          this.isError = false;
+
+          // Store the token and user data
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userId', data.userId);
+          localStorage.setItem('jogosultsag', data.jogosultsag);
+          localStorage.setItem('nev', data.nev || this.email);
+          if (isEmail) {
+            localStorage.setItem('email', this.email);
+            localStorage.setItem('userType', 'customer');
+          }
+
+          // Redirect based on role
+          setTimeout(() => {
+            this.redirectBasedOnRole(data.jogosultsag);
+          }, 1000);
+        } else {
+          this.message = data.message || 'Hibás felhasználónév vagy jelszó';
+          this.isError = true;
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        this.message = 'Hálózati hiba történt. Kérjük, próbálja újra!';
+        this.isError = true;
+      } finally {
+        this.loading = false;
+      }
     },
-    goBack() {
-      this.selectedUserType = null;
+    redirectBasedOnRole(jogosultsag) {
+      switch (jogosultsag) {
+        case 'admin':
+          this.$router.push('/admin-dashboard');
+          break;
+        case 'dolgozo':
+          this.$router.push('/employee-dashboard');
+          break;
+        case 'ugyfel':
+          this.$router.push('/customer-dashboard');
+          break;
+        default:
+          this.message = 'Ismeretlen jogosultság!';
+          this.isError = true;
+      }
     }
   }
 }
@@ -62,152 +121,112 @@ export default {
 
 <style scoped>
 .auth-container {
-  min-height: 100vh;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
 }
 
 .app-title {
-  font-size: 64px;
-  font-weight: 800;
-  margin-bottom: 15px;
-  background: linear-gradient(135deg, #ff4757 0%, #ffffff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  text-align: center;
-  letter-spacing: -1px;
+  font-size: 3rem;
+  color: white;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .app-subtitle {
-  font-size: 20px;
-  color: #b0b0b0;
-  margin-bottom: 60px;
-  font-weight: 400;
-  text-align: center;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.user-type-selection {
-  display: flex;
-  gap: 30px;
-  justify-content: center;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 40px;
-  flex-wrap: wrap;
 }
 
-.user-type-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 40px 30px;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  backdrop-filter: blur(10px);
-  text-align: center;
-  flex: 1;
-  min-width: 240px;
-  max-width: 300px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.user-type-card:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 71, 87, 0.5);
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(255, 71, 87, 0.25);
-}
-
-.user-type-card h3 {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #ffffff;
-}
-
-.user-type-card p {
-  font-size: 16px;
-  color: #c0c0c0;
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-
-.icon {
-  font-size: 60px;
-  margin-bottom: 20px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-@media (max-width: 768px) {
-  .app-title {
-    font-size: 42px;
-  }
-  
-  .user-type-card {
-    padding: 30px 20px;
-    max-width: 100%;
-  }
-}
-
-.login-forms {
-  position: relative;
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.back-button {
-  position: absolute;
-  top: -50px;
-  left: 0;
+.login-form {
   background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  padding: 8px 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: white;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 16px;
+  transition: border-color 0.3s;
 }
 
-.back-button:hover {
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff4757;
   background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
 }
 
-@media (max-width: 768px) {
-  .auth-container {
-    padding: 20px 15px;
-    margin: 10px;
-  }
+button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
 
-  .app-title {
-    font-size: 26px;
-  }
+button[type="submit"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+}
 
-  .user-type-selection {
-    flex-direction: column;
-    gap: 15px;
-  }
+button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
 
-  .user-type-card {
-    min-width: 100%;
-  }
+.message {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 500;
+}
 
-  .back-button {
-    position: static;
-    display: block;
-    margin-bottom: 20px;
-    width: 100%;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.15);
-  }
-}</style>
+.error {
+  background: rgba(255, 71, 87, 0.2);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+}
+
+.success {
+  background: rgba(46, 213, 115, 0.2);
+  border: 1px solid rgba(46, 213, 115, 0.3);
+  color: #2ed573;
+}
+</style>
