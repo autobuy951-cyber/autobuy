@@ -153,7 +153,7 @@
 2.  Az adminisztrátor belép az ügyfelek kezelő felületére.
 3.  Kiválasztja az ügyfelet a listából.
 4.  Ellenőrzi, hogy nincs aktív vagy jövőbeni foglalása.
-5.  Törli az ügyfelet az **Ugyfelek** táblából, vagy "törölt"-re állítja az állapotát.
+5.  Törli az ügyfelet az **Ugyfelek** táblából, vagy "törölt"-re állítja az állapotát
 
 
 
