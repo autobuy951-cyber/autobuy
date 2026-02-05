@@ -1,10 +1,12 @@
 <template>
-  <div class="auth-container">
-    <h1 class="app-title">Autobuy</h1>
-    <p class="app-subtitle">Bejelentkezés</p>
+  <div class="login-container">
+    <div class="login-panel">
+      <div class="login-header">
+        <h1>Autobuy</h1>
+        <p class="subtitle">Autókölcsönző Rendszer</p>
+      </div>
 
-    <div class="login-form">
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="nev">Felhasználónév vagy Email:</label>
           <input
@@ -21,14 +23,15 @@
             type="password"
             id="password"
             v-model="password"
+            placeholder="Adja meg a jelszavát"
             required
           />
         </div>
-        <button type="submit" :disabled="loading">
+        <button type="submit" class="btn-primary" :disabled="loading">
           {{ loading ? 'Bejelentkezés...' : 'Bejelentkezés' }}
         </button>
       </form>
-      <p v-if="message" :class="{ 'error': isError, 'success': !isError }">{{ message }}</p>
+      <p v-if="message" :class="['message', { 'error': isError, 'success': !isError }]">{{ message }}</p>
     </div>
   </div>
 </template>
@@ -120,113 +123,124 @@ export default {
 </script>
 
 <style scoped>
-.auth-container {
+.login-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
 }
 
-.app-title {
-  font-size: 3rem;
-  color: white;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.app-subtitle {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 40px;
-}
-
-.login-form {
-  background: rgba(255, 255, 255, 0.1);
+.login-panel {
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 40px;
   width: 100%;
-  max-width: 400px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  max-width: 450px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
-  display: block;
   margin-bottom: 8px;
-  color: white;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
   font-weight: 500;
 }
 
 .form-group input {
-  width: 100%;
   padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   transition: border-color 0.3s;
 }
 
 .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #ff4757;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4);
 }
 
-button[type="submit"] {
-  width: 100%;
-  padding: 12px;
+.btn-primary {
   background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
   border: none;
+  padding: 12px 24px;
   border-radius: 8px;
   color: white;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 8px;
 }
 
-button[type="submit"]:hover:not(:disabled) {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
 }
 
-button[type="submit"]:disabled {
+.btn-primary:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-  transform: none;
 }
 
 .message {
   margin-top: 20px;
-  padding: 10px;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border-radius: 8px;
   text-align: center;
+  font-size: 14px;
   font-weight: 500;
 }
 
 .error {
-  background: rgba(255, 71, 87, 0.2);
-  border: 1px solid rgba(255, 71, 87, 0.3);
+  background: rgba(255, 71, 87, 0.15);
+  border: 1px solid rgba(255, 71, 87, 0.2);
   color: #ff4757;
 }
 
 .success {
-  background: rgba(46, 213, 115, 0.2);
-  border: 1px solid rgba(46, 213, 115, 0.3);
+  background: rgba(46, 213, 115, 0.15);
+  border: 1px solid rgba(46, 213, 115, 0.2);
   color: #2ed573;
 }
 </style>
