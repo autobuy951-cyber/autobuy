@@ -114,13 +114,15 @@ exports.getAvailable = async (req, res) => {
     try {
         const { kezdet, veg } = req.query;
 
+        // Alap where feltétel - csak a berleheto = true autók látszódjanak az ügyfélnek
+        const baseWhere = {
+            berleheto: true  // Csak ez a feltétel számít az ügyfél számára
+        };
+
         // Ha nincs dátum megadva, adjuk vissza az összes alapvetően elérhető autót
         if (!kezdet || !veg) {
             const availableAutos = await Auto.findAll({
-                where: {
-                    elerheto: true,
-                    berleheto: true
-                }
+                where: baseWhere
             });
             return res.json(availableAutos);
         }
@@ -143,8 +145,7 @@ exports.getAvailable = async (req, res) => {
         const availableAutos = await Auto.findAll({
             where: {
                 AutoID: { [Op.notIn]: ids },
-                elerheto: true,
-                berleheto: true
+                ...baseWhere
             }
         });
 

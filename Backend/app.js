@@ -86,6 +86,7 @@ const autoRoutes = require('./routes/autoRoutes');
 const foglalasRoutes = require('./routes/foglalasRoutes');
 const autoKibeRoutes = require('./routes/autoKibeRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 // Útvonalak használata
 app.use('/api/auth', authRoutes);
@@ -95,6 +96,7 @@ app.use('/api/dolgozok', dolgozoRoutes);
 app.use('/api/autok', autoRoutes);
 app.use('/api/foglalasok', foglalasRoutes);
 app.use('/api/autokibe', autoKibeRoutes);
+app.use('/api/stats', statsRoutes);
 
 app.listen(port, () => {
   logger.info(`Szerver fut a http://localhost:${port} címen`);

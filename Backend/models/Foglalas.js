@@ -16,10 +16,32 @@ const Foglalas = sequelize.define('Foglalas', {
         allowNull: true
     },
     foglalaskezdete: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
+        comment: 'Tervezett elviteli idő'
     },
     foglalas_vege: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
+        comment: 'Tervezett visszahozatali idő'
+    },
+    valos_elvitel: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Valós elviteli idő (amikor a dolgozó átadta)'
+    },
+    Elvitve: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        comment: 'Elvitte-e már az ügyfél az autót'
+    },
+    valos_visszahozatal: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Valós visszahozatali idő (amikor az ügyfél visszahozta)'
+    },
+    Visszahozva: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        comment: 'Visszahozta-e már az ügyfél az autót'
     },
     Ar: {
         type: DataTypes.INTEGER

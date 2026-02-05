@@ -1,4 +1,4 @@
-const { Ugyfel } = require('../models');
+const { Ugyfel, Foglalas, Auto, AutoKibe } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getAll = async (req, res) => {
@@ -173,6 +173,93 @@ exports.delete = async (req, res) => {
             res.status(404).json({ error: 'Ügyfél nem található' });
         }
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Új metódus: Ügyfél foglalási történetének lekérdezése
+exports.getBookingHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Ellenőrizzük, hogy az ügyfél létezik-e
+        const ugyfel = await Ugyfel.findByPk(id);
+        if (!ugyfel) {
+            return res.status(404).json({ error: 'Ügyfél nem található' });
+        }
+
+        // Lekérjük az ügyfél összes foglalását az autó adataival
+        const foglalasok = await Foglalas.findAll({
+            where: { ugyfel_id: id },
+            include: [
+                { 
+                    model: Auto, 
+                    attributes: ['AutoID', 'Rendszam', 'Marka', 'Modell', 'Evjarat', 'NapiAr', 'Allapot']
+                }
+            ],
+            order: [['Letrehozasdatuma', 'DESC']]
+        });
+
+        // Lekérjük az AutoKibe bejegyzéseket is
+        const autoKibeRecords = await AutoKibe.findAll({
+            where: { auto_id: foglalasok.map(f => f.auto_id) },
+            raw: true
+        });
+
+        // Map az autó ID-khez a megjegyzések
+        const autoKibeMap = {};
+        autoKibeRecords.forEach(record => {
+            if (record.Megjegyzes) {
+                autoKibeMap[record.auto_id] = record.Megjegyzes;
+            }
+        });
+
+        // Statisztikák számítása
+        const stats = {
+            osszesFoglalas: foglalasok.length,
+            aktivFoglalas: foglalasok.filter(f => !f.Visszahozva && f.Elvitve).length,
+            befejezettFoglalas: foglalasok.filter(f => f.Visszahozva).length,
+            jovobeliFoglalas: foglalasok.filter(f => !f.Elvitve).length,
+            osszesKoltseg: foglalasok.reduce((sum, f) => sum + (f.Ar || 0), 0)
+        };
+
+        // Formázott válasz
+        const formattedBookings = foglalasok.map(f => ({
+            foglalasId: f.Foglalasokid,
+            tervezettKezdet: f.foglalaskezdete,
+            tervezettVeg: f.foglalas_vege,
+            valosElvitel: f.valos_elvitel,
+            valosVisszahozatal: f.valos_visszahozatal,
+            elvitve: f.Elvitve,
+            visszahozva: f.Visszahozva,
+            ar: f.Ar,
+            letrehozva: f.Letrehozasdatuma,
+            megjegyzes: autoKibeMap[f.auto_id] || null,
+            auto: f.Auto ? {
+                id: f.Auto.AutoID,
+                rendszam: f.Auto.Rendszam,
+                marka: f.Auto.Marka,
+                modell: f.Auto.Modell,
+                evjarat: f.Auto.Evjarat,
+                napiAr: f.Auto.NapiAr,
+                allapot: f.Auto.Allapot
+            } : null
+        }));
+
+        res.json({
+            ugyfel: {
+                id: ugyfel.ID,
+                nev: ugyfel.Nev,
+                email: ugyfel.Email,
+                telefon: ugyfel.Telefonszam,
+                cim: ugyfel.Cim,
+                igSzam: ugyfel.igSzam
+            },
+            stats,
+            foglalasok: formattedBookings
+        });
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 };

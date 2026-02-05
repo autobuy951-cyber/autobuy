@@ -21,6 +21,8 @@
           <option value="">Minden státusz</option>
           <option value="elerheto">Elérhető</option>
           <option value="foglalt">Foglalt</option>
+          <option value="szervizben">Szervizben</option>
+          <option value="serult">Sérült</option>
         </select>
       </div>
 
@@ -42,9 +44,12 @@
           <tr>
             <th @click="sortBy('Rendszam')">Rendszám <span v-if="sort.by === 'Rendszam'">{{ sort.order === 'ASC' ? '▲' : '▼' }}</span></th>
             <th @click="sortBy('Marka')">Márka/Modell <span v-if="sort.by === 'Marka'">{{ sort.order === 'ASC' ? '▲' : '▼' }}</span></th>
+            <th>Alvázszám</th>
             <th @click="sortBy('Evjarat')">Évjárat <span v-if="sort.by === 'Evjarat'">{{ sort.order === 'ASC' ? '▲' : '▼' }}</span></th>
             <th>Napi Ár</th>
-            <th>Státusz</th>
+            <th>Állapot</th>
+            <th>Bérelhető</th>
+            <th>Megjegyzés</th>
             <th class="actions-col">Műveletek</th>
           </tr>
         </thead>
@@ -62,12 +67,24 @@
                 </div>
               </div>
             </td>
+            <td class="font-mono chassis-number">{{ car.Alvazszam }}</td>
             <td>{{ car.Evjarat }}</td>
             <td class="price">{{ formatPrice(car.NapiAr || 0) }} Ft</td>
             <td>
-              <span :class="['status-badge', car.elerheto ? 'available' : 'rented']">
-                {{ car.elerheto ? 'Elérhető' : 'Foglalt' }}
+              <span :class="['status-badge', getStatusClass(car)]">
+                {{ getStatusLabel(car) }}
               </span>
+            </td>
+            <td>
+              <span :class="['rentable-badge', car.berleheto ? 'rentable-yes' : 'rentable-no']">
+                {{ car.berleheto ? '✓ Igen' : '✗ Nem' }}
+              </span>
+            </td>
+            <td>
+              <span v-if="car.Megjegyzes" class="car-notes" :title="car.Megjegyzes">
+                📝 {{ truncateText(car.Megjegyzes, 30) }}
+              </span>
+              <span v-else class="no-notes">-</span>
             </td>
             <td class="actions">
               <button @click="editCar(car)" class="btn-icon" title="Szerkesztés">✎</button>
@@ -75,7 +92,7 @@
             </td>
           </tr>
           <tr v-if="cars.length === 0">
-            <td colspan="6" class="no-data">Nincs megjeleníthető adat.</td>
+            <td colspan="9" class="no-data">Nincs megjeleníthető adat.</td>
           </tr>
         </tbody>
       </table>
@@ -142,10 +159,12 @@
               <input type="number" v-model="form.NapiAr" required min="0">
             </div>
             <div class="form-group">
-              <label>Elérhető</label>
-              <select v-model="form.elerheto">
-                <option :value="true">Igen</option>
-                <option :value="false">Nem</option>
+              <label>Állapot</label>
+              <select v-model="form.Allapot" required>
+                <option value="elerheto">Elérhető</option>
+                <option value="szervizben">Szervizben</option>
+                <option value="foglalt">Foglalt</option>
+                <option value="serult">Sérült</option>
               </select>
             </div>
           </div>
@@ -227,6 +246,7 @@ export default {
         NapiAr: 0,
         elerheto: true,
         berleheto: true,
+        Allapot: 'elerheto',
         Alvazszam: '',
         KepURL: '',
         Megjegyzes: ''
@@ -302,6 +322,29 @@ export default {
     },
     formatPrice(price) {
       return new Intl.NumberFormat('hu-HU').format(price);
+    },
+    truncateText(text, maxLength) {
+      if (!text) return '';
+      if (text.length <= maxLength) return text;
+      return text.substring(0, maxLength) + '...';
+    },
+    getStatusClass(car) {
+      const statusMap = {
+        'elerheto': 'available',
+        'szervizben': 'maintenance',
+        'foglalt': 'rented',
+        'serult': 'damaged'
+      };
+      return statusMap[car.Allapot] || (car.elerheto ? 'available' : 'rented');
+    },
+    getStatusLabel(car) {
+      const labelMap = {
+        'elerheto': 'Elérhető',
+        'szervizben': 'Szervizben',
+        'foglalt': 'Foglalt',
+        'serult': 'Sérült'
+      };
+      return labelMap[car.Allapot] || (car.elerheto ? 'Elérhető' : 'Foglalt');
     },
     openCreateModal() {
       this.editingCar = null;
@@ -527,6 +570,29 @@ export default {
   letter-spacing: 1px;
 }
 
+.chassis-number {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.car-notes {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.no-notes {
+  color: rgba(255, 255, 255, 0.3);
+}
+
 .car-model {
   display: flex;
   align-items: center;
@@ -575,6 +641,37 @@ export default {
 }
 
 .status-badge.rented {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.status-badge.maintenance {
+  background: rgba(255, 165, 2, 0.15);
+  color: #ffa502;
+  border: 1px solid rgba(255, 165, 2, 0.2);
+}
+
+.status-badge.damaged {
+  background: rgba(116, 125, 140, 0.15);
+  color: #747d8c;
+  border: 1px solid rgba(116, 125, 140, 0.2);
+}
+
+.rentable-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.rentable-badge.rentable-yes {
+  background: rgba(46, 213, 115, 0.15);
+  color: #2ed573;
+  border: 1px solid rgba(46, 213, 115, 0.2);
+}
+
+.rentable-badge.rentable-no {
   background: rgba(255, 71, 87, 0.15);
   color: #ff4757;
   border: 1px solid rgba(255, 71, 87, 0.2);

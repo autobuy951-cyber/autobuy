@@ -36,6 +36,34 @@
         >
           📅 Foglalások
         </button>
+        <button 
+          @click="currentView = 'pickup'" 
+          :class="{ active: currentView === 'pickup' }"
+          class="nav-item"
+        >
+          🚗 Elvitel rögzítése
+        </button>
+        <button 
+          @click="currentView = 'return'" 
+          :class="{ active: currentView === 'return' }"
+          class="nav-item"
+        >
+          🔄 Visszahozatal rögzítése
+        </button>
+        <button 
+          @click="currentView = 'stats'" 
+          :class="{ active: currentView === 'stats' }"
+          class="nav-item"
+        >
+          📊 Statisztikák
+        </button>
+        <button 
+          @click="currentView = 'customerHistory'" 
+          :class="{ active: currentView === 'customerHistory' }"
+          class="nav-item"
+        >
+          📋 Ügyfél Előzmények
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -65,6 +93,10 @@
           <CustomerManager v-else-if="currentView === 'customers'" />
           <EmployeeManager v-else-if="currentView === 'employees'" />
           <BookingManager v-else-if="currentView === 'bookings'" />
+          <PickupManager v-else-if="currentView === 'pickup'" />
+          <ReturnManager v-else-if="currentView === 'return'" />
+          <StatsManager v-else-if="currentView === 'stats'" />
+          <CustomerHistory v-else-if="currentView === 'customerHistory'" />
         </transition>
       </div>
     </main>
@@ -76,6 +108,10 @@ import CarManager from './admin/CarManager.vue';
 import CustomerManager from './admin/CustomerManager.vue';
 import EmployeeManager from './admin/EmployeeManager.vue';
 import BookingManager from './admin/BookingManager.vue';
+import PickupManager from './admin/PickupManager.vue';
+import ReturnManager from './admin/ReturnManager.vue';
+import StatsManager from './admin/StatsManager.vue';
+import CustomerHistory from './admin/CustomerHistory.vue';
 
 export default {
   name: 'AdminDashboard',
@@ -83,7 +119,11 @@ export default {
     CarManager,
     CustomerManager,
     EmployeeManager,
-    BookingManager
+    BookingManager,
+    PickupManager,
+    ReturnManager,
+    StatsManager,
+    CustomerHistory
   },
   data() {
     return {
@@ -101,6 +141,10 @@ export default {
         case 'customers': return 'Ügyfelek Adatbázisa';
         case 'employees': return 'Dolgozók Kezelése';
         case 'bookings': return 'Foglalások Áttekintése';
+        case 'pickup': return 'Elvitel rögzítése';
+        case 'return': return 'Visszahozatal rögzítése';
+        case 'stats': return 'Statisztikák';
+        case 'customerHistory': return 'Ügyfél Előzmények';
         default: return 'Dashboard';
       }
     }

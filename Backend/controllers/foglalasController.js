@@ -214,7 +214,7 @@ exports.return = async (req, res) => {
         // Add to AutoKibe
         await AutoKibe.create({
             auto_id: foglalas.auto_id,
-            elvitel: foglalas.foglalaskezdete,
+            elvitel: foglalas.valos_elvitel || foglalas.foglalaskezdete,
             vissza: today,
             Kilometer_kezdet: 0, // Placeholder, as not tracked
             Kilometer_veg: kilometer_veg
@@ -238,6 +238,144 @@ exports.return = async (req, res) => {
         }
 
         res.json({ message: 'Autó visszaadva' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Új metódus: Elvitel rögzítése (amikor az ügyfél átveszi az autót)
+exports.recordPickup = async (req, res) => {
+    try {
+        const foglalas = await Foglalas.findByPk(req.params.id, {
+            include: [
+                { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell'] },
+                { model: Ugyfel, attributes: ['Nev', 'Telefonszam'] }
+            ]
+        });
+        
+        if (!foglalas) {
+            return res.status(404).json({ error: 'Foglalás nem található' });
+        }
+
+        // Ellenőrzés: csak admin vagy dolgozó rögzíthet elvitelt
+        if (req.userData && req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo') {
+            return res.status(403).json({ error: 'Nincs jogosultsága az elvitel rögzítéséhez' });
+        }
+
+        // Ha már elvitte, nem lehet újra rögzíteni
+        if (foglalas.Elvitve) {
+            return res.status(400).json({ error: 'Ez a foglalás már el lett véve korábban' });
+        }
+
+        const { valos_elvitel } = req.body;
+        const pickupDate = valos_elvitel || new Date().toISOString().slice(0, 10);
+
+        // Frissítés
+        await foglalas.update({
+            Elvitve: true,
+            valos_elvitel: pickupDate
+        });
+
+        res.json({
+            message: 'Elvitel sikeresen rögzítve',
+            foglalas: {
+                ...foglalas.toJSON(),
+                Elvitve: true,
+                valos_elvitel: pickupDate
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Új metódus: Visszahozatal rögzítése (amikor az ügyfél visszahozza az autót)
+exports.recordReturn = async (req, res) => {
+    try {
+        const foglalas = await Foglalas.findByPk(req.params.id, {
+            include: [
+                { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'AutoID'] },
+                { model: Ugyfel, attributes: ['Nev', 'Telefonszam'] }
+            ]
+        });
+        
+        if (!foglalas) {
+            return res.status(404).json({ error: 'Foglalás nem található' });
+        }
+
+        // Ellenőrzés: csak admin vagy dolgozó rögzíthet visszahozatalt
+        if (req.userData && req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo') {
+            return res.status(403).json({ error: 'Nincs jogosultsága a visszahozatal rögzítéséhez' });
+        }
+
+        // Ha még el sem vitte, nem lehet visszahozatalt rögzíteni
+        if (!foglalas.Elvitve) {
+            return res.status(400).json({ error: 'Ez a foglalás még nem lett elvéve, előbb az elvitelt kell rögzíteni' });
+        }
+
+        // Ha már visszahozta, nem lehet újra rögzíteni
+        if (foglalas.Visszahozva) {
+            return res.status(400).json({ error: 'Ez a foglalás már vissza lett hozva korábban' });
+        }
+
+        const { valos_visszahozatal, kilometer_veg } = req.body;
+        const returnDate = valos_visszahozatal || new Date().toISOString().slice(0, 10);
+
+        // Frissítés a foglalasok táblában
+        await foglalas.update({
+            Visszahozva: true,
+            valos_visszahozatal: returnDate
+        });
+
+        // Hozzáadás az AutoKibe táblához (kilométer adatokkal és megjegyzéssel)
+        const { megjegyzes } = req.body;
+        if (kilometer_veg !== undefined) {
+            await AutoKibe.create({
+                auto_id: foglalas.auto_id,
+                elvitel: foglalas.valos_elvitel || foglalas.foglalaskezdete,
+                vissza: returnDate,
+                Kilometer_kezdet: 0,
+                Kilometer_veg: kilometer_veg,
+                Megjegyzes: megjegyzes || null
+            });
+        }
+
+        // Autó elérhetőségének visszaállítása
+        const { auto_allapot } = req.body;
+        let updateData = {};
+        
+        // Ha meg van adva az autó állapota a kérésben
+        if (auto_allapot) {
+            updateData.Allapot = auto_allapot;
+            // Ha sérült vagy szervizben, akkor ne legyen elérhető
+            if (auto_allapot === 'serult' || auto_allapot === 'szervizben') {
+                updateData.elerheto = false;
+                updateData.berleheto = false;
+            } else {
+                updateData.elerheto = true;
+                updateData.berleheto = true;
+            }
+        } else {
+            // Ha nincs megadva, alapértelmezett: elérhető
+            updateData = { 
+                Allapot: 'elerheto',
+                elerheto: true, 
+                berleheto: true 
+            };
+        }
+        
+        await Auto.update(updateData, { where: { AutoID: foglalas.auto_id } });
+
+        res.json({
+            message: 'Visszahozatal sikeresen rögzítve',
+            foglalas: {
+                ...foglalas.toJSON(),
+                Visszahozva: true,
+                valos_visszahozatal: returnDate
+            }
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });

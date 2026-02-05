@@ -89,8 +89,11 @@
                 </div>
                 <div class="car-details">
                   <p><strong>Rendszám:</strong> {{ car.Rendszam }}</p>
-                  <p><strong>Állapot:</strong> {{ car.Allapot }}</p>
-                  <p><strong>Alvázszám:</strong> {{ car.Alvazszam }}</p>
+                  <p><strong>Állapot:</strong> {{ getStatusLabel(car.Allapot) }}</p>
+                  <p><strong>Napi ár:</strong> {{ formatPrice(car.NapiAr || 0) }} Ft</p>
+                  <p v-if="car.Megjegyzes" class="car-notes">
+                    <strong>📌 Megjegyzés:</strong> {{ car.Megjegyzes }}
+                  </p>
                 </div>
                 <button @click="showReservationModal(car)" class="reserve-btn">
                   Foglalás
@@ -138,21 +141,27 @@
             <div class="reservation-content">
               <div class="reservation-header">
                 <h3>{{ reservation.Auto?.Marka }} {{ reservation.Auto?.Modell }}</h3>
-                <span class="status" :class="reservation.Visszahozva ? 'returned' : 'active'">
-                  {{ reservation.Visszahozva ? 'Visszahozva' : 'Aktív' }}
+                <span class="status" :class="getReservationStatusClass(reservation)">
+                  {{ getReservationStatusText(reservation) }}
                 </span>
               </div>
               <div class="reservation-details">
               <p><strong>Rendszám:</strong> {{ reservation.Auto?.Rendszam }}</p>
-              <p><strong>Foglalás dátuma:</strong> {{ formatDate(reservation.foglalaskezdete) }}</p>
+              <p><strong>Tervezett elvitel:</strong> {{ formatDate(reservation.foglalaskezdete) }}</p>
+              <p v-if="reservation.valos_elvitel">
+                <strong>Valós elvitel:</strong> {{ formatDate(reservation.valos_elvitel) }}
+              </p>
               <p v-if="reservation.foglalas_vege">
-                <strong>Visszahozás dátuma:</strong> {{ formatDate(reservation.foglalas_vege) }}
+                <strong>Tervezett visszahozatal:</strong> {{ formatDate(reservation.foglalas_vege) }}
+              </p>
+              <p v-if="reservation.valos_visszahozatal">
+                <strong>Valós visszahozatal:</strong> {{ formatDate(reservation.valos_visszahozatal) }}
               </p>
               <p v-if="reservation.Ar" class="reservation-price">
                 <strong>Fizetendő összeg:</strong> {{ formatPrice(reservation.Ar) }} Ft
               </p>
             </div>
-            <div v-if="!reservation.Visszahozva && reservation.status === 'jovobeli'" class="reservation-actions">
+            <div v-if="canCancel(reservation)" class="reservation-actions">
               <button @click="cancelReservation(reservation.Foglalasokid)" class="cancel-btn">
                 Lemondás
               </button>
@@ -443,6 +452,47 @@ export default {
         console.error('Error canceling reservation:', error);
         this.showMessage('Hálózati hiba történt', 'error');
       }
+    },
+
+    getReservationStatusClass(reservation) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const end = new Date(reservation.foglalas_vege);
+      const start = new Date(reservation.foglalaskezdete);
+      
+      if (reservation.Visszahozva) return 'returned';
+      if (today < start) return 'future';
+      if (today > end) return 'expired';
+      return 'active';
+    },
+    
+    getReservationStatusText(reservation) {
+      const statusClass = this.getReservationStatusClass(reservation);
+      switch (statusClass) {
+        case 'returned': return 'Visszahozva';
+        case 'future': return 'Jövőbeli';
+        case 'expired': return 'Lejárt';
+        default: return 'Aktív';
+      }
+    },
+    
+    canCancel(reservation) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const start = new Date(reservation.foglalaskezdete);
+      
+      // Csak akkor lehet lemondani, ha még nem kezdődött el és nincs visszahozva
+      return !reservation.Visszahozva && today < start;
+    },
+
+    getStatusLabel(allapot) {
+      const labels = {
+        'elerheto': '✅ Elérhető',
+        'szervizben': '🔧 Szervizben',
+        'foglalt': '🚗 Foglalt',
+        'serult': '⚠️ Sérült'
+      };
+      return labels[allapot] || allapot || 'Ismeretlen';
     },
 
     formatPrice(price) {

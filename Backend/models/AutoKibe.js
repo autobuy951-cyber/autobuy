@@ -22,6 +22,11 @@ const AutoKibe = sequelize.define('AutoKibe', {
     },
     Kilometer_veg: {
         type: DataTypes.INTEGER
+    },
+    Megjegyzes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Megjegyzés a visszahozatalhoz (pl. sérülés, probléma)'
     }
 }, {
     tableName: 'autokibe',

@@ -156,8 +156,49 @@
 5.  Törli az ügyfelet az **Ugyfelek** táblából, vagy "törölt"-re állítja az állapotát
 
 
+## 1️⃣3️⃣ User story – Ügyfél Előzmények Megtekintése
+**Szereplők**: Adminisztrátor, Dolgozó, Ügyfél
+
+**Történet**:
+1.  Az adminisztrátor vagy dolgozó szeretné megtekinteni egy ügyfél korábbi foglalásait.
+2.  Belép az "Ügyfél Előzmények" menüpontba.
+3.  Keres az ügyfél neve alapján.
+4.  Kiválasztja az ügyfelet a listából.
+5.  A rendszer megjeleníti az ügyfél összes foglalását:
+    -   Melyik autókat bérelte
+    -   Mikor vette át és hozta vissza az autókat
+    -   Mennyit fizetett
+    -   Milyen állapotban hozta vissza az autókat
+    -   Megjegyzések a kölcsönzésről
 
 
+## 1️⃣4️⃣ User story – Megjegyzés Rögzítése Visszahozatalnál
+**Szereplők**: Dolgozó, Ügyfél
+
+**Történet**:
+1.  Az ügyfél visszahozza a bérelt autót.
+2.  A dolgozó átvizsgálja az autót és észrevesz egy karcolást a bal első sárvédőn.
+3.  A dolgozó rögzíti a visszahozatalt a rendszerben.
+4.  Megjegyzés mezőbe beírja: "Karcolás a bal első sárvédőn, belső tiszta."
+5.  A megjegyzés eltárolódik az AutoKibe táblában.
 
 
+## 1️⃣5️⃣ User story – Autó Megjegyzés Kezelése
+**Szereplők**: Adminisztrátor, Dolgozó
+
+**Történet**:
+1.  Egy autónál fontos információt kell rögzíteni (pl. "Új féktárcsák", "Speciális üzemanyag").
+2.  Az adminisztrátor szerkeszti az autó adatait.
+3.  Megjegyzés mezőbe beírja a fontos információt.
+4.  A megjegyzés megjelenik az autók listájában és az ügyfélnél is.
+
+
+## 1️⃣6️⃣ User story – Bérelhető Állapot Jelzése
+**Szereplők**: Adminisztrátor, Dolgozó
+
+**Történet**:
+1.  Az adminisztrátor szeretné látni, hogy mely autók bérelhetőek az ügyfelek számára.
+2.  Az autók listájában látja a "Bérelhető" oszlopot.
+3.  Ha egy autó nem bérelhető (pl. szervizben van), azt azonnal látja.
+4.  A rendszer automatikusan csak a bérelhető autókat mutatja az ügyfeleknek.
 

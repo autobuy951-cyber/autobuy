@@ -208,6 +208,30 @@
     letter-spacing: 0.5px;
 }
 
+.status.active {
+    background: rgba(46, 213, 115, 0.15);
+    color: #2ed573;
+    border: 1px solid rgba(46, 213, 115, 0.2);
+}
+
+.status.returned {
+    background: rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.status.future {
+    background: rgba(55, 66, 250, 0.15);
+    color: #3742fa;
+    border: 1px solid rgba(55, 66, 250, 0.2);
+}
+
+.status.expired {
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+    border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
 .car-details,
 .reservation-details {
     margin-bottom: 25px;
@@ -219,6 +243,16 @@
     color: #d0d0d0;
     font-size: 16px;
     line-height: 1.6;
+}
+
+.car-details .car-notes {
+    background: rgba(255, 165, 2, 0.1);
+    border-left: 3px solid #ffa502;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: #e0e0e0;
 }
 
 .reserve-btn {

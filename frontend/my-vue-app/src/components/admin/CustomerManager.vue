@@ -108,10 +108,10 @@
             </div>
             <div class="form-group">
               <label>Jogosultság</label>
-              <select v-model="form.Jogosultsag">
+              <select v-model="form.Jogosultsag" :disabled="!isAdmin">
                 <option value="ugyfel">Ügyfél</option>
-                <option value="admin">Adminisztrátor</option>
-                <option value="dolgozo">Dolgozó</option>
+                <option v-if="isAdmin" value="admin">Adminisztrátor</option>
+                <option v-if="isAdmin" value="dolgozo">Dolgozó</option>
               </select>
             </div>
           </div>
@@ -165,6 +165,11 @@
 <script>
 export default {
   name: 'CustomerManager',
+  computed: {
+    isAdmin() {
+      return localStorage.getItem('jogosultsag') === 'admin';
+    }
+  },
   data() {
     return {
       customers: [],
@@ -259,6 +264,10 @@ export default {
     openCreateModal() {
       this.editingCustomer = null;
       this.resetForm();
+      // Ha nem admin, akkor fixen 'ugyfel' jogosultság
+      if (!this.isAdmin) {
+        this.form.Jogosultsag = 'ugyfel';
+      }
       this.showModal = true;
     },
     editCustomer(customer) {

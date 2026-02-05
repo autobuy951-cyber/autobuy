@@ -30,11 +30,32 @@
           📅 Foglalások Kezelése
         </button>
         <button
+          @click="currentView = 'pickup'"
+          :class="{ active: currentView === 'pickup' }"
+          class="nav-item"
+        >
+          🚗 Elvitel rögzítése
+        </button>
+        <button
+          @click="currentView = 'return'"
+          :class="{ active: currentView === 'return' }"
+          class="nav-item"
+        >
+          🔄 Visszahozatal rögzítése
+        </button>
+        <button
           @click="currentView = 'takenCars'"
           :class="{ active: currentView === 'takenCars' }"
           class="nav-item"
         >
           🚙 Elvitt Autók
+        </button>
+        <button
+          @click="currentView = 'customerHistory'"
+          :class="{ active: currentView === 'customerHistory' }"
+          class="nav-item"
+        >
+          📋 Ügyfél Előzmények
         </button>
       </nav>
 
@@ -65,7 +86,10 @@
           <CarManager v-if="currentView === 'cars'" />
           <CustomerManager v-else-if="currentView === 'customers'" />
           <BookingManager v-else-if="currentView === 'bookings'" />
+          <PickupManager v-else-if="currentView === 'pickup'" />
+          <ReturnManager v-else-if="currentView === 'return'" />
           <TakenCarsManager v-else-if="currentView === 'takenCars'" />
+          <CustomerHistory v-else-if="currentView === 'customerHistory'" />
         </transition>
       </div>
     </main>
@@ -78,7 +102,10 @@
 import CarManager from './admin/CarManager.vue';
 import CustomerManager from './admin/CustomerManager.vue';
 import BookingManager from './admin/BookingManager.vue';
+import PickupManager from './admin/PickupManager.vue';
+import ReturnManager from './admin/ReturnManager.vue';
 import TakenCarsManager from './admin/TakenCarsManager.vue';
+import CustomerHistory from './admin/CustomerHistory.vue';
 
 export default {
   name: 'EmployeeDashboard',
@@ -86,7 +113,10 @@ export default {
     CarManager,
     CustomerManager,
     BookingManager,
-    TakenCarsManager
+    PickupManager,
+    ReturnManager,
+    TakenCarsManager,
+    CustomerHistory
   },
   data() {
     return {
@@ -103,7 +133,10 @@ export default {
         case 'cars': return 'Autók Listája';
         case 'customers': return 'Ügyfelek Listája';
         case 'bookings': return 'Foglalások Kezelése';
+        case 'pickup': return 'Elvitel rögzítése';
+        case 'return': return 'Visszahozatal rögzítése';
         case 'takenCars': return 'Elvitt Autók';
+        case 'customerHistory': return 'Ügyfél Előzmények';
         default: return 'Dashboard';
       }
     }

@@ -38,6 +38,11 @@ const Auto = sequelize.define('Auto', {
     KepURL: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    Allapot: {
+        type: DataTypes.TEXT,
+        defaultValue: 'elerheto',
+        comment: 'Autó állapota: elerheto, szervizben, sérült, stb.'
     }
 }, {
     tableName: 'autok',

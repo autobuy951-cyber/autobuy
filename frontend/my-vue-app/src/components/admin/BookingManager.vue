@@ -17,12 +17,12 @@
           <input
             type="date"
             v-model="filters.dateSearch"
-            @change="fetchBookings"
+            @change="onDateFilterChange"
             placeholder="Dátum keresése..."
           >
         </div>
 
-        <select v-model="filters.status" @change="fetchBookings" class="filter-select">
+        <select v-model="filters.status" @change="onStatusFilterChange" class="filter-select">
           <option value="">Minden státusz</option>
           <option value="aktiv">Aktív</option>
           <option value="lejart">Lejárt</option>
@@ -49,7 +49,9 @@
             <th>Foglalás ID</th>
             <th>Ügyfél</th>
             <th>Autó</th>
-            <th>Időszak</th>
+            <th>Tervezett időszak</th>
+            <th>Valós elvitel</th>
+            <th>Valós visszahozatal</th>
             <th>Ár</th>
             <th>Státusz</th>
             <th class="actions-col">Műveletek</th>
@@ -77,6 +79,16 @@
               </div>
             </td>
             <td>
+              <span :class="['pickup-status', booking.Elvitve ? 'picked-up' : 'not-picked-up']">
+                {{ booking.valos_elvitel ? formatDate(booking.valos_elvitel) : 'Még nem lett elvéve' }}
+              </span>
+            </td>
+            <td>
+              <span :class="['return-status', booking.Visszahozva ? 'returned' : 'not-returned']">
+                {{ booking.valos_visszahozatal ? formatDate(booking.valos_visszahozatal) : 'Még nem lett visszahozva' }}
+              </span>
+            </td>
+            <td>
               <span class="price-cell">{{ formatPrice(booking.Ar) }} Ft</span>
             </td>
             <td>
@@ -90,7 +102,7 @@
             </td>
           </tr>
           <tr v-if="bookings.length === 0">
-            <td colspan="6" class="no-data">Nincs megjeleníthető foglalás.</td>
+            <td colspan="9" class="no-data">Nincs megjeleníthető foglalás.</td>
           </tr>
         </tbody>
       </table>
@@ -202,7 +214,10 @@
            </div>
            <div class="modal-actions">
              <button type="button" @click="closeModal" class="btn-secondary">Mégse</button>
-             <button type="submit" class="btn-primary">Mentés</button>
+             <button type="submit" class="btn-primary" :disabled="saving">
+              <span v-if="saving">Mentés...</span>
+              <span v-else>Mentés</span>
+            </button>
            </div>
         </form>
       </div>
@@ -258,7 +273,8 @@ export default {
       customerSearchQuery: '',
       showCustomerDropdown: false,
       carSearchQuery: '',
-      showCarDropdown: false
+      showCarDropdown: false,
+      saving: false
     }
   },
   computed: {
@@ -336,6 +352,9 @@ export default {
     this.fetchBookings();
     this.fetchCarsAndCustomers();
   },
+  beforeUnmount() {
+    clearTimeout(this._timer);
+  },
   methods: {
     async fetchCarsAndCustomers() {
       try {
@@ -397,6 +416,14 @@ export default {
         this.fetchBookings();
       }, 300);
     },
+    onDateFilterChange() {
+      this.pagination.current = 1;
+      this.fetchBookings();
+    },
+    onStatusFilterChange() {
+      this.pagination.current = 1;
+      this.fetchBookings();
+    },
     changePage(page) {
        if (page >= 1 && page <= this.pagination.totalPages) {
         this.pagination.current = page;
@@ -404,24 +431,28 @@ export default {
       }
     },
     formatDate(dateStr) {
-      return new Date(dateStr).toLocaleDateString('hu-HU');
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return '-';
+      return date.toLocaleDateString('hu-HU');
     },
     formatPrice(price) {
       return new Intl.NumberFormat('hu-HU').format(price);
     },
     getStatus(booking) {
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
       const end = new Date(booking.foglalas_vege);
       const start = new Date(booking.foglalaskezdete);
       
-      if (today < start) return 'future';
-      if (today > end) return 'expired';
-      return 'active';
+      if (today < start) return 'jovobeli';
+      if (today > end) return 'lejart';
+      return 'aktiv';
     },
     getStatusLabel(booking) {
       const status = this.getStatus(booking);
-      if (status === 'future') return 'Jövőbeli';
-      if (status === 'expired') return 'Lejárt';
+      if (status === 'jovobeli') return 'Jövőbeli';
+      if (status === 'lejart') return 'Lejárt';
       return 'Aktív';
     },
     openCreateModal() {
@@ -450,6 +481,8 @@ export default {
       this.showModal = false;
     },
     async saveBooking() {
+      if (this.saving) return;
+      this.saving = true;
       try {
         const token = localStorage.getItem('token');
         const url = this.editingBooking
@@ -477,6 +510,8 @@ export default {
       } catch (err) {
         console.error(err);
         alert('Hálózati hiba történt');
+      } finally {
+        this.saving = false;
       }
      },
     selectCustomer(customer) {
@@ -491,12 +526,22 @@ export default {
     },
     async confirmDelete(booking) {
       if (confirm(`Biztosan törölni szeretnéd a(z) #${booking.Foglalasokid} foglalást?`)) {
-         const token = localStorage.getItem('token');
-         await fetch(`http://localhost:3000/api/foglalasok/${booking.Foglalasokid}`, {
-           method: 'DELETE',
-           headers: { 'Authorization': `Bearer ${token}` }
-         });
-         this.fetchBookings();
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`http://localhost:3000/api/foglalasok/${booking.Foglalasokid}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!response.ok) {
+            const err = await response.json();
+            alert(err.error || 'Hiba történt a törlés során');
+            return;
+          }
+          this.fetchBookings();
+        } catch (err) {
+          console.error(err);
+          alert('Hálózati hiba történt a törlés során');
+        }
       }
     }
   }
@@ -611,22 +656,6 @@ export default {
   color: #a0a0a0;
 }
 
-.customer-email {
-  font-size: 0.85em;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.car-name {
-  font-weight: 600;
-  color: white;
-}
-
-.car-plate {
-  font-size: 0.85em;
-  color: rgba(255, 255, 255, 0.5);
-  font-family: monospace;
-}
-
 .no-data {
   text-align: center;
   padding: 40px;
@@ -667,7 +696,7 @@ export default {
   color: rgba(255, 255, 255, 0.4);
 }
 
-.price, .price-cell {
+.price-cell {
   font-weight: 600;
   color: #2ed573;
 }
@@ -782,17 +811,6 @@ export default {
   color: white;
 }
 
-.form-group input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-  opacity: 0.8;
-}
-
-.form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
-}
-
-
 .price-calculation {
   display: flex;
   flex-direction: column;
@@ -844,6 +862,12 @@ export default {
   border-radius: 8px;
   cursor: pointer;
 }
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 .custom-select-wrapper {
   position: relative;
 }
@@ -888,12 +912,46 @@ export default {
   border-bottom: none;
 }
 
+.pickup-status {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.pickup-status.picked-up {
+  background: rgba(46, 213, 115, 0.15);
+  color: #2ed573;
+}
+
+.pickup-status.not-picked-up {
+  background: rgba(255, 165, 2, 0.15);
+  color: #ffa502;
+}
+
+.return-status {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.return-status.returned {
+  background: rgba(46, 213, 115, 0.15);
+  color: #2ed573;
+}
+
+.return-status.not-returned {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+}
+
 .customer-name {
   font-weight: 600;
   color: white;
 }
 
-.customer-email {
+.dropdown-item .customer-email {
   font-size: 0.8em;
   color: #aaa;
 }
