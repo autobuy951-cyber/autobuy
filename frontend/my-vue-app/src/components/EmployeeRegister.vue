@@ -46,6 +46,8 @@
 </template>
 
 <script>
+import apiConfig from '../api/config.js';
+
 export default {
   name: 'EmployeeRegister',
   data() {
@@ -78,7 +80,7 @@ export default {
         this.message = 'Regisztráció folyamatban...';
         this.isError = false;
 
-        const response = await fetch('http://localhost:3000/api/auth/register', {
+        const response = await fetch(apiConfig.endpoints.auth.register, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
