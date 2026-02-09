@@ -55,6 +55,8 @@
 </template>
 
 <script>
+import apiConfig from '../api/config.js';
+
 export default {
   name: 'LoginPage',
   data() {
@@ -84,12 +86,12 @@ export default {
 
         // Determine if input is email or username
         const isEmail = this.email.includes('@');
-        const endpoint = isEmail ? '/api/auth/login/customer' : '/api/auth/login';
+        const endpoint = isEmail ? apiConfig.endpoints.auth.loginCustomer : apiConfig.endpoints.auth.login;
         const requestBody = isEmail
           ? { email: this.email, jelszo: this.password }
           : { nev: this.email, jelszo: this.password };
 
-        const response = await fetch(`http://localhost:3000${endpoint}`, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

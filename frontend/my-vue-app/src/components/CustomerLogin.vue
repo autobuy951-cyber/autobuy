@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import apiConfig from '../api/config.js';
+
 export default {
   name: 'CustomerLogin',
   data() {
@@ -43,7 +45,7 @@ export default {
         this.message = 'Bejelentkezés folyamatban...';
         this.isError = false;
 
-        const response = await fetch('http://localhost:3000/api/auth/login/customer', {
+        const response = await fetch(apiConfig.endpoints.auth.loginCustomer, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
