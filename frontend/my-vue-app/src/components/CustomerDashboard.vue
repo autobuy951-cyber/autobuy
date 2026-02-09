@@ -26,29 +26,60 @@
         
         <!-- Filter Bar -->
         <div class="filter-bar">
-          <div class="brand-select">
-            <select v-model="filters.marka">
+          <div class="search-input brand-select-wrapper">
+            <span class="search-icon">🔽</span>
+            <select v-model="filters.marka" @change="onBrandChange">
               <option value="">Összes márka</option>
               <option v-for="brand in uniqueBrands" :key="brand" :value="brand">
                 {{ brand }}
               </option>
             </select>
           </div>
-          <div class="search-input">
+          
+          <!-- Modell kereső - combobox stílus -->
+          <div class="search-input combobox-wrapper">
             <span class="search-icon">🚗</span>
             <input 
               type="text" 
               v-model="filters.modell" 
               placeholder="Modell keresése..."
+              @focus="showModelDropdown = true"
+              @blur="hideModelDropdown"
+              autocomplete="off"
             >
+            <div v-if="showModelDropdown && availableModels.length > 0" class="combobox-dropdown">
+              <div 
+                v-for="model in availableModels" 
+                :key="model"
+                @mousedown.prevent="selectModel(model)"
+                class="combobox-option"
+              >
+                {{ model }}
+              </div>
+            </div>
           </div>
-          <div class="search-input">
-            <span class="search-icon">ABC</span>
+          
+          <!-- Rendszám kereső - combobox stílus -->
+          <div class="search-input combobox-wrapper">
+            <span class="search-icon">🔢</span>
             <input 
               type="text" 
               v-model="filters.rendszam" 
               placeholder="Rendszám keresése..."
+              @focus="showPlateDropdown = true"
+              @blur="hidePlateDropdown"
+              autocomplete="off"
             >
+            <div v-if="showPlateDropdown && availablePlates.length > 0" class="combobox-dropdown">
+              <div 
+                v-for="plate in availablePlates" 
+                :key="plate"
+                @mousedown.prevent="selectPlate(plate)"
+                class="combobox-option"
+              >
+                {{ plate }}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -244,6 +275,8 @@ export default {
         rendszam: '',
         marka: ''
       },
+      showModelDropdown: false,
+      showPlateDropdown: false,
       currentPage: 1,
       itemsPerPage: 20
     }
@@ -285,6 +318,47 @@ export default {
       const brands = new Set(this.availableCars.map(car => car.Marka));
       return Array.from(brands).sort();
     },
+    // Elérhető modellek a kiválasztott márkához (vagy az összes ha nincs márka)
+    availableModels() {
+      let cars = this.availableCars;
+      // Ha van márka kiválasztva, csak azokból az autókból vesszük a modelleket
+      if (this.filters.marka) {
+        cars = cars.filter(car => car.Marka === this.filters.marka);
+      }
+      // Szűrés a már beírt modell részletre
+      const models = new Set(cars.map(car => car.Modell));
+      let result = Array.from(models).sort();
+      // Ha van beírt szöveg, szűrjük a listát
+      if (this.filters.modell) {
+        result = result.filter(model => 
+          model.toLowerCase().includes(this.filters.modell.toLowerCase())
+        );
+      }
+      return result;
+    },
+    // Elérhető rendszámok a kiválasztott márkához és modellekhez
+    availablePlates() {
+      let cars = this.availableCars;
+      // Ha van márka kiválasztva
+      if (this.filters.marka) {
+        cars = cars.filter(car => car.Marka === this.filters.marka);
+      }
+      // Ha van modell kiválasztva/beírva
+      if (this.filters.modell) {
+        cars = cars.filter(car => 
+          car.Modell.toLowerCase().includes(this.filters.modell.toLowerCase())
+        );
+      }
+      const plates = new Set(cars.map(car => car.Rendszam));
+      let result = Array.from(plates).sort();
+      // Ha van beírt szöveg, szűrjük a listát
+      if (this.filters.rendszam) {
+        result = result.filter(plate => 
+          plate.toLowerCase().includes(this.filters.rendszam.toLowerCase())
+        );
+      }
+      return result;
+    },
     minStartDate() {
       return new Date().toISOString().split('T')[0];
     },
@@ -322,6 +396,37 @@ export default {
     this.loadReservations();
   },
   methods: {
+    // Márka változás - töröljük a modell és rendszám filtereket
+    onBrandChange() {
+      this.filters.modell = '';
+      this.filters.rendszam = '';
+    },
+    
+    // Modell kiválasztása a dropdownból
+    selectModel(model) {
+      this.filters.modell = model;
+      this.showModelDropdown = false;
+    },
+    
+    // Rendszám kiválasztása a dropdownból
+    selectPlate(plate) {
+      this.filters.rendszam = plate;
+      this.showPlateDropdown = false;
+    },
+    
+    // Dropdown-ok elrejtése (blur eseményre)
+    hideModelDropdown() {
+      setTimeout(() => {
+        this.showModelDropdown = false;
+      }, 200);
+    },
+    
+    hidePlateDropdown() {
+      setTimeout(() => {
+        this.showPlateDropdown = false;
+      }, 200);
+    },
+    
     async loadAvailableCars() {
       try {
         const response = await fetch('http://localhost:3000/api/autok/elerheto');

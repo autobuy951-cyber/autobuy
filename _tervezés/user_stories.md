@@ -202,3 +202,83 @@
 3.  Ha egy autó nem bérelhető (pl. szervizben van), azt azonnal látja.
 4.  A rendszer automatikusan csak a bérelhető autókat mutatja az ügyfeleknek.
 
+
+## 1️⃣7️⃣ User story – Email Értesítések Küldése
+**Szereplők**: Rendszer, Ügyfél, Ügyintéző
+
+**Történet**:
+1.  Egy új ügyfél regisztrál az oldalon.
+2.  A rendszer automatikusan küld egy megerősítő emailt az ügyfélnek.
+3.  Az ügyfél sikeresen lefoglal egy autót.
+4.  A rendszer visszaigazoló emailt küld a foglalás részleteivel (autó adatai, dátumok, ár).
+5.  Egy nappal az elvitel előtt a rendszer emlékeztető emailt küld az ügyfélnek.
+6.  Az emailek HTML formátumúak, esztétikus kinézetűek.
+
+
+## 1️⃣8️⃣ User story – Email Cím Megerősítése
+**Szereplők**: Új ügyfél (Péter), Rendszer
+
+**Történet**:
+1.  Péter kitölti a regisztrációs űrlapot az oldalon.
+2.  A rendszer létrehozza a fiókját "inaktív" állapotban.
+3.  Péter kap egy emailt megerősítő linkkel.
+4.  Péter rákattint a linkre, ami egy megerősítő oldalra viszi.
+5.  A rendszer aktiválja a fiókot (jogosultság: 'ugyfel').
+6.  Péter most már be tud jelentkezni az email címével és jelszavával.
+
+
+## 1️⃣9️⃣ User story – Jelszó Visszaállítás
+**Szereplők**: Ügyfél (Mária), Rendszer
+
+**Történet**:
+1.  Mária elfelejtette a jelszavát, nem tud bejelentkezni.
+2.  A bejelentkezési oldalon rákattint az "Elfelejtette jelszavát?" linkre.
+3.  Megadja az email címét, amivel regisztrált.
+4.  A rendszer ellenőrzi, hogy létezik-e ez az email az adatbázisban.
+5.  Ha igen, küld egy emailt jelszó-visszaállító linkkel (1 órás érvényességgel).
+6.  Mária rákattint a linkre, megadja az új jelszavát kétszer.
+7.  A rendszer frissíti a jelszót az adatbázisban.
+8.  Mária az új jelszavával sikeresen bejelentkezik.
+
+
+## 2️⃣0️⃣ User story – Kilométeróra Állás Nyomon Követése
+**Szereplők**: Ügyintéző, Ügyfél, Autó
+
+**Történet**:
+1.  Egy ügyfél átveszi a bérelt autót.
+2.  Az ügyintéző rögzíti az aktuális kilométeróra állást (pl. 45 200 km).
+3.  Az ügyfél visszahozza az autót 5 nap múlva.
+4.  Az ügyintéző rögzíti a visszahozatali kilométeróra állást (pl. 45 800 km).
+5.  A rendszer automatikusan kiszámolja a megtett kilométert (600 km).
+6.  Az adatok eltárolódnak az **AutoKibe** táblában.
+7.  A menedzsment láthatja, melyik autók a legjobban használtak.
+
+
+## 2️⃣1️⃣ User story – Audit Log / Eseménynapló
+**Szereplők**: Adminisztrátor, Rendszer
+
+**Történet**:
+1.  Az adminisztrátor szeretné látni, ki mit csinált a rendszerben.
+2.  Belép az "Audit Log" menüpontba az admin felületen.
+3.  Látja az összes fontos műveletet időrendi sorrendben:
+    -   Ki regisztrált új ügyfelet és mikor
+    -   Ki módosított egy foglalást
+    -   Ki törölt autót vagy dolgozót
+    -   Ki jelentkezett be és ki mikor
+4.  Minden bejegyzés tartalmazza: időpont, felhasználó, művelet típusa, régi és új értékek.
+5.  Az admin szűrhet dátumra, felhasználóra vagy művelet típusára.
+
+
+## 2️⃣2️⃣ User story – Foglalás Szerkesztése
+**Szereplők**: Ügyintéző, Ügyfél
+
+**Történet**:
+1.  Egy ügyfél telefonon jelzi, hogy elrontotta a foglalás dátumát.
+2.  Az ügyintéző belép a foglalások kezelő felületére.
+3.  Megkeresi az ügyfél foglalását a listában.
+4.  Rákattint a "Szerkesztés" gombra.
+5.  Módosítja a kezdő és/vagy végdátumot.
+6.  A rendszer ellenőrzi, hogy az autó elérhető-e az új időpontban.
+7.  Ha igen, újraszámolja az árat a napok száma alapján.
+8.  A módosított foglalás adatai eltárolódnak.
+

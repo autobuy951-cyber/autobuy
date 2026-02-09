@@ -701,19 +701,82 @@ export default {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .customer-history {
+    padding: 10px;
+  }
+  
+  .search-section {
+    margin-bottom: 20px;
+  }
+  
   .customer-card {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 15px;
   }
 
   .customer-stats {
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .stat-item {
+    min-width: 80px;
   }
 
   .car-section {
     flex-direction: column;
+  }
+  
+  .car-image {
+    width: 100%;
+    height: 160px;
+  }
+  
+  .section-header h2 {
+    font-size: 18px;
+  }
+  
+  .reservation-card,
+  .history-card {
+    padding: 15px;
+  }
+  
+  .reservation-header,
+  .history-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .modal {
+    width: 95%;
+    padding: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+  
+  .customer-name {
+    font-size: 16px;
+  }
+  
+  .timeline-content {
+    padding: 12px;
+  }
+  
+  .timeline-date {
+    font-size: 11px;
   }
 }
 </style>

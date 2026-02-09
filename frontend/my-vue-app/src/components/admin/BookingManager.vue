@@ -955,4 +955,106 @@ export default {
   font-size: 0.8em;
   color: #aaa;
 }
+
+/* Reszponzív stílusok mobil eszközökhöz */
+@media (max-width: 768px) {
+  .booking-manager {
+    padding: 10px;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .search-filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .input-group {
+    max-width: 100%;
+  }
+  
+  .filter-select {
+    width: 100%;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .data-table {
+    min-width: 800px;
+    font-size: 13px;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 10px 8px;
+  }
+  
+  .pagination {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .modal {
+    width: 95%;
+    padding: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+  
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary {
+    width: 100%;
+  }
+  
+  .dropdown-list {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-manager {
+    padding: 8px;
+  }
+  
+  .data-table {
+    font-size: 12px;
+  }
+  
+  .status-badge {
+    font-size: 0.7em;
+    padding: 3px 8px;
+  }
+  
+  .date-range {
+    font-size: 0.8em;
+    padding: 3px 6px;
+  }
+  
+  .price-cell {
+    font-size: 0.9em;
+  }
+}
 </style>

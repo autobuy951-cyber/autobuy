@@ -8,14 +8,18 @@
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label for="nev">Felhasználónév vagy Email:</label>
+          <label for="nev">
+            {{ isEmailInput ? 'Email cím:' : 'Felhasználónév vagy Email:' }}
+          </label>
           <input
             type="text"
             id="nev"
             v-model="email"
-            placeholder="Adja meg a felhasználónevét vagy email címét"
+            :placeholder="isEmailInput ? 'email@pelda.hu' : 'Adja meg a felhasználónevét vagy email címét'"
             required
+            @input="checkInputType"
           />
+          <small v-if="isEmailInput" class="input-hint">Ügyfél bejelentkezés - Email cím szükséges</small>
         </div>
         <div class="form-group">
           <label for="password">Jelszó:</label>
@@ -32,6 +36,20 @@
         </button>
       </form>
       <p v-if="message" :class="['message', { 'error': isError, 'success': !isError }]">{{ message }}</p>
+      
+      <div v-if="needsVerification" class="verification-notice">
+        <p>📧 Nem kapta meg a megerősítő emailt?</p>
+        <router-link to="/register">Regisztráljon újra</router-link>
+      </div>
+      
+      <div class="forgot-password-link">
+        <router-link to="/forgot-password">Elfelejtette jelszavát?</router-link>
+      </div>
+      
+      <div class="register-link">
+        <span>Még nincs fiókja? </span>
+        <router-link to="/register">Regisztráció</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -45,10 +63,19 @@ export default {
       password: '',
       message: '',
       isError: false,
-      loading: false
+      loading: false,
+      needsVerification: false,
+      isEmailInput: false
     }
   },
   methods: {
+    checkInputType() {
+      this.isEmailInput = this.email.includes('@');
+      // Ha változik az input típusa, töröljük az előző hibaüzeneteket
+      if (this.needsVerification && !this.isEmailInput) {
+        this.needsVerification = false;
+      }
+    },
     async handleLogin() {
       try {
         this.loading = true;
@@ -93,6 +120,16 @@ export default {
         } else {
           this.message = data.message || 'Hibás felhasználónév vagy jelszó';
           this.isError = true;
+          
+          // Ha az email nincs megerősítve, mutassunk linket
+          if (data.needsVerification) {
+            this.needsVerification = true;
+          }
+          
+          // Ha ügyfél próbál névvel bejelentkezni, jelezzük, hogy email kell
+          if (isEmail === false && response.status === 401) {
+            this.message = 'Ügyfeleknek email címmel kell bejelentkezniük, nem felhasználónévvel!';
+          }
         }
       } catch (error) {
         console.error('Login error:', error);
@@ -242,5 +279,107 @@ export default {
   background: rgba(46, 213, 115, 0.15);
   border: 1px solid rgba(46, 213, 115, 0.2);
   color: #2ed573;
+}
+
+.forgot-password-link {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.forgot-password-link a {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.forgot-password-link a:hover {
+  color: #ff4757;
+}
+
+.register-link {
+  margin-top: 16px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #ff4757;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+.verification-notice {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255, 165, 2, 0.1);
+  border: 1px solid rgba(255, 165, 2, 0.3);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.verification-notice p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  margin: 0 0 8px 0;
+}
+
+.verification-notice a {
+  color: #ffa502;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.verification-notice a:hover {
+  text-decoration: underline;
+}
+
+.input-hint {
+  display: block;
+  margin-top: 6px;
+  color: #4facfe;
+  font-size: 12px;
+}
+
+/* Reszponzív stílusok mobil eszközökhöz */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 10px;
+    min-height: 100vh;
+  }
+  
+  .login-panel {
+    padding: 24px 20px;
+    border-radius: 12px;
+  }
+  
+  .login-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .form-group input {
+    padding: 10px 14px;
+    font-size: 16px; /* 16px alatt iOS zoomol */
+  }
+  
+  .btn-primary {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  
+  .message {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
 }
 </style>

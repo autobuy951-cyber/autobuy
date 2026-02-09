@@ -4,6 +4,9 @@ const Ugyfel = require('./Ugyfel');
 const Dolgozo = require('./Dolgozo');
 const Foglalas = require('./Foglalas');
 const AutoKibe = require('./AutoKibe');
+const PasswordReset = require('./PasswordReset');
+const AuditLog = require('./AuditLog');
+const EmailVerification = require('./EmailVerification');
 
 // Associations WITHOUT foreign key constraints
 Auto.hasMany(Foglalas, { foreignKey: 'auto_id', constraints: false });
@@ -21,5 +24,8 @@ module.exports = {
     Ugyfel,
     Dolgozo,
     Foglalas,
-    AutoKibe
+    AutoKibe,
+    PasswordReset,
+    AuditLog,
+    EmailVerification
 };

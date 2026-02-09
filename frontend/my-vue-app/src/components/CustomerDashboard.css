@@ -104,14 +104,16 @@
     outline: none;
 }
 
-.brand-select {
+/* Márka kereső - egységes stílus a többi keresővel */
+.brand-select-wrapper {
     flex: 1 1 200px;
     min-width: 200px;
+    position: relative;
 }
 
-.brand-select select {
+.brand-select-wrapper select {
     width: 100%;
-    padding: 16px;
+    padding: 16px 45px 16px 16px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
@@ -120,18 +122,68 @@
     cursor: pointer;
     appearance: none;
     backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
 
-.brand-select select:focus {
+.brand-select-wrapper select:focus {
     border-color: #4facfe;
     outline: none;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px rgba(79, 172, 254, 0.2);
 }
 
-.brand-select select option {
+.brand-select-wrapper select option {
     background: #1e1e1e;
     color: white;
     padding: 10px;
+}
+
+.brand-select-wrapper .search-icon {
+    position: absolute;
+    left: auto;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0a0a0;
+    pointer-events: none;
+    font-size: 14px;
+}
+
+/* Combobox (searchable dropdown) stílusok */
+.combobox-wrapper {
+    position: relative;
+}
+
+.combobox-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #2d2d2d;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-top: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.combobox-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.combobox-option:hover {
+    background: rgba(79, 172, 254, 0.2);
+}
+
+.combobox-option:last-child {
+    border-bottom: none;
 }
 
 .cars-grid,
@@ -598,5 +650,72 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
         width: 95%;
         max-height: 90vh;
         overflow-y: auto;
+    }
+    
+    .filter-bar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .search-input,
+    .brand-select-wrapper,
+    .combobox-wrapper {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+    
+    .combobox-dropdown {
+        max-height: 150px;
+    }
+    
+    .cars-grid,
+    .reservations-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .car-card,
+    .reservation-card {
+        border-radius: 16px;
+    }
+    
+    .car-image-container {
+        height: 180px;
+    }
+    
+    .car-content,
+    .reservation-content {
+        padding: 20px;
+    }
+    
+    .car-header h3,
+    .reservation-header h3 {
+        font-size: 20px;
+    }
+    
+    .car-details p,
+    .reservation-details p {
+        font-size: 14px;
+    }
+    
+    .reserve-btn {
+        padding: 14px 20px;
+        font-size: 14px;
+    }
+    
+    .pagination {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .page-btn {
+        width: 100%;
+    }
+    
+    .message {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        top: 10px;
     }
 }

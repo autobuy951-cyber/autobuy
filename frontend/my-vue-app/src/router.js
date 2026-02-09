@@ -2,9 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from './components/LoginPage.vue'
 import AdminDashboard from './components/AdminDashboard.vue'
 import CustomerDashboard from './components/CustomerDashboard.vue'
-import EmployeeRegister from './components/EmployeeRegister.vue'
-import AdminRegister from './components/AdminRegister.vue'
 import EmployeeDashboard from './components/EmployeeDashboard.vue'
+import ForgotPassword from './components/ForgotPassword.vue'
+import ResetPassword from './components/ResetPassword.vue'
+import RegisterPage from './components/RegisterPage.vue'
+import VerifyEmail from './components/VerifyEmail.vue'
 
 const routes = [
   {
@@ -13,14 +15,24 @@ const routes = [
     component: LoginPage
   },
   {
-    path: '/register/employee',
-    name: 'EmployeeRegister',
-    component: EmployeeRegister
+    path: '/register',
+    name: 'Register',
+    component: RegisterPage
   },
   {
-    path: '/register/admin',
-    name: 'AdminRegister',
-    component: AdminRegister
+    path: '/verify-email',
+    name: 'VerifyEmail',
+    component: VerifyEmail
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: ResetPassword
   },
   {
     path: '/admin-dashboard',

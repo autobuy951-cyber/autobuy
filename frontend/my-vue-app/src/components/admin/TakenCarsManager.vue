@@ -736,4 +736,64 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   text-align: center;
   color: rgba(255, 255, 255, 0.4);
 }
+
+/* Reszponzív stílusok mobil eszközökhöz */
+@media (max-width: 768px) {
+  .taken-cars-manager {
+    padding: 10px;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .search-filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .input-group {
+    max-width: 100%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .stat-card {
+    padding: 15px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .data-table {
+    min-width: 800px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+  
+  .status-badge {
+    font-size: 0.7em;
+    padding: 3px 8px;
+  }
+}
 </style>

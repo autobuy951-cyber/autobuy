@@ -867,4 +867,91 @@ export default {
   background: rgba(255, 71, 87, 1);
   transform: scale(1.1);
 }
+
+/* Reszponzív stílusok mobil eszközökhöz */
+@media (max-width: 768px) {
+  .car-manager {
+    padding: 10px;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+  
+  .search-box input {
+    width: 100%;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .cars-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .car-card {
+    border-radius: 16px;
+  }
+  
+  .car-image {
+    height: 180px;
+  }
+  
+  .modal {
+    width: 95%;
+    padding: 20px;
+    max-width: none;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+  
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .image-preview {
+    max-width: 100%;
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .car-details h3 {
+    font-size: 18px;
+  }
+  
+  .price-tag {
+    font-size: 16px;
+  }
+  
+  .car-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .car-actions button {
+    width: 100%;
+  }
+}
 </style>

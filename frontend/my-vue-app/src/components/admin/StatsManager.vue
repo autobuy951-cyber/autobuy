@@ -601,4 +601,69 @@ export default {
     justify-content: space-between;
   }
 }
+
+/* Reszponzív stílusok mobil eszközökhöz - további optimalizálások */
+@media (max-width: 768px) {
+  .stats-manager {
+    padding: 10px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .stat-card {
+    padding: 15px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+  
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-card {
+    padding: 15px;
+  }
+  
+  .chart-card h3 {
+    font-size: 16px;
+  }
+  
+  .filter-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .filter-group select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .bar-chart {
+    gap: 2px;
+  }
+  
+  .bar-label {
+    font-size: 9px;
+    transform: rotate(-45deg);
+    transform-origin: left center;
+  }
+}
 </style>

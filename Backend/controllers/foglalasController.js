@@ -1,5 +1,6 @@
 const { Foglalas, Auto, Ugyfel, AutoKibe } = require('../models');
 const { Op } = require('sequelize');
+const { sendBookingConfirmation } = require('../services/emailService');
 
 exports.getAll = async (req, res) => {
     try {
@@ -143,7 +144,119 @@ exports.create = async (req, res) => {
             { where: { AutoID: auto_id } }
         );
 
+        // Email értesítés küldése
+        try {
+            const customer = await Ugyfel.findByPk(ugyfel_id);
+            if (customer && customer.Email) {
+                await sendBookingConfirmation(customer.Email, {
+                    carName: `${car.Marka} ${car.Modell}`,
+                    plate: car.Rendszam,
+                    startDate: foglalaskezdete,
+                    endDate: foglalas_vege,
+                    price: Ar
+                });
+            }
+        } catch (emailErr) {
+            console.error('Hiba az email küldésekor:', emailErr);
+            // Ne szakítsuk meg a kérést, ha az email küldés sikertelen
+        }
+
         res.status(201).json(newFoglalas);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.update = async (req, res) => {
+    try {
+        const foglalas = await Foglalas.findByPk(req.params.id);
+        if (!foglalas) return res.status(404).json({ error: 'Foglalás nem található' });
+
+        // Security check: Only admin can update
+        if (req.userData && req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo') {
+            return res.status(403).json({ error: 'Nincs jogosultsága szerkeszteni a foglalást' });
+        }
+
+        const { auto_id, ugyfel_id, foglalaskezdete, foglalas_vege, Ar } = req.body;
+
+        // Check if reservation is already picked up or returned
+        if (foglalas.Elvitve || foglalas.Visszahozva) {
+            return res.status(400).json({ error: 'Elvitt vagy visszahozott foglalást nem lehet szerkeszteni' });
+        }
+
+        // If car or dates changed, check for overlaps
+        const carChanged = auto_id && auto_id !== foglalas.auto_id;
+        const datesChanged = foglalaskezdete && foglalas_vege && 
+            (foglalaskezdete !== foglalas.foglalaskezdete || foglalas_vege !== foglalas.foglalas_vege);
+
+        if ((carChanged || datesChanged) && auto_id && foglalaskezdete && foglalas_vege) {
+            const overlaps = await Foglalas.findAll({
+                where: {
+                    auto_id,
+                    Foglalasokid: { [Op.ne]: req.params.id }, // Exclude current reservation
+                    [Op.or]: [
+                        {
+                            foglalaskezdete: { [Op.lte]: foglalas_vege },
+                            foglalas_vege: { [Op.gte]: foglalaskezdete }
+                        }
+                    ]
+                }
+            });
+
+            if (overlaps.length > 0) {
+                return res.status(400).json({ error: 'Az autó már foglalt ebben az időszakban' });
+            }
+        }
+
+        // Update the old car's availability if car changed
+        if (carChanged) {
+            const today = new Date().toISOString().slice(0, 10);
+            const oldAutoId = foglalas.auto_id;
+            
+            // Set old car availability back
+            const activeReservations = await Foglalas.findAll({
+                where: {
+                    auto_id: oldAutoId,
+                    Foglalasokid: { [Op.ne]: req.params.id },
+                    foglalaskezdete: { [Op.lte]: today },
+                    foglalas_vege: { [Op.gte]: today }
+                }
+            });
+
+            if (activeReservations.length === 0) {
+                await Auto.update(
+                    { elerheto: true, berleheto: true },
+                    { where: { AutoID: oldAutoId } }
+                );
+            }
+
+            // Set new car availability
+            await Auto.update(
+                { elerheto: false, berleheto: false },
+                { where: { AutoID: auto_id } }
+            );
+        }
+
+        // Calculate new price if dates or car changed
+        let newAr = Ar;
+        if (!newAr && (carChanged || datesChanged) && foglalaskezdete && foglalas_vege) {
+            const car = await Auto.findByPk(auto_id || foglalas.auto_id);
+            const start = new Date(foglalaskezdete);
+            const end = new Date(foglalas_vege);
+            const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            newAr = diffDays * (car.NapiAr || 15000);
+        }
+
+        await foglalas.update({
+            auto_id: auto_id || foglalas.auto_id,
+            ugyfel_id: ugyfel_id || foglalas.ugyfel_id,
+            foglalaskezdete: foglalaskezdete || foglalas.foglalaskezdete,
+            foglalas_vege: foglalas_vege || foglalas.foglalas_vege,
+            Ar: newAr || foglalas.Ar
+        });
+
+        res.json({ message: 'Foglalás sikeresen frissítve', foglalas });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
