@@ -1,71 +1,124 @@
+/* ============================================
+   CUSTOMER DASHBOARD - ÜGYFÉL STÍLUS
+   Zöld megbízhatósági színek
+   ============================================ */
+
 .customer-dashboard {
     min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-    color: #ffffff;
-    padding: 20px;
+    background: var(--color-bg-dark);
+    color: var(--color-text-primary);
+    padding: 24px;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
+/* ============================================
+   HEADER - Ügyfél stílus
+   ============================================ */
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 50px;
-    padding: 30px 40px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 20px;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 32px;
+    padding: 28px 36px;
+    background: var(--glass-bg);
+    border-radius: 24px;
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(16, 185, 129, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981, #34d399, #059669);
 }
 
 .dashboard-header h1 {
     margin: 0;
-    font-size: 36px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    font-size: 32px;
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 800;
     letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
+.dashboard-header h1::before {
+    content: '👤';
+    font-size: 28px;
+    -webkit-text-fill-color: initial;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-info span {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 15px;
+}
+
+/* ============================================
+   NAVIGÁCIÓ - Ügyfél stílus
+   ============================================ */
 .dashboard-nav {
     display: flex;
-    gap: 20px;
-    margin-bottom: 50px;
+    gap: 16px;
+    margin-bottom: 32px;
     justify-content: center;
 }
 
 .dashboard-nav button {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: #a0a0a0;
-    padding: 16px 32px;
-    border-radius: 14px;
+    padding: 16px 36px;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .dashboard-nav button:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #34d399;
     transform: translateY(-2px);
 }
 
 .dashboard-nav button.active {
-    background: rgba(79, 172, 254, 0.15);
-    border-color: #4facfe;
-    color: #4facfe;
-    box-shadow: 0 0 20px rgba(79, 172, 254, 0.2);
-    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+    border-color: #10b981;
+    color: #34d399;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
 }
 
+/* ============================================
+   SZŰRŐSÁV - Ügyfél stílus
+   ============================================ */
 .filter-bar {
     display: flex;
-    gap: 30px;
-    margin-bottom: 30px;
+    gap: 20px;
+    margin-bottom: 28px;
     flex-wrap: wrap;
 }
 
@@ -77,34 +130,37 @@
 
 .search-icon {
     position: absolute;
-    left: 15px;
+    left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #a0a0a0;
+    color: #10b981;
     pointer-events: none;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .search-input input {
     width: 100%;
-    padding: 16px 16px 16px 45px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-    color: #ffffff;
-    font-size: 16px;
+    padding: 16px 16px 16px 48px;
+    background: #000000 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px;
+    color: #ffffff !important;
+    font-size: 15px;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
 }
 
 .search-input input:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #4facfe;
-    box-shadow: 0 0 15px rgba(79, 172, 254, 0.2);
+    background: #0a0a0a !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15) !important;
     outline: none;
 }
 
-/* Márka kereső - egységes stílus a többi keresővel */
+.search-input input::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Márka kereső */
 .brand-select-wrapper {
     flex: 1 1 200px;
     min-width: 200px;
@@ -113,43 +169,52 @@
 
 .brand-select-wrapper select {
     width: 100%;
-    padding: 16px 45px 16px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-    color: #ffffff;
-    font-size: 16px;
+    padding: 16px 48px 16px 16px;
+    background: #000000 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px;
+    color: #ffffff !important;
+    font-size: 15px;
     cursor: pointer;
     appearance: none;
-    backdrop-filter: blur(10px);
     transition: all 0.3s ease;
 }
 
 .brand-select-wrapper select:focus {
-    border-color: #4facfe;
+    border-color: #10b981 !important;
     outline: none;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 15px rgba(79, 172, 254, 0.2);
+    background: #0a0a0a !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15) !important;
 }
 
 .brand-select-wrapper select option {
-    background: #1e1e1e;
-    color: white;
-    padding: 10px;
+    background: #000000;
+    color: #ffffff;
+    padding: 12px;
 }
 
 .brand-select-wrapper .search-icon {
     position: absolute;
     left: auto;
-    right: 15px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #a0a0a0;
+    color: #ffffff !important;
     pointer-events: none;
     font-size: 14px;
 }
 
-/* Combobox (searchable dropdown) stílusok */
+/* Select mezők fehér nyíl ikonnal */
+.customer-dashboard select,
+.customer-dashboard .filter-select,
+.customer-dashboard .custom-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 16px center !important;
+    padding-right: 44px !important;
+}
+
+/* Combobox */
 .combobox-wrapper {
     position: relative;
 }
@@ -159,52 +224,65 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: #2d2d2d;
+    background: #000000;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    margin-top: 5px;
+    border-radius: 12px;
+    margin-top: 8px;
     max-height: 200px;
     overflow-y: auto;
     z-index: 100;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
 }
 
 .combobox-option {
-    padding: 12px 16px;
+    padding: 14px 18px;
     cursor: pointer;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: #ffffff;
     font-size: 14px;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 }
 
 .combobox-option:hover {
-    background: rgba(79, 172, 254, 0.2);
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
 }
 
 .combobox-option:last-child {
     border-bottom: none;
 }
 
+/* ============================================
+   AUTÓK GRID - Ügyfél stílus
+   ============================================ */
 .cars-grid,
 .reservations-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
 }
 
 .car-card,
 .reservation-card {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 24px;
     padding: 0;
     backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+.car-card:hover,
+.reservation-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
 }
 
 .car-image-container {
@@ -214,20 +292,30 @@
     position: relative;
 }
 
+.car-image-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(transparent, rgba(15, 15, 15, 0.8));
+}
+
 .car-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform 0.6s ease;
 }
 
 .car-card:hover .car-image {
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 .car-content,
 .reservation-content {
-    padding: 25px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -239,13 +327,13 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .car-header h3,
 .reservation-header h3 {
     margin: 0;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
     color: #ffffff;
     letter-spacing: 0.5px;
@@ -253,188 +341,213 @@
 
 .year,
 .status {
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.5px;
 }
 
+.year {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
 .status.active {
-    background: rgba(46, 213, 115, 0.15);
-    color: #2ed573;
-    border: 1px solid rgba(46, 213, 115, 0.2);
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .status.returned {
-    background: rgba(255, 255, 255, 0.1);
-    color: #aaa;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: #a0a0a0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .status.future {
-    background: rgba(55, 66, 250, 0.15);
-    color: #3742fa;
-    border: 1px solid rgba(55, 66, 250, 0.2);
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .status.expired {
     background: rgba(255, 71, 87, 0.15);
-    color: #ff4757;
+    color: #ff6b6b;
     border: 1px solid rgba(255, 71, 87, 0.2);
 }
 
 .car-details,
 .reservation-details {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .car-details p,
 .reservation-details p {
-    margin: 8px 0;
-    color: #d0d0d0;
-    font-size: 16px;
+    margin: 6px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
     line-height: 1.6;
 }
 
 .car-details .car-notes {
-    background: rgba(255, 165, 2, 0.1);
-    border-left: 3px solid #ffa502;
-    padding: 10px 12px;
-    border-radius: 4px;
+    background: rgba(251, 191, 36, 0.1);
+    border-left: 3px solid #fbbf24;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
     margin-top: 12px;
-    font-size: 14px;
-    color: #e0e0e0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
 }
 
+/* Foglalás gomb */
 .reserve-btn {
     width: 100%;
     padding: 16px 24px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .reserve-btn:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(79, 172, 254, 0.6);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
 }
 
 .reservation-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 .return-btn,
 .cancel-btn {
     flex: 1;
-    padding: 8px 16px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .return-btn {
-    background: rgba(81, 207, 102, 0.8);
-    color: white;
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .return-btn:hover {
-    background: rgba(81, 207, 102, 1);
+    background: rgba(16, 185, 129, 0.3);
 }
 
 .cancel-btn {
-    background: rgba(255, 107, 107, 0.8);
-    color: white;
+    background: rgba(255, 71, 87, 0.15);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 71, 87, 0.2);
 }
 
 .cancel-btn:hover {
-    background: rgba(255, 107, 107, 1);
+    background: rgba(255, 71, 87, 0.25);
 }
 
+/* ============================================
+   MODAL - Ügyfél stílus
+   ============================================ */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(10px);
 }
 
 .modal-content {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 30px;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    max-width: 500px;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(15, 15, 15, 0.98) 100%);
+    border-radius: 24px;
+    padding: 36px;
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    max-width: 480px;
     width: 90%;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(16, 185, 129, 0.1);
 }
 
 .modal-content h3 {
-    margin: 0 0 20px 0;
-    color: #ffffff;
+    margin: 0 0 24px 0;
+    color: #34d399;
     text-align: center;
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .modal-car-info {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .modal-car-info h4 {
     margin: 0 0 10px 0;
-    color: #4facfe;
+    color: #ffffff;
+    font-size: 18px;
 }
 
 .modal-car-info p {
-    margin: 5px 0;
-    color: #e0e0e0;
+    margin: 6px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
 }
 
 .price-info {
     margin: 20px 0;
-    padding: 15px;
-    background: rgba(79, 172, 254, 0.1);
-    border-radius: 10px;
-    border: 1px solid rgba(79, 172, 254, 0.3);
+    padding: 20px;
+    background: rgba(16, 185, 129, 0.08);
+    border-radius: 16px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .price-info p {
     margin: 8px 0;
-    color: #e0e0e0;
+    color: rgba(255, 255, 255, 0.8);
     font-size: 15px;
 }
 
 .price-info .total-price {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(79, 172, 254, 0.3);
-    font-size: 17px;
-    color: #4facfe;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
+    font-size: 18px;
+    color: #34d399;
+    font-weight: 700;
 }
 
 .reservation-form {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .form-group {
@@ -444,171 +557,221 @@
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #e0e0e0;
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
+    font-size: 14px;
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     color: #ffffff;
-    font-size: 16px;
+    font-size: 15px;
     transition: all 0.3s ease;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #4facfe;
-    background: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 0 10px rgba(79, 172, 254, 0.3);
+    border-color: #10b981;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
     cursor: pointer;
-    opacity: 0.8;
+    opacity: 0.6;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
 }
 
-
 .modal-actions {
     display: flex;
-    gap: 15px;
+    gap: 16px;
     justify-content: flex-end;
 }
 
 .cancel-modal-btn,
 .confirm-reserve-btn {
-    padding: 12px 24px;
+    padding: 14px 28px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .cancel-modal-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cancel-modal-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .confirm-reserve-btn {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
 }
 
 .confirm-reserve-btn:hover {
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
     transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
 }
 
+/* ============================================
+   ÜZENETEK - Ügyfél stílus
+   ============================================ */
 .message {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    border-radius: 10px;
-    font-weight: 500;
+    top: 24px;
+    right: 24px;
+    padding: 18px 28px;
+    border-radius: 16px;
+    font-weight: 600;
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 1000;
+    z-index: 1001;
     max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.4s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .message.success {
-    color: #51cf66;
-    background: rgba(81, 207, 102, 0.1);
-    border-color: rgba(81, 207, 102, 0.3);
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
 }
 
 .message.error {
     color: #ff6b6b;
-    background: rgba(255, 107, 107, 0.1);
-    border-color: rgba(255, 107, 107, 0.3);
+    background: rgba(255, 71, 87, 0.1);
+    border-color: rgba(255, 71, 87, 0.3);
 }
 
+/* ============================================
+   PAGINATION - Ügyfél stílus
+   ============================================ */
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 40px;
-    gap: 20px;
+    gap: 16px;
 }
 
 .top-pagination {
     margin-top: 0;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 }
 
 .page-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
+    padding: 12px 24px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
+    font-size: 14px;
 }
 
 .page-btn:hover:not(:disabled) {
-    background: rgba(79, 172, 254, 0.2);
-    border-color: #4facfe;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #34d399;
     transform: translateY(-2px);
 }
 
 .page-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
 .page-info {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    color: #a0a0a0;
+    color: rgba(255, 255, 255, 0.5);
     background: rgba(0, 0, 0, 0.2);
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
 }
 
+/* ============================================
+   KIJELENTKEZÉS GOMB
+   ============================================ */
 .logout-btn {
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 24px;
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.2);
     color: #ff6b6b;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .logout-btn:hover {
-    background: rgba(255, 71, 87, 0.1);
-    border-color: #ff4757;
+    background: rgba(255, 71, 87, 0.2);
+    border-color: rgba(255, 71, 87, 0.3);
+    transform: translateY(-2px);
 }
 
+/* ============================================
+   EGYÉB
+   ============================================ */
+.no-cars,
+.no-reservations {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+}
+
+/* ============================================
+   RESZPONZÍV
+   ============================================ */
 @media (max-width: 768px) {
-    .cars-grid {
+    .customer-dashboard {
+        padding: 16px;
+    }
+    
+    .cars-grid,
+    .reservations-list {
         grid-template-columns: 1fr;
-        padding: 10px;
+        gap: 20px;
     }
 
     .dashboard-header {
         flex-direction: column;
-        gap: 15px;
+        gap: 16px;
         text-align: center;
-        padding: 15px;
+        padding: 20px;
     }
 
     .dashboard-header h1 {
@@ -627,7 +790,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
     .dashboard-nav button {
         width: 100%;
-        padding: 15px;
+        justify-content: center;
     }
 
     .reservation-actions {
@@ -636,17 +799,17 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
     .modal-actions {
         flex-direction: column-reverse;
-        gap: 10px;
+        gap: 12px;
     }
 
     .confirm-reserve-btn,
     .cancel-modal-btn {
         width: 100%;
-        padding: 15px;
+        padding: 16px;
     }
 
     .modal-content {
-        padding: 20px;
+        padding: 24px;
         width: 95%;
         max-height: 90vh;
         overflow-y: auto;
@@ -654,7 +817,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     
     .filter-bar {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
     }
     
     .search-input,
@@ -668,15 +831,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
         max-height: 150px;
     }
     
-    .cars-grid,
-    .reservations-list {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
     .car-card,
     .reservation-card {
-        border-radius: 16px;
+        border-radius: 20px;
     }
     
     .car-image-container {
@@ -690,12 +847,12 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     
     .car-header h3,
     .reservation-header h3 {
-        font-size: 20px;
+        font-size: 18px;
     }
     
     .car-details p,
     .reservation-details p {
-        font-size: 14px;
+        font-size: 13px;
     }
     
     .reserve-btn {
@@ -705,7 +862,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     
     .pagination {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
     }
     
     .page-btn {
@@ -713,9 +870,19 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     }
     
     .message {
-        left: 10px;
-        right: 10px;
+        left: 16px;
+        right: 16px;
         max-width: none;
-        top: 10px;
+        top: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header h1 {
+        font-size: 20px;
+    }
+    
+    .dashboard-header h1::before {
+        font-size: 24px;
     }
 }

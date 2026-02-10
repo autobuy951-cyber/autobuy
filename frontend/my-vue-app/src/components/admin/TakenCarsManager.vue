@@ -440,12 +440,16 @@ export default {
 }
 
 .filter-select {
-  padding: 10px 16px;
+  padding: 10px 36px 10px 16px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
-  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: #000000 !important;
+  color: #ffffff !important;
   cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  appearance: none;
 }
 
 .loading-state {

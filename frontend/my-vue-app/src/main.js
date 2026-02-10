@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router.js'
+import './styles/variables.css'
+import './styles/common.css'
 
 // Global fetch wrapper to handle API URLs
 const originalFetch = window.fetch;

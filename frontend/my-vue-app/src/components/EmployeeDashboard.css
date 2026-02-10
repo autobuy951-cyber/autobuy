@@ -1,43 +1,98 @@
-/* Copied from AdminDashboard.vue with employee-specific colors */
+/* ============================================
+   EMPLOYEE DASHBOARD - DOLGOZÓ STÍLUS
+   Kék professzionális színek
+   ============================================ */
+
 .employee-dashboard {
     display: flex;
     min-height: 100vh;
-    background: #121212;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--color-bg-dark);
+    color: var(--color-text-secondary);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* Sidebar Styles */
+/* ============================================
+   SIDEBAR - Dolgozó stílus
+   ============================================ */
 .sidebar {
-    width: 280px;
-    background: #1e1e1e;
+    width: 300px;
+    background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(59, 130, 246, 0.1);
+    position: relative;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa, #2563eb, #3b82f6);
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
 }
 
 .sidebar-header {
-    padding: 30px;
+    padding: 32px 28px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+.sidebar-header::after {
+    content: '💼';
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 20px;
+    opacity: 0.5;
 }
 
 .sidebar-header h1 {
-    font-size: 24px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.5px;
 }
 
 .role-badge {
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 3px;
+    color: #60a5fa;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
+.role-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #3b82f6;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #3b82f6;
+    animation: pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+/* Navigáció */
 .sidebar-nav {
     padding: 20px 0;
     flex: 1;
@@ -45,50 +100,69 @@
 
 .nav-item {
     width: 100%;
-    padding: 16px 30px;
+    padding: 16px 28px;
     background: transparent;
     border: none;
     color: #a0a0a0;
     text-align: left;
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     border-left: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
 }
 
 .nav-item:hover {
-    background: rgba(255, 255, 255, 0.02);
-    color: #fff;
+    background: rgba(59, 130, 246, 0.05);
+    color: #60a5fa;
+    padding-left: 32px;
 }
 
 .nav-item.active {
-    background: linear-gradient(90deg, rgba(79, 172, 254, 0.1) 0%, transparent 100%);
-    color: #4facfe;
-    border-left-color: #4facfe;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.12) 0%, transparent 100%);
+    color: #60a5fa;
+    border-left-color: #3b82f6;
 }
 
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, #3b82f6, #60a5fa);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+/* Sidebar footer */
 .sidebar-footer {
-    padding: 20px;
+    padding: 24px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .user-profile {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     margin-bottom: 20px;
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
-    background: #4facfe;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 700;
     color: white;
+    font-size: 18px;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .user-details {
@@ -99,73 +173,192 @@
 .user-details .name {
     font-weight: 600;
     color: white;
+    font-size: 15px;
 }
 
 .user-details .role {
     font-size: 12px;
-    color: #888;
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .logout-btn {
     width: 100%;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: #ff6b6b;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .logout-btn:hover {
     background: rgba(255, 71, 87, 0.1);
-    border-color: #ff4757;
+    border-color: rgba(255, 71, 87, 0.3);
+    transform: translateY(-2px);
 }
 
-/* Main Content Styles */
+/* ============================================
+   MAIN CONTENT - Dolgozó stílus
+   ============================================ */
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #121212;
+    background: var(--color-bg-dark);
+    position: relative;
+}
+
+.main-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at top right, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(37, 99, 235, 0.03) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .top-bar {
-    padding: 30px 40px;
+    padding: 32px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 .top-bar h2 {
-    font-size: 28px;
-    font-weight: 600;
+    font-size: 32px;
+    font-weight: 700;
     margin: 0;
+    background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .breadcrumbs {
     color: #666;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumbs::before {
+    content: '🏠';
 }
 
 .content-wrapper {
     flex: 1;
     padding: 0 40px 40px 40px;
     overflow-y: auto;
+    position: relative;
+    z-index: 1;
 }
 
-/* Transitions */
+/* Átmenetek */
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-.fade-enter-from,
+.fade-enter-from {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
 .fade-leave-to {
     opacity: 0;
+    transform: translateX(10px);
 }
 
-/* Reszponzív stílusok mobil eszközökhöz */
+/* ============================================
+   DROPDOWN MENÜK - Fekete háttér, fehér szöveg
+   ============================================ */
+.employee-dashboard select,
+.employee-dashboard select option,
+.employee-dashboard .filter-select option,
+.employee-dashboard .custom-select option,
+.employee-dashboard .dropdown-menu,
+.employee-dashboard .dropdown-option {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.employee-dashboard select option:hover,
+.employee-dashboard select option:focus {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* ============================================
+   SEARCH ÉS FILTER INPUTOK - Fekete háttér, fehér szöveg
+   ============================================ */
+.employee-dashboard .filter-select,
+.employee-dashboard .search-input input,
+.employee-dashboard .form-group input,
+.employee-dashboard .form-group select,
+.employee-dashboard input[type="text"],
+.employee-dashboard input[type="search"],
+.employee-dashboard input[type="email"],
+.employee-dashboard input[type="tel"],
+.employee-dashboard input[type="number"],
+.employee-dashboard input[type="date"],
+.employee-dashboard textarea,
+.employee-dashboard .custom-select {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.employee-dashboard .filter-select:focus,
+.employee-dashboard .search-input input:focus,
+.employee-dashboard .form-group input:focus,
+.employee-dashboard .form-group select:focus,
+.employee-dashboard input[type="text"]:focus,
+.employee-dashboard input[type="search"]:focus,
+.employee-dashboard input[type="email"]:focus,
+.employee-dashboard input[type="tel"]:focus,
+.employee-dashboard input[type="number"]:focus,
+.employee-dashboard input[type="date"]:focus,
+.employee-dashboard textarea:focus,
+.employee-dashboard .custom-select:focus {
+    background: #0a0a0a !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.15) !important;
+    outline: none !important;
+}
+
+.employee-dashboard input::placeholder,
+.employee-dashboard textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Select mezők fehér nyíl ikonnal */
+.employee-dashboard select,
+.employee-dashboard .filter-select,
+.employee-dashboard .custom-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 16px center !important;
+    padding-right: 44px !important;
+}
+
+/* ============================================
+   RESZPONZÍV
+   ============================================ */
 @media (max-width: 768px) {
     .employee-dashboard {
         flex-direction: column;
@@ -176,19 +369,21 @@
         flex-direction: row;
         flex-wrap: wrap;
         border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.1);
     }
     
     .sidebar-header {
         width: 100%;
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        padding: 20px;
+    }
+    
+    .sidebar-header::after {
+        top: 15px;
+        right: 15px;
     }
     
     .sidebar-header h1 {
-        font-size: 18px;
+        font-size: 20px;
     }
     
     .role-badge {
@@ -206,23 +401,28 @@
     
     .nav-item {
         flex: 1 1 auto;
-        padding: 10px 12px;
+        padding: 10px 14px;
         font-size: 13px;
         text-align: center;
         border-left: none;
-        border-bottom: 3px solid transparent;
+        border-bottom: 2px solid transparent;
         min-width: 100px;
+        justify-content: center;
+    }
+    
+    .nav-item:hover {
+        padding-left: 14px;
     }
     
     .nav-item.active {
-        background: linear-gradient(180deg, rgba(79, 172, 254, 0.1) 0%, transparent 100%);
+        background: linear-gradient(180deg, rgba(59, 130, 246, 0.12) 0%, transparent 100%);
         border-left-color: transparent;
-        border-bottom-color: #4facfe;
+        border-bottom-color: #3b82f6;
     }
     
     .sidebar-footer {
         width: 100%;
-        padding: 10px 15px;
+        padding: 15px;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -234,8 +434,8 @@
     }
     
     .avatar {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         font-size: 14px;
     }
     
@@ -244,7 +444,7 @@
     }
     
     .user-details .role {
-        font-size: 11px;
+        font-size: 10px;
     }
     
     .logout-btn {
@@ -258,22 +458,18 @@
     }
     
     .top-bar {
-        padding: 15px 20px;
+        padding: 20px;
         flex-direction: column;
         gap: 8px;
         align-items: flex-start;
     }
     
     .top-bar h2 {
-        font-size: 20px;
-    }
-    
-    .breadcrumbs {
-        font-size: 12px;
+        font-size: 24px;
     }
     
     .content-wrapper {
-        padding: 0 15px 20px 15px;
+        padding: 0 20px 20px 20px;
     }
 }
 
@@ -289,6 +485,6 @@
     }
     
     .top-bar h2 {
-        font-size: 18px;
+        font-size: 20px;
     }
 }
