@@ -580,14 +580,57 @@
     box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
+/* Date input calendar icon styles for all browsers */
+.customer-dashboard input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) !important;
     cursor: pointer;
-    opacity: 0.6;
+    opacity: 1 !important;
+    background-color: transparent !important;
+    color: white !important;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
+/* Firefox */
+.customer-dashboard input[type="date"]::-moz-calendar-picker-indicator {
+    filter: invert(1) !important;
+    cursor: pointer;
+    opacity: 1 !important;
+    background-color: transparent !important;
+    color: white !important;
+}
+
+/* Generic styles for other browsers */
+.customer-dashboard input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.customer-dashboard input[type="date"]::-moz-calendar-picker-indicator:hover {
+    opacity: 1 !important;
+}
+
+/* Ensure the date picker icon is white on all screen sizes */
+@media (max-width: 768px) {
+    .customer-dashboard input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) !important;
+        opacity: 1 !important;
+        background-color: transparent !important;
+    }
+    
+    .customer-dashboard input[type="date"]::-moz-calendar-picker-indicator {
+        filter: invert(1) !important;
+        opacity: 1 !important;
+        background-color: transparent !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .customer-dashboard input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) !important;
+        opacity: 1 !important;
+        background-color: transparent !important;
+    }
+    
+    .customer-dashboard input[type="date"]::-moz-calendar-picker-indicator {
+        filter: invert(1) !important;
+        opacity: 1 !important;
+        background-color: transparent !important;
+    }
 }
 
 .modal-actions {

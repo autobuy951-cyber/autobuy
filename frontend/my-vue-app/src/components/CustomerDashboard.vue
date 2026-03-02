@@ -225,6 +225,7 @@
               id="startDate"
               v-model="reservationForm.startDate"
               :min="minStartDate"
+              :max="maxDate"
               required
             />
           </div>
@@ -235,6 +236,7 @@
               id="returnDate"
               v-model="reservationForm.returnDate"
               :min="minReturnDate"
+              :max="maxDate"
               required
             />
           </div>
@@ -368,6 +370,11 @@ export default {
       }
       const today = new Date();
       today.setDate(today.getDate() + 1);
+      return today.toISOString().split('T')[0];
+    },
+    maxDate() {
+      const today = new Date();
+      today.setFullYear(today.getFullYear() + 1);
       return today.toISOString().split('T')[0];
     },
     rentalDays() {
