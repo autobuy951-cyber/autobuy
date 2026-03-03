@@ -25,9 +25,6 @@ const Ugyfel = sequelize.define('Ugyfel', {
     SzuletesiDatum: {
         type: DataTypes.TEXT
     },
-    Jogosultsag: {
-        type: DataTypes.TEXT
-    },
     Jelszo: {
         type: DataTypes.TEXT
     }

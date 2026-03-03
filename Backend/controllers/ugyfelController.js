@@ -146,7 +146,12 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        const [updated] = await Ugyfel.update(req.body, {
+        const updateData = { ...req.body };
+
+        // Az ügyfél jogosultsága nem módosítható – ügyfelek mindig 'ugyfel' maradnak
+        delete updateData.Jogosultsag;
+
+        const [updated] = await Ugyfel.update(updateData, {
             where: { ID: req.params.id }
         });
         if (updated) {
@@ -181,7 +186,7 @@ exports.delete = async (req, res) => {
 exports.getBookingHistory = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // Ellenőrizzük, hogy az ügyfél létezik-e
         const ugyfel = await Ugyfel.findByPk(id);
         if (!ugyfel) {
@@ -192,8 +197,8 @@ exports.getBookingHistory = async (req, res) => {
         const foglalasok = await Foglalas.findAll({
             where: { ugyfel_id: id },
             include: [
-                { 
-                    model: Auto, 
+                {
+                    model: Auto,
                     attributes: ['AutoID', 'Rendszam', 'Marka', 'Modell', 'Evjarat', 'NapiAr', 'Allapot']
                 }
             ],

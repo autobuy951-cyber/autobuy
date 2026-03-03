@@ -32,7 +32,6 @@
             <th @click="sortBy('Nev')">Név <span v-if="sort.by === 'Nev'">{{ sort.order === 'ASC' ? '▲' : '▼' }}</span></th>
             <th>Elérhetőség</th>
             <th>Személyes Adatok</th>
-            <th>Jogosultság</th>
             <th class="actions-col">Műveletek</th>
           </tr>
         </thead>
@@ -54,18 +53,13 @@
                 <span class="address">{{ customer.Cim }}</span>
               </div>
             </td>
-            <td>
-              <span :class="['role-badge', customer.Jogosultsag]">
-                {{ customer.Jogosultsag }}
-              </span>
-            </td>
             <td class="actions">
               <button @click="editCustomer(customer)" class="btn-icon" title="Szerkesztés">✎</button>
               <button @click="confirmDelete(customer)" class="btn-icon delete" title="Törlés">🗑</button>
             </td>
           </tr>
           <tr v-if="customers.length === 0">
-            <td colspan="5" class="no-data">Nincs megjeleníthető ügyfél.</td>
+            <td colspan="4" class="no-data">Nincs megjeleníthető ügyfél.</td>
           </tr>
         </tbody>
       </table>
@@ -106,14 +100,7 @@
               <label>Név</label>
               <input type="text" v-model="form.Nev" required>
             </div>
-            <div class="form-group">
-              <label>Jogosultság</label>
-              <select v-model="form.Jogosultsag" :disabled="!isAdmin">
-                <option value="ugyfel">Ügyfél</option>
-                <option v-if="isAdmin" value="admin">Adminisztrátor</option>
-                <option v-if="isAdmin" value="dolgozo">Dolgozó</option>
-              </select>
-            </div>
+
           </div>
 
           <div class="form-row">
@@ -273,6 +260,10 @@ export default {
     editCustomer(customer) {
       this.editingCustomer = customer;
       this.form = { ...customer, Jelszo: '' }; // Password reset not shown in edit
+      // Dolgozók ne tudják módosítani a jogosultságot
+      if (!this.isAdmin) {
+        this.form.Jogosultsag = customer.Jogosultsag;
+      }
       this.showModal = true;
     },
     resetForm() {
