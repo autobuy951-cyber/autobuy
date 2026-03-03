@@ -11,7 +11,7 @@ window.fetch = function(...args) {
   
   // Convert hardcoded localhost:3000 URLs to relative /api URLs
   if (typeof url === 'string') {
-    url = url.replace('http://localhost:3000', '');
+    url = url.replace('', '');
   }
   
   args[0] = url;

@@ -209,7 +209,7 @@ export default {
 
         if (this.filters.search) params.append('search', this.filters.search);
         
-        const response = await fetch(`http://localhost:3000/api/ugyfelek?${params.toString()}`, {
+        const response = await fetch(`/api/ugyfelek?${params.toString()}`, {
            headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -285,8 +285,8 @@ export default {
       try {
          const token = localStorage.getItem('token');
          const url = this.editingCustomer 
-            ? `http://localhost:3000/api/ugyfelek/${this.editingCustomer.ID}`
-            : 'http://localhost:3000/api/ugyfelek';
+            ? `/api/ugyfelek/${this.editingCustomer.ID}`
+            : '/api/ugyfelek';
          
          const method = this.editingCustomer ? 'PUT' : 'POST';
 
@@ -320,7 +320,7 @@ export default {
       if (confirm(`Biztosan törölni szeretnéd a(z) ${customer.Nev} nevű ügyfelet?`)) {
         try {
            const token = localStorage.getItem('token');
-           await fetch(`http://localhost:3000/api/ugyfelek/${customer.ID}`, {
+           await fetch(`/api/ugyfelek/${customer.ID}`, {
              method: 'DELETE',
              headers: { 'Authorization': `Bearer ${token}` }
            });

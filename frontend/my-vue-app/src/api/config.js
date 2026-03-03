@@ -1,6 +1,6 @@
 // API Configuration
 // Use environment variables in production, fallback to relative paths for development
-// In development, Vite will proxy /api requests to http://localhost:3000
+// In development, Vite will proxy /api requests to 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 

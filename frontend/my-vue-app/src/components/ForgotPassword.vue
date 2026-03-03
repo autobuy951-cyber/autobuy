@@ -59,7 +59,7 @@ export default {
         this.loading = true;
         this.error = '';
 
-        const response = await fetch('http://localhost:3000/api/auth/forgot-password', {
+        const response = await fetch('/api/auth/forgot-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -192,7 +192,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(
-          `http://localhost:3000/api/ugyfelek/search?q=${encodeURIComponent(this.searchQuery)}&limit=10`,
+          `/api/ugyfelek/search?q=${encodeURIComponent(this.searchQuery)}&limit=10`,
           { headers: { 'Authorization': `Bearer ${token}` } }
         );
 
@@ -212,7 +212,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(
-          `http://localhost:3000/api/ugyfelek/${customer.ID}/history`,
+          `/api/ugyfelek/${customer.ID}/history`,
           { headers: { 'Authorization': `Bearer ${token}` } }
         );
 

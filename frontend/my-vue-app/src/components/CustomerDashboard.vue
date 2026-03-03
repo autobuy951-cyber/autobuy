@@ -436,7 +436,7 @@ export default {
     
     async loadAvailableCars() {
       try {
-        const response = await fetch('http://localhost:3000/api/autok/elerheto');
+        const response = await fetch('/api/autok/elerheto');
         if (response.ok) {
           this.availableCars = await response.json();
         } else {
@@ -451,7 +451,7 @@ export default {
     async loadReservations() {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/foglalasok', {
+        const response = await fetch('/api/foglalasok', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -487,7 +487,7 @@ export default {
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
 
-        const response = await fetch('http://localhost:3000/api/foglalasok', {
+        const response = await fetch('/api/foglalasok', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -519,7 +519,7 @@ export default {
     async returnCar(reservationId) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3000/api/foglalasok/${reservationId}/return`, {
+        const response = await fetch(`/api/foglalasok/${reservationId}/return`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -545,7 +545,7 @@ export default {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3000/api/foglalasok/${reservationId}`, {
+        const response = await fetch(`/api/foglalasok/${reservationId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

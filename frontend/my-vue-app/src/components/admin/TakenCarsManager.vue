@@ -263,7 +263,7 @@ export default {
         if (this.filters.search) params.append('search', this.filters.search);
         if (this.filters.status) params.append('status', this.filters.status);
 
-        const response = await fetch(`http://localhost:3000/api/autokibe?${params.toString()}`, {
+        const response = await fetch(`/api/autokibe?${params.toString()}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -313,7 +313,7 @@ export default {
         const token = localStorage.getItem('token');
 
         // Fetch all cars that are available (elerheto: true)
-        const carsResponse = await fetch('http://localhost:3000/api/autok?limit=1000&elerheto=true', {
+        const carsResponse = await fetch('/api/autok?limit=1000&elerheto=true', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const carsData = await carsResponse.json();
@@ -342,7 +342,7 @@ export default {
     async submitCreate() {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/autokibe', {
+        const response = await fetch('/api/autokibe', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -367,7 +367,7 @@ export default {
     async submitReturn() {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3000/api/autokibe/${this.selectedRecord.Id}`, {
+        const response = await fetch(`/api/autokibe/${this.selectedRecord.Id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

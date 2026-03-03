@@ -163,7 +163,7 @@ export default {
           return;
         }
 
-        const response = await fetch('http://localhost:3000/api/auth/register/customer', {
+        const response = await fetch('/api/auth/register/customer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

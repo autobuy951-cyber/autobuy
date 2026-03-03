@@ -205,7 +205,7 @@ exports.registerCustomer = async (req, res) => {
         });
 
         // Send verification email
-        const verificationLink = `http://localhost:5173/verify-email?token=${verificationToken}&email=${encodeURIComponent(Email)}`;
+        const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}&email=${encodeURIComponent(Email)}`;
         
         try {
             await sendVerificationEmail(Email, verificationLink, Nev);
@@ -215,7 +215,6 @@ exports.registerCustomer = async (req, res) => {
 
         res.status(201).json({
             message: 'Sikeres regisztráció! Kérjük, erősítse meg email címét.',
-            devLink: verificationLink // Csak fejlesztési célra
         });
     } catch (err) {
         console.error(err);
@@ -318,7 +317,7 @@ exports.forgotPassword = async (req, res) => {
         console.log('[FORGOT PASSWORD] Token elmentve az adatbázisba');
         
         // Email küldés
-        const resetLink = `http://localhost:5173/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
         console.log('[FORGOT PASSWORD] Reset link:', resetLink);
         
         try {
@@ -332,7 +331,6 @@ exports.forgotPassword = async (req, res) => {
         // Fejlesztési módban visszaadjuk a linket a válaszban is
         res.json({ 
             message: 'Ha a megadott email cím regisztrálva van, küldtünk egy visszaállítási linket.',
-            devLink: resetLink // Csak fejlesztési célra
         });
     } catch (err) {
         console.error('[FORGOT PASSWORD] Hiba:', err);

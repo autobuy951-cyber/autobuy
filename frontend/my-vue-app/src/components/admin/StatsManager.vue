@@ -200,7 +200,7 @@ export default {
       this.loading = true;
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/stats', {
+        const response = await fetch('/api/stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

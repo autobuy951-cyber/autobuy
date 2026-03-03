@@ -181,7 +181,7 @@ export default {
         if (this.filters.search) params.append('search', this.filters.search);
         if (this.filters.jogosultsag) params.append('jogosultsag', this.filters.jogosultsag);
         
-        const response = await fetch(`http://localhost:3000/api/dolgozok?${params.toString()}`, {
+        const response = await fetch(`/api/dolgozok?${params.toString()}`, {
            headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -244,8 +244,8 @@ export default {
       try {
          const token = localStorage.getItem('token');
          const url = this.editingEmployee 
-            ? `http://localhost:3000/api/dolgozok/${this.editingEmployee.id}`
-            : 'http://localhost:3000/api/dolgozok';
+            ? `/api/dolgozok/${this.editingEmployee.id}`
+            : '/api/dolgozok';
          
          const method = this.editingEmployee ? 'PUT' : 'POST';
 
@@ -278,7 +278,7 @@ export default {
       if (confirm(`Biztosan törölni szeretnéd a(z) ${employee.nev} nevű dolgozót?`)) {
         try {
            const token = localStorage.getItem('token');
-           await fetch(`http://localhost:3000/api/dolgozok/${employee.id}`, {
+           await fetch(`/api/dolgozok/${employee.id}`, {
              method: 'DELETE',
              headers: { 'Authorization': `Bearer ${token}` }
            });

@@ -217,7 +217,7 @@ export default {
         if (this.filters.nameSearch) params.append('name_search', this.filters.nameSearch);
         if (this.filters.dateSearch) params.append('date_search', this.filters.dateSearch);
 
-        const response = await fetch(`http://localhost:3000/api/foglalasok?${params.toString()}`, {
+        const response = await fetch(`/api/foglalasok?${params.toString()}`, {
            headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -300,7 +300,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(
-          `http://localhost:3000/api/foglalasok/${this.selectedBooking.Foglalasokid}/pickup`,
+          `/api/foglalasok/${this.selectedBooking.Foglalasokid}/pickup`,
           {
             method: 'PUT',
             headers: {

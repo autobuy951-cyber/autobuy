@@ -279,7 +279,7 @@ export default {
         }
         
         // Backend API hívás
-        const response = await fetch(`http://localhost:3000/api/autok?${params.toString()}`, {
+        const response = await fetch(`/api/autok?${params.toString()}`, {
            headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -379,7 +379,7 @@ export default {
        // Delete logic
        try {
          const token = localStorage.getItem('token');
-         await fetch(`http://localhost:3000/api/autok/${id}`, {
+         await fetch(`/api/autok/${id}`, {
            method: 'DELETE',
            headers: { 'Authorization': `Bearer ${token}` }
          });
@@ -418,8 +418,8 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const url = this.editingCar 
-          ? `http://localhost:3000/api/autok/${this.editingCar.AutoID}`
-          : 'http://localhost:3000/api/autok';
+          ? `/api/autok/${this.editingCar.AutoID}`
+          : '/api/autok';
         
         const method = this.editingCar ? 'PUT' : 'POST';
 

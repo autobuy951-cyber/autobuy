@@ -361,14 +361,14 @@ export default {
         const token = localStorage.getItem('token');
         
         // Fetch all cars with NapiAr
-        const carsResponse = await fetch('http://localhost:3000/api/autok?limit=1000', {
+        const carsResponse = await fetch('/api/autok?limit=1000', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const carsData = await carsResponse.json();
         this.availableCars = carsData.data || [];
 
         // Fetch all customers
-        const customersResponse = await fetch('http://localhost:3000/api/ugyfelek?limit=1000', {
+        const customersResponse = await fetch('/api/ugyfelek?limit=1000', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const customersData = await customersResponse.json();
@@ -392,7 +392,7 @@ export default {
         if (this.filters.nameSearch) params.append('name_search', this.filters.nameSearch);
         if (this.filters.dateSearch) params.append('date_search', this.filters.dateSearch);
 
-        const response = await fetch(`http://localhost:3000/api/foglalasok?${params.toString()}`, {
+        const response = await fetch(`/api/foglalasok?${params.toString()}`, {
            headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -486,8 +486,8 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const url = this.editingBooking
-          ? `http://localhost:3000/api/foglalasok/${this.editingBooking.Foglalasokid}`
-          : 'http://localhost:3000/api/foglalasok';
+          ? `/api/foglalasok/${this.editingBooking.Foglalasokid}`
+          : '/api/foglalasok';
         
         const method = this.editingBooking ? 'PUT' : 'POST';
 
@@ -528,7 +528,7 @@ export default {
       if (confirm(`Biztosan törölni szeretnéd a(z) #${booking.Foglalasokid} foglalást?`)) {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`http://localhost:3000/api/foglalasok/${booking.Foglalasokid}`, {
+          const response = await fetch(`/api/foglalasok/${booking.Foglalasokid}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
           });
