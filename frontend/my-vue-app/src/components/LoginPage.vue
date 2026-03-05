@@ -98,7 +98,7 @@
     </div>
     
     <!-- Verzió info -->
-    <div class="version-info">v2.0 Pro</div>
+    <div class="version-info"></div>
   </div>
 </template>
 
