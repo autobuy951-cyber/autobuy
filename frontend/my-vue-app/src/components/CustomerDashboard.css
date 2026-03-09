@@ -123,9 +123,19 @@
 }
 
 .search-input {
-    flex: 1 1 300px;
+    flex: 2 1 500px;
     position: relative;
-    min-width: 250px;
+    min-width: 300px;
+    max-width: 500px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+}
+
+.search-input:focus-within {
+    flex: 2 1 650px;
+    max-width: 650px;
+    z-index: 1000;
+    transform: scale(1.05);
 }
 
 .search-icon {
@@ -140,20 +150,33 @@
 
 .search-input input {
     width: 100%;
-    padding: 16px 16px 16px 48px;
-    background: #000000 !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 16px 20px 16px 52px;
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 16px;
     color: #ffffff !important;
-    font-size: 15px;
-    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.search-input input:hover {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .search-input input:focus {
-    background: #0a0a0a !important;
-    border-color: #10b981 !important;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15) !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2), 0 8px 30px rgba(102, 126, 234, 0.3) !important;
     outline: none;
+}
+
+.search-input:focus-within .search-icon {
+    color: #667eea;
+    transform: translateY(-50%) scale(1.2);
 }
 
 .search-input input::placeholder {
@@ -162,29 +185,36 @@
 
 /* Márka kereső */
 .brand-select-wrapper {
-    flex: 1 1 200px;
-    min-width: 200px;
+    flex: 0 0 auto;
+    max-width: 150px;
+    min-width: 150px;
     position: relative;
 }
 
 .brand-select-wrapper select {
     width: 100%;
-    padding: 16px 48px 16px 16px;
-    background: #000000 !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 16px;
+    padding: 16px 40px 16px 16px;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px;
     color: #ffffff !important;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     appearance: none;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-select-wrapper select:hover {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
 }
 
 .brand-select-wrapper select:focus {
-    border-color: #10b981 !important;
+    border-color: #667eea !important;
     outline: none;
-    background: #0a0a0a !important;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15) !important;
 }
 
 .brand-select-wrapper select option {
@@ -434,7 +464,8 @@
 }
 
 .return-btn,
-.cancel-btn {
+.cancel-btn,
+.edit-btn {
     flex: 1;
     padding: 12px 20px;
     border: none;
@@ -453,6 +484,16 @@
 
 .return-btn:hover {
     background: rgba(16, 185, 129, 0.3);
+}
+
+.edit-btn {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.edit-btn:hover {
+    background: rgba(99, 102, 241, 0.25);
 }
 
 .cancel-btn {
@@ -640,7 +681,8 @@
 }
 
 .cancel-modal-btn,
-.confirm-reserve-btn {
+.confirm-reserve-btn,
+.confirm-delete-btn {
     padding: 14px 28px;
     border: none;
     border-radius: 12px;
@@ -670,6 +712,34 @@
     background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+}
+
+.confirm-delete-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.confirm-delete-btn:hover {
+    background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+}
+
+.modal-confirm {
+    max-width: 400px;
+}
+
+.modal-confirm h3 {
+    color: #ff6b6b;
+}
+
+.modal-confirm p {
+    margin: 0 0 24px 0;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
 /* ============================================

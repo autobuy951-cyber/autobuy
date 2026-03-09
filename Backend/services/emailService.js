@@ -152,10 +152,63 @@ const sendPasswordResetEmail = async (userEmail, resetLink) => {
     return await sendEmail(userEmail, subject, html);
 };
 
+// Foglalás módosítás email
+const sendBookingUpdateEmail = async (userEmail, bookingDetails) => {
+    const subject = 'Foglalásod módosítva - AutoBuy';
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #3742fa;">Foglalás módosítva</h2>
+            <p>Kedves Ügyfelünk!</p>
+            <p>Sikeresen módosítottad a foglalásod. Az alábbiakban az új adatok:</p>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>🚗 Autó:</strong> ${bookingDetails.carName}</p>
+                <p><strong>🔢 Rendszám:</strong> ${bookingDetails.plate}</p>
+                <p><strong>📅 Új elvitel:</strong> ${bookingDetails.startDate}</p>
+                <p><strong>📅 Új visszahozatal:</strong> ${bookingDetails.endDate}</p>
+                <p><strong>💰 Új fizetendő összeg:</strong> ${bookingDetails.price.toLocaleString('hu-HU')} Ft</p>
+            </div>
+            <p>Köszönjük az Update-ért!</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="color: #666; font-size: 12px;"><strong>AutoBuy Csapat</strong><br>
+            📧 autobuy951@gmail.com</p>
+        </div>
+    `;
+    
+    return await sendEmail(userEmail, subject, html);
+};
+
+// Foglalás lemondás email
+const sendBookingCancellationEmail = async (userEmail, bookingDetails) => {
+    const subject = 'Foglalás lemondása - AutoBuy';
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #ff4757;">Foglalás lemondva</h2>
+            <p>Kedves Ügyfelünk!</p>
+            <p>Sikeresen lemondtad a foglalásod. Lentebb találod a lemondott foglalás adatait:</p>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>🚗 Autó:</strong> ${bookingDetails.carName}</p>
+                <p><strong>🔢 Rendszám:</strong> ${bookingDetails.plate}</p>
+                <p><strong>📅 Tervezett elvitel:</strong> ${bookingDetails.startDate}</p>
+                <p><strong>📅 Tervezett visszahozatal:</strong> ${bookingDetails.endDate}</p>
+                <p><strong>💰 Lemondott összeg:</strong> ${bookingDetails.price.toLocaleString('hu-HU')} Ft</p>
+            </div>
+            <p style="color: #ff4757;"><strong>⚠️ A foglalás véglegesen törlödött.</strong></p>
+            <p>Ha valamilyen okból mégis szeretnél foglalni, szívesen segítünk neked!</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="color: #666; font-size: 12px;"><strong>AutoBuy Csapat</strong><br>
+            📧 autobuy951@gmail.com</p>
+        </div>
+    `;
+    
+    return await sendEmail(userEmail, subject, html);
+};
+
 module.exports = {
     sendEmail,
     sendBookingConfirmation,
     sendBookingReminder,
+    sendBookingUpdateEmail,
+    sendBookingCancellationEmail,
     sendPasswordResetEmail,
     sendVerificationEmail
 };

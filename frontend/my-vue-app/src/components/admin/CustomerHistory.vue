@@ -298,29 +298,62 @@ export default {
 .search-box {
   position: relative;
   max-width: 500px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.search-box:focus-within {
+  max-width: 650px;
+  z-index: 1000;
+  transform: scale(1.05);
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
+  opacity: 0.6;
+  pointer-events: none;
+  transition: all 0.3s ease;
 }
 
 .search-box input {
   width: 100%;
-  padding: 12px 12px 12px 40px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  padding: 16px 20px 16px 52px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
   color: white;
   font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.search-box input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+}
+
+.search-box input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .search-box input:focus {
   outline: none;
-  border-color: #4facfe;
+  border-color: #667eea;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2), 0 8px 30px rgba(102, 126, 234, 0.3);
+}
+
+.search-box:focus-within .search-icon {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.2);
+  color: #667eea;
 }
 
 /* Keresési eredmények */

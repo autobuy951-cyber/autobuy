@@ -1,6 +1,6 @@
 const { Foglalas, Auto, Ugyfel, AutoKibe } = require('../models');
 const { Op } = require('sequelize');
-const { sendBookingConfirmation } = require('../services/emailService');
+const { sendBookingConfirmation, sendBookingUpdateEmail, sendBookingCancellationEmail } = require('../services/emailService');
 
 exports.getAll = async (req, res) => {
     try {
@@ -33,7 +33,7 @@ exports.getAll = async (req, res) => {
         }
 
         const includeOptions = [
-            { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'KepURL'] },
+            { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'KepURL', 'NapiAr'] },
             { model: Ugyfel, attributes: ['Nev', 'Telefonszam'] }
         ];
 
@@ -173,16 +173,19 @@ exports.update = async (req, res) => {
         const foglalas = await Foglalas.findByPk(req.params.id);
         if (!foglalas) return res.status(404).json({ error: 'Foglalás nem található' });
 
-        // Security check: Only admin can update
+        // Security check: Customer can only edit their own reservations, admin/dolgozo can edit any
         if (req.userData && req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo') {
-            return res.status(403).json({ error: 'Nincs jogosultsága szerkeszteni a foglalást' });
+            // Customer is trying to edit - must be their own reservation
+            if (foglalas.ugyfel_id !== req.userData.id) {
+                return res.status(403).json({ error: 'Nincs jogosultsága szerkeszteni ezt a foglalást' });
+            }
         }
 
         const { auto_id, ugyfel_id, foglalaskezdete, foglalas_vege, Ar } = req.body;
 
         // Check if reservation is already picked up or returned
         if (foglalas.Elvitve || foglalas.Visszahozva) {
-            return res.status(400).json({ error: 'Elvitt vagy visszahozott foglalást nem lehet szerkeszteni' });
+            return res.status(400).json({ error: 'Elvive vagy visszahozott foglalást nem lehet szerkeszteni' });
         }
 
         // If car or dates changed, check for overlaps
@@ -256,6 +259,25 @@ exports.update = async (req, res) => {
             Ar: newAr || foglalas.Ar
         });
 
+        // Email küldés módosításról
+        try {
+            const customer = await Ugyfel.findByPk(foglalas.ugyfel_id);
+            const car = await Auto.findByPk(foglalas.auto_id);
+            if (customer && customer.Email && car) {
+                const startDate = new Date(foglalaskezdete || foglalas.foglalaskezdete).toLocaleDateString('hu-HU');
+                const endDate = new Date(foglalas_vege || foglalas.foglalas_vege).toLocaleDateString('hu-HU');
+                await sendBookingUpdateEmail(customer.Email, {
+                    carName: `${car.Marka} ${car.Modell}`,
+                    plate: car.Rendszam,
+                    startDate: startDate,
+                    endDate: endDate,
+                    price: newAr || foglalas.Ar
+                });
+            }
+        } catch (emailErr) {
+            console.error('Hiba az email küldésekor:', emailErr);
+        }
+
         res.json({ message: 'Foglalás sikeresen frissítve', foglalas });
     } catch (err) {
         console.error(err);
@@ -269,7 +291,7 @@ exports.delete = async (req, res) => {
         if (!foglalas) return res.status(404).json({ error: 'Foglalás nem található' });
 
         // Security check: Only owner or admin can delete
-        if (req.userData && req.userData.jogosultsag !== 'admin') {
+        if (req.userData && req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo') {
             if (foglalas.ugyfel_id !== req.userData.id) {
                 return res.status(403).json({ error: 'Nincs jogosultsága törölni más foglalását' });
             }
@@ -277,14 +299,39 @@ exports.delete = async (req, res) => {
 
         const today = new Date().toISOString().slice(0, 10);
 
-        // Admin user can delete any reservation, but customers can only delete future ones
-        if (!req.userData || req.userData.jogosultsag !== 'admin') {
-            if (foglalas.foglalaskezdete <= today) {
-                return res.status(400).json({ error: 'Csak jövőbeli foglalások törölhetők' });
+        // Admin/dolgozo can delete any reservation
+        // Customers can delete future reservations OR today's reservation if not yet picked up
+        if (!req.userData || (req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo')) {
+            // Check if reservation is in the past
+            if (foglalas.foglalaskezdete < today) {
+                return res.status(400).json({ error: 'Múltbeli foglalások nem törölhetők' });
+            }
+            // If today's reservation, check if already picked up
+            if (foglalas.foglalaskezdete === today && foglalas.Elvitve) {
+                return res.status(400).json({ error: 'Elvitt autó foglalása nem törölhető' });
             }
         }
 
         const auto_id = foglalas.auto_id;
+
+        // Email küldés lemondásról (törlés előtt, hogy még van adat)
+        try {
+            const customer = await Ugyfel.findByPk(foglalas.ugyfel_id);
+            const car = await Auto.findByPk(foglalas.auto_id);
+            if (customer && customer.Email && car) {
+                const startDate = new Date(foglalas.foglalaskezdete).toLocaleDateString('hu-HU');
+                const endDate = new Date(foglalas.foglalas_vege).toLocaleDateString('hu-HU');
+                await sendBookingCancellationEmail(customer.Email, {
+                    carName: `${car.Marka} ${car.Modell}`,
+                    plate: car.Rendszam,
+                    startDate: startDate,
+                    endDate: endDate,
+                    price: foglalas.Ar
+                });
+            }
+        } catch (emailErr) {
+            console.error('Hiba az email küldésekor:', emailErr);
+        }
 
         await foglalas.destroy();
 
@@ -378,7 +425,7 @@ exports.recordPickup = async (req, res) => {
 
         // Ha már elvitte, nem lehet újra rögzíteni
         if (foglalas.Elvitve) {
-            return res.status(400).json({ error: 'Ez a foglalás már el lett véve korábban' });
+            return res.status(400).json({ error: 'Ez a foglalás már Elvive korábban' });
         }
 
         const { valos_elvitel } = req.body;
@@ -425,7 +472,7 @@ exports.recordReturn = async (req, res) => {
 
         // Ha még el sem vitte, nem lehet visszahozatalt rögzíteni
         if (!foglalas.Elvitve) {
-            return res.status(400).json({ error: 'Ez a foglalás még nem lett elvéve, előbb az elvitelt kell rögzíteni' });
+            return res.status(400).json({ error: 'Ez a foglalás még nem Elvive, előbb az elvitelt kell rögzíteni' });
         }
 
         // Ha már visszahozta, nem lehet újra rögzíteni

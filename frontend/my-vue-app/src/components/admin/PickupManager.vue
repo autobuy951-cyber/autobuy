@@ -25,7 +25,7 @@
         <select v-model="filters.status" @change="onStatusFilterChange" class="filter-select">
           <option value="">Minden státusz</option>
           <option value="elvitelre_var">Elvitelre vár</option>
-          <option value="elvitve">Elvitve</option>
+          <option value="elvitve">Elvive</option>
           <option value="jovobeli">Jövőbeli</option>
         </select>
       </div>
@@ -91,7 +91,7 @@
               >
                 🚗 Elvitel
               </button>
-              <span v-else-if="booking.Elvitve" class="picked-up-text">✅ Elvitve</span>
+              <span v-else-if="booking.Elvitve" class="picked-up-text">✅ Elvive</span>
               <span v-else class="not-ready-text">⏳ Még nem elérhető</span>
             </td>
           </tr>
@@ -152,7 +152,7 @@
           </div>
           
           <div class="pickup-notice">
-            <p>⚠️ Az elvitel rögzítése után a foglalás státusza "Elvitve" lesz.</p>
+            <p>⚠️ Az elvitel rögzítése után a foglalás státusza "Elvive" lesz.</p>
           </div>
 
           <div class="modal-actions">
@@ -196,7 +196,6 @@ export default {
   },
   mounted() {
     this.fetchBookings();
-    // Alapértelmezett dátum a mai nap
     this.pickupForm.valos_elvitel = new Date().toISOString().split('T')[0];
   },
   beforeUnmount() {
@@ -262,7 +261,6 @@ export default {
       return date.toLocaleDateString('hu-HU');
     },
     canPickup(booking) {
-      // Csak akkor lehet elviteli, ha a mai nap vagy korábbi a tervezett elvitel
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const plannedStart = new Date(booking.foglalaskezdete);
@@ -277,7 +275,7 @@ export default {
       return 'waiting';
     },
     getPickupStatusLabel(booking) {
-      if (booking.Elvitve) return 'Elvitve';
+      if (booking.Elvitve) return 'Elvive';
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const plannedStart = new Date(booking.foglalaskezdete);
@@ -355,40 +353,99 @@ export default {
 
 .input-group {
   position: relative;
-  flex: 1;
-  max-width: 300px;
+  flex: 2;
+  max-width: 500px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.input-group:focus-within {
+  max-width: 650px;
+  z-index: 1000;
+  transform: scale(1.05);
+}
+
+.filter-select {
+  flex: 0 0 auto;
+  max-width: 150px;
+  padding: 14px 40px 14px 16px;
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  opacity: 0.5;
+  font-size: 18px;
+  opacity: 0.6;
   pointer-events: none;
+  transition: all 0.3s ease;
 }
 
 .input-group input {
   width: 100%;
-  padding: 10px 10px 10px 36px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  padding: 16px 20px 16px 52px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
   color: white;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+}
+
+.input-group input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2), 0 8px 30px rgba(102, 126, 234, 0.3);
+}
+
+.input-group:focus-within .search-icon {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.2);
+  color: #667eea;
 }
 
 .filter-select {
-  padding: 10px 36px 10px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  background: #000000 !important;
+  padding: 14px 44px 14px 18px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.3) !important;
   color: #ffffff !important;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' fill-opacity='0.6' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
-  background-position: right 12px center !important;
+  background-position: right 14px center !important;
   appearance: none;
+  min-width: 160px;
+}
+
+.filter-select:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
 }
 
 .loading-state {
@@ -673,7 +730,6 @@ export default {
   cursor: not-allowed;
 }
 
-/* Reszponzív stílusok mobil eszközökhöz */
 @media (max-width: 768px) {
   .pickup-manager {
     padding: 10px;
@@ -685,11 +741,21 @@ export default {
     align-items: stretch;
   }
   
-  .search-box {
-    width: 100%;
+  .search-filters {
+    flex-direction: column;
+    gap: 10px;
   }
   
-  .search-box input {
+  .input-group {
+    max-width: 100%;
+  }
+  
+  .input-group:focus-within {
+    max-width: 100%;
+    transform: none;
+  }
+  
+  .filter-select {
     width: 100%;
   }
   

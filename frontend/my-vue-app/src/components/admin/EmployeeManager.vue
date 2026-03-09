@@ -154,19 +154,18 @@ export default {
       },
       form: {
         nev: '',
-        jogosultsag: 'dolgozo',
-        jelszo: ''
+        jelszo: '',
+        jogosultsag: 'dolgozo'
       }
     }
   },
   mounted() {
     this.fetchEmployees();
   },
+  beforeUnmount() {
+    clearTimeout(this._timer);
+  },
   methods: {
-    getMonogram(name) {
-      if(!name) return '?';
-      return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    },
     async fetchEmployees() {
       this.loading = true;
       try {
@@ -180,20 +179,20 @@ export default {
 
         if (this.filters.search) params.append('search', this.filters.search);
         if (this.filters.jogosultsag) params.append('jogosultsag', this.filters.jogosultsag);
-        
+
         const response = await fetch(`/api/dolgozok?${params.toString()}`, {
-           headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (!response.ok) throw new Error('Hiba az adatok lekérésekor');
 
         const data = await response.json();
-        this.employees = data.data;
-        this.pagination.total = data.total;
-        this.pagination.totalPages = data.totalPages;
+        this.employees = data.data || [];
+        this.pagination.total = data.total || 0;
+        this.pagination.totalPages = data.totalPages || 0;
 
       } catch (error) {
-        console.error(error);
+        console.error('Hiba a dolgozók betöltésekor:', error);
       } finally {
         this.loading = false;
       }
@@ -205,14 +204,8 @@ export default {
         this.fetchEmployees();
       }, 300);
     },
-    changePage(page) {
-      if (page >= 1 && page <= this.pagination.totalPages) {
-        this.pagination.current = page;
-        this.fetchEmployees();
-      }
-    },
     sortBy(field) {
-       if (this.sort.by === field) {
+      if (this.sort.by === field) {
         this.sort.order = this.sort.order === 'ASC' ? 'DESC' : 'ASC';
       } else {
         this.sort.by = field;
@@ -220,33 +213,40 @@ export default {
       }
       this.fetchEmployees();
     },
+    changePage(page) {
+      if (page >= 1 && page <= this.pagination.totalPages) {
+        this.pagination.current = page;
+        this.fetchEmployees();
+      }
+    },
+    getMonogram(name) {
+      if (!name) return '?';
+      return name.charAt(0).toUpperCase();
+    },
     openCreateModal() {
       this.editingEmployee = null;
-      this.resetForm();
+      this.form = { nev: '', jelszo: '', jogosultsag: 'dolgozo' };
       this.showModal = true;
     },
     editEmployee(employee) {
       this.editingEmployee = employee;
-      this.form = { ...employee, jelszo: '' };
-      this.showModal = true;
-    },
-    resetForm() {
-       this.form = {
-        nev: '',
-        jogosultsag: 'dolgozo',
-        jelszo: ''
+      this.form = { 
+        nev: employee.nev, 
+        jelszo: '', 
+        jogosultsag: employee.jogosultsag 
       };
+      this.showModal = true;
     },
     closeModal() {
       this.showModal = false;
+      this.editingEmployee = null;
     },
     async saveEmployee() {
       try {
          const token = localStorage.getItem('token');
          const url = this.editingEmployee 
-            ? `/api/dolgozok/${this.editingEmployee.id}`
-            : '/api/dolgozok';
-         
+           ? `/api/dolgozok/${this.editingEmployee.id}` 
+           : '/api/dolgozok';
          const method = this.editingEmployee ? 'PUT' : 'POST';
 
          const payload = { ...this.form };
@@ -315,40 +315,100 @@ export default {
 
 .input-group {
   position: relative;
-  flex: 1;
-  max-width: 300px;
+  flex: 2;
+  max-width: 500px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.input-group:focus-within {
+  max-width: 650px;
+  z-index: 1000;
+  transform: scale(1.05);
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  opacity: 0.5;
+  font-size: 18px;
+  opacity: 0.6;
   pointer-events: none;
+  transition: all 0.3s ease;
 }
 
 .input-group input {
   width: 100%;
-  padding: 10px 10px 10px 36px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  padding: 16px 20px 16px 52px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
   color: white;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+}
+
+.input-group input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2), 0 8px 30px rgba(102, 126, 234, 0.3);
+}
+
+.input-group:focus-within .search-icon {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.2);
+  color: #667eea;
 }
 
 .filter-select {
-  padding: 10px 36px 10px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  background: #000000 !important;
+  flex: 0 0 auto;
+  max-width: 150px;
+  padding: 14px 40px 14px 16px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.3) !important;
   color: #ffffff !important;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' fill-opacity='0.6' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
-  background-position: right 12px center !important;
+  background-position: right 14px center !important;
   appearance: none;
+}
+
+.filter-select:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+.filter-select option {
+  background: #1a1f2e;
+  color: white;
+  padding: 12px;
 }
 
 .btn-primary {
@@ -368,6 +428,26 @@ export default {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #ff4757;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .data-table {
@@ -475,6 +555,12 @@ export default {
   cursor: not-allowed;
 }
 
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -550,7 +636,6 @@ export default {
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Reszponzív stílusok mobil eszközökhöz */
 @media (max-width: 768px) {
   .employee-manager {
     padding: 10px;
@@ -562,12 +647,23 @@ export default {
     align-items: stretch;
   }
   
-  .search-box {
-    width: 100%;
+  .search-filters {
+    flex-direction: column;
+    gap: 10px;
   }
   
-  .search-box input {
+  .input-group {
+    max-width: 100%;
+  }
+  
+  .input-group:focus-within {
+    max-width: 100%;
+    transform: none;
+  }
+  
+  .filter-select {
     width: 100%;
+    max-width: 100%;
   }
   
   .btn-primary {
@@ -590,6 +686,11 @@ export default {
     padding: 20px;
     max-height: 90vh;
     overflow-y: auto;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
   }
   
   .modal-actions {

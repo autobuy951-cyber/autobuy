@@ -192,8 +192,11 @@
                 <strong>Fizetendő összeg:</strong> {{ formatPrice(reservation.Ar) }} Ft
               </p>
             </div>
-            <div v-if="canCancel(reservation)" class="reservation-actions">
-              <button @click="cancelReservation(reservation.Foglalasokid)" class="cancel-btn">
+            <div class="reservation-actions">
+              <button v-if="canEdit(reservation)" @click="openEditModal(reservation)" class="edit-btn">
+                ✏️ Szerkesztés
+              </button>
+              <button v-if="canCancel(reservation)" @click="openCancelModal(reservation.Foglalasokid)" class="cancel-btn">
                 Lemondás
               </button>
             </div>
@@ -248,6 +251,62 @@
       </div>
     </div>
 
+    <!-- Edit Foglalás modal -->
+    <div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
+      <div class="modal-content" @click.stop>
+        <h3>Foglalás szerkesztése</h3>
+        <div class="modal-car-info">
+          <h4>{{ editingReservation?.Auto?.Marka }} {{ editingReservation?.Auto?.Modell }}</h4>
+          <p><strong>Rendszám:</strong> {{ editingReservation?.Auto?.Rendszam }}</p>
+        </div>
+        <div v-if="editingReservation && editingReservation.Auto" class="price-info">
+          <p><strong>Napi ár:</strong> {{ formatPrice(editingReservation.Auto.NapiAr) }} Ft</p>
+          <p v-if="editForm.returnDate"><strong>Eredeti ár:</strong> {{ formatPrice(editingReservation.Ar) }} Ft</p>
+          <p v-if="editForm.returnDate" class="total-price">
+            <strong>Új fizetendő összeg ({{ editRentalDays }} nap):</strong> {{ formatPrice(editTotalPrice) }} Ft
+          </p>
+        </div>
+        <form @submit.prevent="updateReservation" class="reservation-form">
+          <div class="form-group">
+            <label for="editStartDate">Kezdés dátuma:</label>
+            <input
+              type="date"
+              id="editStartDate"
+              v-model="editForm.startDate"
+              :min="minStartDate"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editReturnDate">Visszahozás dátuma:</label>
+            <input
+              type="date"
+              id="editReturnDate"
+              v-model="editForm.returnDate"
+              :min="editForm.startDate || minStartDate"
+              required
+            />
+          </div>
+          <div class="modal-actions">
+            <button type="button" @click="closeEditModal" class="cancel-modal-btn">Mégse</button>
+            <button type="submit" class="confirm-reserve-btn">Frissítés</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div v-if="showCancelModal" class="modal-overlay" @click="closeCancelModal">
+      <div class="modal-content modal-confirm" @click.stop>
+        <h3>Foglalás lemondása</h3>
+        <p>Biztosan lemondja a foglalást? Ez a művelet nem vonható vissza.</p>
+        <div class="modal-actions">
+          <button type="button" @click="closeCancelModal" class="cancel-modal-btn">Mégsem</button>
+          <button type="button" @click="confirmCancelReservation" class="confirm-delete-btn">Igen, lemondás</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Üzenetek -->
     <div v-if="message" :class="['message', messageType]">
       {{ message }}
@@ -272,6 +331,14 @@ export default {
         startDate: '',
         returnDate: ''
       },
+      showEditModal: false,
+      editingReservation: null,
+      editForm: {
+        startDate: '',
+        returnDate: ''
+      },
+      showCancelModal: false,
+      cancelingReservationId: null,
       filters: {
         modell: '',
         rendszam: '',
@@ -388,6 +455,18 @@ export default {
     totalPrice() {
       if (!this.selectedCar || !this.rentalDays) return 0;
       return (this.selectedCar.NapiAr || 0) * this.rentalDays;
+    },
+    editRentalDays() {
+      if (!this.editForm.startDate || !this.editForm.returnDate) return 0;
+      const start = new Date(this.editForm.startDate);
+      const end = new Date(this.editForm.returnDate);
+      const diffTime = end - start;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays > 0 ? diffDays : 0;
+    },
+    editTotalPrice() {
+      if (!this.editingReservation || !this.editingReservation.Auto || !this.editRentalDays) return 0;
+      return (this.editingReservation.Auto.NapiAr || 0) * this.editRentalDays;
     }
   },
   mounted() {
@@ -538,14 +617,22 @@ export default {
       }
     },
 
-    async cancelReservation(reservationId) {
-      if (!confirm('Biztosan lemondja a foglalást?')) {
-        return;
-      }
+    openCancelModal(reservationId) {
+      this.showCancelModal = true;
+      this.cancelingReservationId = reservationId;
+    },
 
+    closeCancelModal() {
+      this.showCancelModal = false;
+      this.cancelingReservationId = null;
+    },
+
+    async confirmCancelReservation() {
+      if (!this.cancelingReservationId) return;
+      
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`/api/foglalasok/${reservationId}`, {
+        const response = await fetch(`/api/foglalasok/${this.cancelingReservationId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -554,6 +641,7 @@ export default {
 
         if (response.ok) {
           this.showMessage('Foglalás sikeresen lemondva!', 'success');
+          this.closeCancelModal();
           this.loadAvailableCars();
           this.loadReservations();
         } else {
@@ -582,7 +670,7 @@ export default {
       const statusClass = this.getReservationStatusClass(reservation);
       switch (statusClass) {
         case 'returned': return 'Visszahozva';
-        case 'future': return 'Jövőbeli';
+        case 'future': return 'Kiadásra vár';
         case 'expired': return 'Lejárt';
         default: return 'Aktív';
       }
@@ -595,6 +683,61 @@ export default {
       
       // Csak akkor lehet lemondani, ha még nem kezdődött el és nincs visszahozva
       return !reservation.Visszahozva && today < start;
+    },
+
+    canEdit(reservation) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const start = new Date(reservation.foglalaskezdete);
+      
+      // Csak akkor lehet szerkeszteni, ha még nem kezdődött el és nincs visszahozva vagy elvive
+      return !reservation.Visszahozva && !reservation.Elvitve && today < start;
+    },
+
+    openEditModal(reservation) {
+      this.editingReservation = reservation;
+      this.editForm.startDate = reservation.foglalaskezdete;
+      this.editForm.returnDate = reservation.foglalas_vege;
+      this.showEditModal = true;
+    },
+
+    closeEditModal() {
+      this.showEditModal = false;
+      this.editingReservation = null;
+      this.editForm.startDate = '';
+      this.editForm.returnDate = '';
+    },
+
+    async updateReservation() {
+      if (!this.editingReservation) return;
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/foglalasok/${this.editingReservation.Foglalasokid}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            foglalaskezdete: this.editForm.startDate,
+            foglalas_vege: this.editForm.returnDate
+          })
+        });
+
+        if (response.ok) {
+          this.showMessage('Foglalás sikeresen frissítve!', 'success');
+          this.closeEditModal();
+          this.loadReservations();
+          this.loadAvailableCars();
+        } else {
+          const error = await response.json();
+          this.showMessage(error.error || 'Hiba történt a frissítéskor', 'error');
+        }
+      } catch (error) {
+        console.error('Error updating reservation:', error);
+        this.showMessage('Hálózati hiba történt', 'error');
+      }
     },
 
     getStatusLabel(allapot) {

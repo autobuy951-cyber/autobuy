@@ -15,10 +15,7 @@
         </div>
         <h1>AutoBuy</h1>
         <p class="subtitle">Autókölcsönző Rendszer</p>
-        <div class="role-indicator" :class="detectedRole">
-          <span class="role-dot"></span>
-          {{ roleText }}
-        </div>
+        
       </div>
 
       <form @submit.prevent="handleLogin" class="login-form">
@@ -126,7 +123,7 @@ export default {
     },
     roleText() {
       if (this.isEmailInput) return 'Ügyfél mód';
-      return 'Dolgozó / Admin mód';
+      return 'Dolgozó mód';
     }
   },
   methods: {
