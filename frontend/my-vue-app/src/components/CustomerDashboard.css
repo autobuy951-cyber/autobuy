@@ -999,3 +999,133 @@
         font-size: 24px;
     }
 }
+
+/* ===== MOBIL RESZPONZÍV ===== */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 16px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .tab-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .tab-buttons button {
+        width: 100%;
+    }
+
+    .filters-section {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .filters-section input,
+    .filters-section select {
+        width: 100%;
+    }
+
+    .cars-grid,
+    .bookings-grid {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 16px;
+    }
+
+    .car-card {
+        width: 100%;
+    }
+
+    .pagination {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10px auto;
+        padding: 16px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-actions button {
+        width: 100%;
+    }
+
+    .booking-card {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .car-card .car-title {
+        font-size: 1.1rem;
+    }
+
+    .cars-grid,
+    .bookings-grid {
+        padding: 8px;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-input {
+        flex: 1 1 100%;
+        min-width: unset;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .search-input:focus-within {
+        flex: 1 1 100%;
+        max-width: 100%;
+        transform: none;
+    }
+
+    .brand-select-wrapper {
+        width: 100%;
+        min-width: unset;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .combobox-wrapper {
+        position: relative;
+        z-index: 50;
+    }
+
+    .combobox-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 999;
+    }
+}

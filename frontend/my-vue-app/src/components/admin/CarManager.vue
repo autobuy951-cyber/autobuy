@@ -469,7 +469,7 @@ export default {
   padding: 20px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  backdrop-filter: blur(10px);
+  
 }
 
 .toolbar {
@@ -523,12 +523,13 @@ export default {
   padding: 16px 20px 16px 52px;
   border-radius: 16px;
   border: 2px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.4);
-  color: white;
+  background: #2a2a3e;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
   font-size: 16px;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -539,13 +540,13 @@ export default {
 
 .input-group input:hover {
   border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.5);
+  background: #2a2a3e;
 }
 
 .input-group input:focus {
   outline: none;
   border-color: #667eea;
-  background: rgba(0, 0, 0, 0.6);
+  background: #2a2a3e;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2), 0 8px 30px rgba(102, 126, 234, 0.3);
 }
 
@@ -565,7 +566,7 @@ export default {
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' fill-opacity='0.6' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: right 14px center !important;
@@ -586,7 +587,8 @@ export default {
 
 .filter-select option {
   background: #1a1f2e;
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
   padding: 12px;
 }
 
@@ -595,7 +597,8 @@ export default {
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -630,7 +633,8 @@ export default {
 }
 
 .data-table th:hover {
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
 }
 
 .font-mono {
@@ -766,7 +770,8 @@ export default {
 
 .btn-icon:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
 }
 
 .btn-icon.delete:hover {
@@ -785,7 +790,8 @@ export default {
 .btn-page {
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -858,7 +864,8 @@ export default {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
   font-size: 14px;
 }
 
@@ -879,7 +886,8 @@ export default {
 .btn-secondary {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -925,7 +933,8 @@ export default {
   border-radius: 50%;
   width: 30px;
   height: 30px;
-  color: white;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1025,4 +1034,13 @@ export default {
     width: 100%;
   }
 }
+.input-group input:-webkit-autofill,
+.input-group input:-webkit-autofill:hover,
+.input-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0.6) inset !important;
+  caret-color: white !important;
+}
+
 </style>

@@ -488,3 +488,59 @@
         font-size: 20px;
     }
 }
+
+/* ===== MOBIL ===== */
+@media (max-width: 768px) {
+    .employee-layout {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        min-height: unset;
+        position: relative;
+    }
+    .main-content {
+        padding: 10px;
+        width: 100%;
+        overflow-x: hidden;
+    }
+    .page-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .page-header h1 {
+        font-size: 1.3rem;
+    }
+    .filters-row, .filter-bar {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .filters-row input,
+    .filters-row select,
+    .filter-bar input,
+    .filter-bar select {
+        width: 100%;
+    }
+    .btn-primary, .btn-add {
+        width: 100%;
+        text-align: center;
+    }
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .modal-overlay .modal-content {
+        width: 95%;
+        padding: 16px;
+        margin: 10px auto;
+    }
+    .modal-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .modal-actions button {
+        width: 100%;
+    }
+}
