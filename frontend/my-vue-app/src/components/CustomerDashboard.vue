@@ -224,7 +224,7 @@
           <div class="form-group">
             <label for="startDate">Kezdés dátuma:</label>
             <input
-              type="date"
+              type="datetime-local"
               id="startDate"
               v-model="reservationForm.startDate"
               :min="minStartDate"
@@ -235,7 +235,7 @@
           <div class="form-group">
             <label for="returnDate">Visszahozás dátuma:</label>
             <input
-              type="date"
+              type="datetime-local"
               id="returnDate"
               v-model="reservationForm.returnDate"
               :min="minReturnDate"
@@ -270,7 +270,7 @@
           <div class="form-group">
             <label for="editStartDate">Kezdés dátuma:</label>
             <input
-              type="date"
+              type="datetime-local"
               id="editStartDate"
               v-model="editForm.startDate"
               :min="minStartDate"
@@ -280,7 +280,7 @@
           <div class="form-group">
             <label for="editReturnDate">Visszahozás dátuma:</label>
             <input
-              type="date"
+              type="datetime-local"
               id="editReturnDate"
               v-model="editForm.returnDate"
               :min="editForm.startDate || minStartDate"
@@ -429,20 +429,24 @@ export default {
       return result;
     },
     minStartDate() {
-      return new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
     },
     minReturnDate() {
       if (this.reservationForm.startDate) {
         return this.reservationForm.startDate;
       }
-      const today = new Date();
-      today.setDate(today.getDate() + 1);
-      return today.toISOString().split('T')[0];
+      const now = new Date();
+      now.setHours(now.getHours() + 1);
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
     },
     maxDate() {
-      const today = new Date();
-      today.setFullYear(today.getFullYear() + 1);
-      return today.toISOString().split('T')[0];
+      const now = new Date();
+      now.setFullYear(now.getFullYear() + 1);
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
     },
     rentalDays() {
       if (!this.reservationForm.startDate || !this.reservationForm.returnDate) return 0;
@@ -550,8 +554,16 @@ export default {
     showReservationModal(car) {
       this.selectedCar = car;
       this.showModal = true;
-      this.reservationForm.startDate = '';
-      this.reservationForm.returnDate = '';
+
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const start = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const endDate = new Date(now);
+      endDate.setHours(endDate.getHours() + 1);
+      const end = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
+
+      this.reservationForm.startDate = start;
+      this.reservationForm.returnDate = end;
     },
 
     closeModal() {
@@ -677,27 +689,33 @@ export default {
     },
     
     canCancel(reservation) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
       const start = new Date(reservation.foglalaskezdete);
       
       // Csak akkor lehet lemondani, ha még nem kezdődött el és nincs visszahozva
-      return !reservation.Visszahozva && today < start;
+      return !reservation.Visszahozva && !isNaN(start) && now < start;
     },
 
     canEdit(reservation) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
       const start = new Date(reservation.foglalaskezdete);
       
       // Csak akkor lehet szerkeszteni, ha még nem kezdődött el és nincs visszahozva vagy elvive
-      return !reservation.Visszahozva && !reservation.Elvitve && today < start;
+      return !reservation.Visszahozva && !reservation.Elvitve && !isNaN(start) && now < start;
+    },
+
+    toLocalDateTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return '';
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
     },
 
     openEditModal(reservation) {
       this.editingReservation = reservation;
-      this.editForm.startDate = reservation.foglalaskezdete;
-      this.editForm.returnDate = reservation.foglalas_vege;
+      this.editForm.startDate = this.toLocalDateTime(reservation.foglalaskezdete);
+      this.editForm.returnDate = this.toLocalDateTime(reservation.foglalas_vege);
       this.showEditModal = true;
     },
 
@@ -756,7 +774,16 @@ export default {
     },
 
     formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString('hu-HU');
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '-';
+      return date.toLocaleString('hu-HU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     },
 
     showMessage(message, type = 'success') {

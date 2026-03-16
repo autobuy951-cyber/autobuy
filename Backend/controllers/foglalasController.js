@@ -21,19 +21,19 @@ exports.getAll = async (req, res) => {
         if (kezdet) whereClause.foglalaskezdete = { [Op.gte]: kezdet };
         if (veg) whereClause.foglalas_vege = { [Op.lte]: veg };
 
-        // Status filter is complex because it depends on date comparison
-        const today = new Date().toISOString().slice(0, 10);
+        // Status filter is based on the current moment (date+time), not just the day.
+        const now = new Date().toISOString();
         if (status === 'aktiv') {
-            whereClause.foglalaskezdete = { [Op.lte]: today };
-            whereClause.foglalas_vege = { [Op.gte]: today };
+            whereClause.foglalaskezdete = { [Op.lte]: now };
+            whereClause.foglalas_vege = { [Op.gte]: now };
         } else if (status === 'lejart') {
-            whereClause.foglalas_vege = { [Op.lt]: today };
+            whereClause.foglalas_vege = { [Op.lt]: now };
         } else if (status === 'jovobeli') {
-            whereClause.foglalaskezdete = { [Op.gt]: today };
+            whereClause.foglalaskezdete = { [Op.gt]: now };
         }
 
         const includeOptions = [
-            { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'KepURL', 'NapiAr'] },
+            { model: Auto, attributes: ['Rendszam', 'Marka', 'Modell', 'KepURL', 'NapiAr',] },
             { model: Ugyfel, attributes: ['Nev', 'Telefonszam'] }
         ];
 
@@ -63,11 +63,15 @@ exports.getAll = async (req, res) => {
             offset: parseInt(offset)
         });
 
-        // Post-process status
+        // Post-process status using full date-time comparison
+        const nowDate = new Date();
         const result = rows.map(f => {
             const row = f.toJSON();
-            if (row.foglalas_vege < today) row.status = 'lejart';
-            else if (row.foglalaskezdete <= today && row.foglalas_vege >= today) row.status = 'aktiv';
+            const start = new Date(row.foglalaskezdete);
+            const end = new Date(row.foglalas_vege);
+
+            if (!isNaN(end) && end < nowDate) row.status = 'lejart';
+            else if (!isNaN(start) && !isNaN(end) && start <= nowDate && end >= nowDate) row.status = 'aktiv';
             else row.status = 'jovobeli';
             return row;
         });
@@ -98,6 +102,15 @@ exports.create = async (req, res) => {
         if (!auto_id || !ugyfel_id || !foglalaskezdete || !foglalas_vege) {
             return res.status(400).json({ error: 'Hiányzó adatok (auto_id, ugyfel_id, kezdés, vég)' });
         }
+
+        // Normalize incoming date/time values to ISO strings (UTC) for consistent comparisons/storage
+        const startISO = new Date(foglalaskezdete).toISOString();
+        const endISO = new Date(foglalas_vege).toISOString();
+        if (isNaN(new Date(startISO)) || isNaN(new Date(endISO))) {
+            return res.status(400).json({ error: 'Érvénytelen dátum formátum' });
+        }
+        foglalaskezdete = startISO;
+        foglalas_vege = endISO;
 
         // Validate overlap
         const overlaps = await Foglalas.findAll({
@@ -183,6 +196,22 @@ exports.update = async (req, res) => {
 
         const { auto_id, ugyfel_id, foglalaskezdete, foglalas_vege, Ar } = req.body;
 
+        // Normalize incoming date/time values (if provided) to ISO strings for consistent comparisons
+        let newStartISO = foglalas.foglalaskezdete;
+        let newEndISO = foglalas.foglalas_vege;
+        if (foglalaskezdete) {
+            newStartISO = new Date(foglalaskezdete).toISOString();
+            if (isNaN(new Date(newStartISO))) {
+                return res.status(400).json({ error: 'Érvénytelen kezdő dátum' });
+            }
+        }
+        if (foglalas_vege) {
+            newEndISO = new Date(foglalas_vege).toISOString();
+            if (isNaN(new Date(newEndISO))) {
+                return res.status(400).json({ error: 'Érvénytelen befejező dátum' });
+            }
+        }
+
         // Check if reservation is already picked up or returned
         if (foglalas.Elvitve || foglalas.Visszahozva) {
             return res.status(400).json({ error: 'Elvive vagy visszahozott foglalást nem lehet szerkeszteni' });
@@ -190,8 +219,8 @@ exports.update = async (req, res) => {
 
         // If car or dates changed, check for overlaps
         const carChanged = auto_id && auto_id !== foglalas.auto_id;
-        const datesChanged = foglalaskezdete && foglalas_vege && 
-            (foglalaskezdete !== foglalas.foglalaskezdete || foglalas_vege !== foglalas.foglalas_vege);
+        const datesChanged = (foglalaskezdete && foglalas_vege) && 
+            (newStartISO !== foglalas.foglalaskezdete || newEndISO !== foglalas.foglalas_vege);
 
         if ((carChanged || datesChanged) && auto_id && foglalaskezdete && foglalas_vege) {
             const overlaps = await Foglalas.findAll({
@@ -200,8 +229,8 @@ exports.update = async (req, res) => {
                     Foglalasokid: { [Op.ne]: req.params.id }, // Exclude current reservation
                     [Op.or]: [
                         {
-                            foglalaskezdete: { [Op.lte]: foglalas_vege },
-                            foglalas_vege: { [Op.gte]: foglalaskezdete }
+                            foglalaskezdete: { [Op.lte]: newEndISO },
+                            foglalas_vege: { [Op.gte]: newStartISO }
                         }
                     ]
                 }
@@ -214,7 +243,7 @@ exports.update = async (req, res) => {
 
         // Update the old car's availability if car changed
         if (carChanged) {
-            const today = new Date().toISOString().slice(0, 10);
+            const now = new Date().toISOString();
             const oldAutoId = foglalas.auto_id;
             
             // Set old car availability back
@@ -222,8 +251,8 @@ exports.update = async (req, res) => {
                 where: {
                     auto_id: oldAutoId,
                     Foglalasokid: { [Op.ne]: req.params.id },
-                    foglalaskezdete: { [Op.lte]: today },
-                    foglalas_vege: { [Op.gte]: today }
+                    foglalaskezdete: { [Op.lte]: now },
+                    foglalas_vege: { [Op.gte]: now }
                 }
             });
 
@@ -245,8 +274,8 @@ exports.update = async (req, res) => {
         let newAr = Ar;
         if (!newAr && (carChanged || datesChanged) && foglalaskezdete && foglalas_vege) {
             const car = await Auto.findByPk(auto_id || foglalas.auto_id);
-            const start = new Date(foglalaskezdete);
-            const end = new Date(foglalas_vege);
+            const start = new Date(newStartISO);
+            const end = new Date(newEndISO);
             const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
             newAr = diffDays * (car.NapiAr || 15000);
         }
@@ -254,8 +283,8 @@ exports.update = async (req, res) => {
         await foglalas.update({
             auto_id: auto_id || foglalas.auto_id,
             ugyfel_id: ugyfel_id || foglalas.ugyfel_id,
-            foglalaskezdete: foglalaskezdete || foglalas.foglalaskezdete,
-            foglalas_vege: foglalas_vege || foglalas.foglalas_vege,
+            foglalaskezdete: newStartISO,
+            foglalas_vege: newEndISO,
             Ar: newAr || foglalas.Ar
         });
 
@@ -264,8 +293,8 @@ exports.update = async (req, res) => {
             const customer = await Ugyfel.findByPk(foglalas.ugyfel_id);
             const car = await Auto.findByPk(foglalas.auto_id);
             if (customer && customer.Email && car) {
-                const startDate = new Date(foglalaskezdete || foglalas.foglalaskezdete).toLocaleDateString('hu-HU');
-                const endDate = new Date(foglalas_vege || foglalas.foglalas_vege).toLocaleDateString('hu-HU');
+                const startDate = new Date(newStartISO).toLocaleString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const endDate = new Date(newEndISO).toLocaleString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
                 await sendBookingUpdateEmail(customer.Email, {
                     carName: `${car.Marka} ${car.Modell}`,
                     plate: car.Rendszam,
@@ -297,17 +326,18 @@ exports.delete = async (req, res) => {
             }
         }
 
-        const today = new Date().toISOString().slice(0, 10);
+        const now = new Date();
+        const startDate = new Date(foglalas.foglalaskezdete);
 
         // Admin/dolgozo can delete any reservation
         // Customers can delete future reservations OR today's reservation if not yet picked up
         if (!req.userData || (req.userData.jogosultsag !== 'admin' && req.userData.jogosultsag !== 'dolgozo')) {
             // Check if reservation is in the past
-            if (foglalas.foglalaskezdete < today) {
+            if (!isNaN(startDate) && startDate < now) {
                 return res.status(400).json({ error: 'Múltbeli foglalások nem törölhetők' });
             }
             // If today's reservation, check if already picked up
-            if (foglalas.foglalaskezdete === today && foglalas.Elvitve) {
+            if (!isNaN(startDate) && startDate.toDateString() === now.toDateString() && foglalas.Elvitve) {
                 return res.status(400).json({ error: 'Elvitt autó foglalása nem törölhető' });
             }
         }
@@ -336,11 +366,12 @@ exports.delete = async (req, res) => {
         await foglalas.destroy();
 
         // Check if there are any active reservations for this car
+        const nowISO = new Date().toISOString();
         const activeReservations = await Foglalas.findAll({
             where: {
                 auto_id,
-                foglalaskezdete: { [Op.lte]: today },
-                foglalas_vege: { [Op.gte]: today }
+                foglalaskezdete: { [Op.lte]: nowISO },
+                foglalas_vege: { [Op.gte]: nowISO }
             }
         });
 
@@ -369,13 +400,13 @@ exports.return = async (req, res) => {
             return res.status(400).json({ error: 'Kilometer vég szükséges' });
         }
 
-        const today = new Date().toISOString().slice(0, 10);
+        const nowISO = new Date().toISOString();
 
         // Add to AutoKibe
         await AutoKibe.create({
             auto_id: foglalas.auto_id,
             elvitel: foglalas.valos_elvitel || foglalas.foglalaskezdete,
-            vissza: today,
+            vissza: returnDate,
             Kilometer_kezdet: 0, // Placeholder, as not tracked
             Kilometer_veg: kilometer_veg
         });
@@ -384,8 +415,8 @@ exports.return = async (req, res) => {
         const activeReservations = await Foglalas.findAll({
             where: {
                 auto_id: foglalas.auto_id,
-                foglalaskezdete: { [Op.lte]: today },
-                foglalas_vege: { [Op.gte]: today }
+                foglalaskezdete: { [Op.lte]: nowISO },
+                foglalas_vege: { [Op.gte]: nowISO }
             }
         });
 
@@ -429,7 +460,7 @@ exports.recordPickup = async (req, res) => {
         }
 
         const { valos_elvitel } = req.body;
-        const pickupDate = valos_elvitel || new Date().toISOString().slice(0, 10);
+        const pickupDate = valos_elvitel ? new Date(valos_elvitel).toISOString() : new Date().toISOString();
 
         // Frissítés
         await foglalas.update({
@@ -481,7 +512,7 @@ exports.recordReturn = async (req, res) => {
         }
 
         const { valos_visszahozatal, kilometer_veg } = req.body;
-        const returnDate = valos_visszahozatal || new Date().toISOString().slice(0, 10);
+        const returnDate = valos_visszahozatal ? new Date(valos_visszahozatal).toISOString() : new Date().toISOString();
 
         // Frissítés a foglalasok táblában
         await foglalas.update({

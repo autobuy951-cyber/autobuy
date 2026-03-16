@@ -153,7 +153,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>Valós visszahozatal dátuma</label>
-              <input type="date" v-model="returnForm.valos_visszahozatal" required>
+              <input type="datetime-local" v-model="returnForm.valos_visszahozatal" required>
             </div>
             <div class="form-group">
               <label>Kilométer állás</label>
@@ -237,7 +237,9 @@ export default {
   },
   mounted() {
     this.fetchBookings();
-    this.returnForm.valos_visszahozatal = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    this.returnForm.valos_visszahozatal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   },
   beforeUnmount() {
     clearTimeout(this._timer);
@@ -299,7 +301,13 @@ export default {
       if (!dateStr) return '-';
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return '-';
-      return date.toLocaleDateString('hu-HU');
+      return date.toLocaleString('hu-HU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     },
     canReturn(booking) {
       // Csak akkor lehet visszahozatalt rögzíteni, ha elvitték, de még nincs visszahozva
@@ -317,7 +325,9 @@ export default {
     },
     openReturnModal(booking) {
       this.selectedBooking = booking;
-      this.returnForm.valos_visszahozatal = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      this.returnForm.valos_visszahozatal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
       this.returnForm.kilometer_veg = '';
       this.returnForm.autoAllapot = 'elerheto';  // Alapértelmezett: elérhető
       this.returnForm.megjegyzes = '';  // Megjegyzés ürítése
@@ -353,14 +363,14 @@ export default {
         if (response.ok) {
           this.closeModal();
           this.fetchBookings();
-          alert('Visszahozatal sikeresen rögzítve!');
+          window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Visszahozatal sikeresen rögzítve!', type: 'success' } }));
         } else {
           const err = await response.json();
-          alert(err.error || 'Hiba történt a visszahozatal rögzítésekor');
+          window.dispatchEvent(new CustomEvent('toast', { detail: { message: err.error || 'Hiba történt a visszahozatal rögzítésekor', type: 'error' } }));
         }
       } catch (err) {
         console.error(err);
-        alert('Hálózati hiba történt');
+        window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Hálózati hiba történt', type: 'error' } }));
       } finally {
         this.saving = false;
       }
@@ -597,6 +607,8 @@ export default {
 .actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+  min-height: 50px;
 }
 
 .btn-action {

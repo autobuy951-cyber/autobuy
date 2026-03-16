@@ -3,17 +3,19 @@ const { Op } = require('sequelize');
 
 exports.getStats = async (req, res) => {
     try {
-        const today = new Date().toISOString().slice(0, 10);
+        const now = new Date();
+        const today = now.toISOString().slice(0, 10);
         const currentMonth = today.slice(0, 7); // YYYY-MM format
         const currentYear = today.slice(0, 4);  // YYYY format
 
         // Alap statisztikák
         const osszesAuto = await Auto.count();
         const elerhetoAuto = await Auto.count({ where: { elerheto: true, berleheto: true } });
+        const nowISO = now.toISOString();
         const aktivFoglalas = await Foglalas.count({
             where: {
-                foglalaskezdete: { [Op.lte]: today },
-                foglalas_vege: { [Op.gte]: today }
+                foglalaskezdete: { [Op.lte]: nowISO },
+                foglalas_vege: { [Op.gte]: nowISO }
             }
         });
 
@@ -83,12 +85,12 @@ exports.getStats = async (req, res) => {
         const osszesFoglalas = await Foglalas.count();
         const lejartFoglalas = await Foglalas.count({
             where: {
-                foglalas_vege: { [Op.lt]: today }
+                foglalas_vege: { [Op.lt]: now.toISOString() }
             }
         });
         const jovobeliFoglalas = await Foglalas.count({
             where: {
-                foglalaskezdete: { [Op.gt]: today }
+                foglalaskezdete: { [Op.gt]: now.toISOString() }
             }
         });
 

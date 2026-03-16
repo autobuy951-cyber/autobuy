@@ -510,6 +510,8 @@ export default {
 .actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+  min-height: 50px;
 }
 
 .btn-icon {

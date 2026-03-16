@@ -1,7 +1,7 @@
 # User Stories - AutoBuy Autókölcsönző Rendszer
 
 
-## 2️⃣ user story – Autó Kiadása
+## 1 user story – Autó Kiadása
 **Szereplők**: Ügyintéző, Karbantartó, Toyota Corolla
 
 **Történet**:
@@ -13,7 +13,7 @@
 
 
 
-## 2️⃣ user story – Autó visszavetel
+## 2 user story – Autó visszavetel
 **Szereplők**: Ügyintéző, Karbantartó, Toyota Corolla
 
 **Történet**:
@@ -25,7 +25,7 @@
 5.  Az autó állapota ujra elerheto
 
 
-## 3️⃣ User story – Új Autó Beszerzése
+## 3️ User story – Új Autó Beszerzése
 **Szereplők**: Beszerzési Menedzser (Dolgozó), Új Ford Focus
 
 **Történet**:
@@ -35,7 +35,7 @@
 4.  Az autó azonnal megjelenik a kereshető listában.
 
 
-## 4️⃣ User story – Új Alkalmazott Felvétele
+## 4️ User story – Új Alkalmazott Felvétele
 **Szereplők**: Adminisztrátor (Főnök), Új kolléga (János)
 
 **Történet**:
@@ -47,7 +47,7 @@
 4.  János mostantól be tud lépni
 
 
-## 4️⃣ User story – Új Alkalmazott belépés
+## 5 User story – Új Alkalmazott belépés
 **Szereplők**: Adminisztrátor (Főnök), Új kolléga (János)
 
 **Történet**:
@@ -58,14 +58,14 @@
 
 
 
-## 5️⃣ User story – Ügyfél Regisztrációja
+## 6 User story – Ügyfél Regisztrációja
 **Szereplők**: Új ügyfél (Mária), Online felület
 
 **Történet**:
 1.  Mária meglátogatja az AutoBuyt
 2.  A dolgozó beregisztrálja
 
-## 5️⃣ User story – Ügyfél bejelentkezés
+## 7 User story – Ügyfél bejelentkezés
 **Szereplők**: Új ügyfél (Mária), Online felület
 
 **Történet**:
@@ -75,7 +75,7 @@
 
 
 
-## 6️⃣ User story – Autó Állapotának Frissítése
+## 8 User story – Autó Állapotának Frissítése
 **Szereplők**: Karbantartó, Sérült autó
 
 **Történet**:
@@ -85,7 +85,7 @@
 4.  A rendszer automatikusan kizárja ezt az autót a foglalható autók listájából.
 
 
-## 7️⃣ User story – Foglalás Módosítása
+## 9 User story – Foglalás Módosítása
 **Szereplők**: Ügyfél, Ügyintéző
 
 **Történet**:
@@ -94,7 +94,7 @@
 4.  Ha szabad, akkor módosítja a foglalás végdátumát és az árat.
 
 
-## 8️⃣ User story – Statisztikák Lekérése
+## 10 User story – Statisztikák Lekérése
 **Szereplők**: Üzletvezető
 
 **Történet**:
@@ -105,7 +105,7 @@
 5.  Az ügyvezető ezek alapján dönt
 
 
-## 9️⃣ User story – Dolgozó Jogosultságának Módosítása
+## 11 User story – Dolgozó Jogosultságának Módosítása
 **Szereplők**: Adminisztrátor, Dolgozó
 
 **Történet**:
@@ -116,7 +116,7 @@
 
 
 
-## 🔟 User story – Autó felvetele
+## 12 User story – Autó felvetele
 **Szereplők**: Adminisztrátor,
 
 **Történet**:
@@ -125,7 +125,7 @@
 2. Egy uj autot regisztarulk a rendszerbe
 
 
-## 🔟 User story – Autó Törlése a Rendszerből
+## 13 User story – Autó Törlése a Rendszerből
 **Szereplők**: Adminisztrátor, Elavult autó
 
 **Történet**:
@@ -135,7 +135,7 @@
 5.  Törli az autót az **Autok** táblából,
 
 
-## 1️⃣1️⃣ User story – Dolgozó Törlése a Rendszerből
+## 14 User story – Dolgozó Törlése a Rendszerből
 **Szereplők**: Adminisztrátor, Elbocsátott dolgozó
 
 **Történet**:
@@ -145,7 +145,7 @@
 5.  Törli a dolgozót a **Dolgozok** táblából,
 
 
-## 1️⃣2️⃣ User story – Ügyfél Törlése a Rendszerből
+## 15 User story – Ügyfél Törlése a Rendszerből
 **Szereplők**: Adminisztrátor, Ügyfél
 
 **Történet**:
@@ -156,7 +156,7 @@
 5.  Törli az ügyfelet az **Ugyfelek** táblából, vagy "törölt"-re állítja az állapotát
 
 
-## 1️⃣3️⃣ User story – Ügyfél Előzmények Megtekintése
+## 16 User story – Ügyfél Előzmények Megtekintése
 **Szereplők**: Adminisztrátor, Dolgozó, Ügyfél
 
 **Történet**:
@@ -172,7 +172,7 @@
     -   Megjegyzések a kölcsönzésről
 
 
-## 1️⃣4️⃣ User story – Megjegyzés Rögzítése Visszahozatalnál
+## 17 User story – Megjegyzés Rögzítése Visszahozatalnál
 **Szereplők**: Dolgozó, Ügyfél
 
 **Történet**:
@@ -183,7 +183,7 @@
 5.  A megjegyzés eltárolódik az AutoKibe táblában.
 
 
-## 1️⃣5️⃣ User story – Autó Megjegyzés Kezelése
+## 18 User story – Autó Megjegyzés Kezelése
 **Szereplők**: Adminisztrátor, Dolgozó
 
 **Történet**:
@@ -193,7 +193,7 @@
 4.  A megjegyzés megjelenik az autók listájában és az ügyfélnél is.
 
 
-## 1️⃣6️⃣ User story – Bérelhető Állapot Jelzése
+## 19 User story – Bérelhető Állapot Jelzése
 **Szereplők**: Adminisztrátor, Dolgozó
 
 **Történet**:
@@ -203,7 +203,7 @@
 4.  A rendszer automatikusan csak a bérelhető autókat mutatja az ügyfeleknek.
 
 
-## 1️⃣7️⃣ User story – Email Értesítések Küldése
+## 20 User story – Email Értesítések Küldése
 **Szereplők**: Rendszer, Ügyfél, Ügyintéző
 
 **Történet**:
@@ -215,7 +215,7 @@
 6.  Az emailek HTML formátumúak, esztétikus kinézetűek.
 
 
-## 1️⃣8️⃣ User story – Email Cím Megerősítése
+## 21 User story – Email Cím Megerősítése
 **Szereplők**: Új ügyfél (Péter), Rendszer
 
 **Történet**:
@@ -227,7 +227,7 @@
 6.  Péter most már be tud jelentkezni az email címével és jelszavával.
 
 
-## 1️⃣9️⃣ User story – Jelszó Visszaállítás
+## 22 User story – Jelszó Visszaállítás
 **Szereplők**: Ügyfél (Mária), Rendszer
 
 **Történet**:
@@ -241,7 +241,7 @@
 8.  Mária az új jelszavával sikeresen bejelentkezik.
 
 
-## 2️⃣0️⃣ User story – Kilométeróra Állás Nyomon Követése
+## 23 User story – Kilométeróra Állás Nyomon Követése
 **Szereplők**: Ügyintéző, Ügyfél, Autó
 
 **Történet**:
@@ -254,22 +254,7 @@
 7.  A menedzsment láthatja, melyik autók a legjobban használtak.
 
 
-## 2️⃣1️⃣ User story – Audit Log / Eseménynapló
-**Szereplők**: Adminisztrátor, Rendszer
-
-**Történet**:
-1.  Az adminisztrátor szeretné látni, ki mit csinált a rendszerben.
-2.  Belép az "Audit Log" menüpontba az admin felületen.
-3.  Látja az összes fontos műveletet időrendi sorrendben:
-    -   Ki regisztrált új ügyfelet és mikor
-    -   Ki módosított egy foglalást
-    -   Ki törölt autót vagy dolgozót
-    -   Ki jelentkezett be és ki mikor
-4.  Minden bejegyzés tartalmazza: időpont, felhasználó, művelet típusa, régi és új értékek.
-5.  Az admin szűrhet dátumra, felhasználóra vagy művelet típusára.
-
-
-## 2️⃣2️⃣ User story – Foglalás Szerkesztése
+## 24 User story – Foglalás Szerkesztése
 **Szereplők**: Ügyintéző, Ügyfél
 
 **Történet**:

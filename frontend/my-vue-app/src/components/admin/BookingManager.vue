@@ -196,11 +196,11 @@
            <div class="form-row">
              <div class="form-group">
                <label>Kezdet</label>
-               <input type="date" v-model="form.foglalaskezdete" required>
+               <input type="datetime-local" v-model="form.foglalaskezdete" required>
              </div>
              <div class="form-group">
                <label>Vége</label>
-               <input type="date" v-model="form.foglalas_vege" required>
+               <input type="datetime-local" v-model="form.foglalas_vege" required>
              </div>
            </div>
            <div class="form-group">
@@ -435,19 +435,24 @@ export default {
       if (!dateStr) return '-';
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return '-';
-      return date.toLocaleDateString('hu-HU');
+      return date.toLocaleString('hu-HU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     },
     formatPrice(price) {
       return new Intl.NumberFormat('hu-HU').format(price);
     },
     getStatus(booking) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const end = new Date(booking.foglalas_vege);
+      const now = new Date();
       const start = new Date(booking.foglalaskezdete);
-      
-      if (today < start) return 'jovobeli';
-      if (today > end) return 'lejart';
+      const end = new Date(booking.foglalas_vege);
+
+      if (!isNaN(start) && now < start) return 'jovobeli';
+      if (!isNaN(end) && now > end) return 'lejart';
       return 'aktiv';
     },
     getStatusLabel(booking) {
@@ -456,13 +461,28 @@ export default {
       if (status === 'lejart') return 'Lejárt';
       return 'Aktív';
     },
+    toLocalDateTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return '';
+      const pad = (n) => String(n).padStart(2, '0');
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hour = pad(date.getHours());
+      const minute = pad(date.getMinutes());
+      return `${year}-${month}-${day}T${hour}:${minute}`;
+    },
     openCreateModal() {
       this.editingBooking = null;
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const defaultDateTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
       this.form = { 
         auto_id: '', 
         ugyfel_id: '', 
-        foglalaskezdete: '', 
-        foglalas_vege: '',
+        foglalaskezdete: defaultDateTime, 
+        foglalas_vege: defaultDateTime,
         Ar: 0
       };
       this.showModal = true;
@@ -472,8 +492,8 @@ export default {
       this.form = {
         auto_id: booking.auto_id,
         ugyfel_id: booking.ugyfel_id,
-        foglalaskezdete: booking.foglalaskezdete,
-        foglalas_vege: booking.foglalas_vege,
+        foglalaskezdete: this.toLocalDateTime(booking.foglalaskezdete),
+        foglalas_vege: this.toLocalDateTime(booking.foglalas_vege),
         Ar: booking.Ar || 0
       };
       this.showModal = true;
@@ -794,6 +814,13 @@ export default {
   background: rgba(55, 66, 250, 0.15);
   color: #3742fa;
   border: 1px solid rgba(55, 66, 250, 0.2);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 50px;
 }
 
 .btn-icon {

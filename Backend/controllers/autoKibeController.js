@@ -91,14 +91,14 @@ exports.update = async (req, res) => {
             if (vissza) {
                 const autoKibe = await AutoKibe.findByPk(id);
                 if (autoKibe) {
-                    const today = new Date().toISOString().slice(0, 10);
+                    const nowISO = new Date().toISOString();
 
-                    // Check if there are any active reservations for this car
+                    // Check if there are any active reservations for this car (using current datetime)
                     const activeReservations = await Foglalas.findAll({
                         where: {
                             auto_id: autoKibe.auto_id,
-                            foglalaskezdete: { [Op.lte]: today },
-                            foglalas_vege: { [Op.gte]: today }
+                            foglalaskezdete: { [Op.lte]: nowISO },
+                            foglalas_vege: { [Op.gte]: nowISO }
                         }
                     });
 

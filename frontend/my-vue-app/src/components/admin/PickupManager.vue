@@ -86,13 +86,13 @@
               <button 
                 v-if="!booking.Elvitve && canPickup(booking)" 
                 @click="openPickupModal(booking)" 
-                class="btn-action pickup"
-                title="Elvitel rögzítése"
+                :class="['btn-action', 'pickup', getPickupButtonClass(booking)]"
+                :title="getPickupButtonTitle(booking)"
+                :disabled="!canPickupNow(booking)"
               >
-                🚗 Elvitel
+                {{ getPickupButtonLabel(booking) }}
               </button>
               <span v-else-if="booking.Elvitve" class="picked-up-text">✅ Elvive</span>
-              <span v-else class="not-ready-text">⏳ Még nem elérhető</span>
             </td>
           </tr>
           <tr v-if="bookings.length === 0">
@@ -148,7 +148,7 @@
         <form @submit.prevent="recordPickup">
           <div class="form-group">
             <label>Valós elvitel dátuma</label>
-            <input type="date" v-model="pickupForm.valos_elvitel" required>
+            <input type="datetime-local" v-model="pickupForm.valos_elvitel" required>
           </div>
           
           <div class="pickup-notice">
@@ -196,7 +196,9 @@ export default {
   },
   mounted() {
     this.fetchBookings();
-    this.pickupForm.valos_elvitel = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    this.pickupForm.valos_elvitel = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   },
   beforeUnmount() {
     clearTimeout(this._timer);
@@ -258,33 +260,69 @@ export default {
       if (!dateStr) return '-';
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return '-';
-      return date.toLocaleDateString('hu-HU');
+      return date.toLocaleString('hu-HU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     },
-    canPickup(booking) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const plannedStart = new Date(booking.foglalaskezdete);
-      return today >= plannedStart;
+    canPickup() {
+      return true;
+    },
+    isCarAvailable(booking) {
+      // Check if the car is available (elerheto: true, berleheto: true, Allapot: 'elerheto')
+      // If any of these fields are missing, assume the car is available for safety
+      if (!booking.Auto) return false;
+      
+      const elerheto = booking.Auto.elerheto;
+      const berleheto = booking.Auto.berleheto;
+      const allapot = booking.Auto.Allapot;
+      
+      // If fields exist, check them strictly
+      if (elerheto !== undefined && berleheto !== undefined && allapot !== undefined) {
+        return elerheto === true && berleheto === true && allapot === 'elerheto';
+      }
+      
+      // If any field is missing, assume available (fallback for legacy data)
+      return true;
+    },
+
+    isCarCurrentlyRented(autoId) {
+      // Check if the car has any active reservations (not yet returned)
+      const now = new Date().toISOString();
+      return this.bookings.some(booking => 
+        booking.auto_id === autoId && 
+        !booking.Visszahozva && 
+        new Date(booking.foglalaskezdete) <= new Date(now) &&
+        new Date(booking.foglalas_vege) >= new Date(now)
+      );
+    },
+
+    isCarRentedOut(booking) {
+      // Check if the car is currently rented out (has active reservation)
+      return this.isCarCurrentlyRented(booking.auto_id);
     },
     getPickupStatus(booking) {
       if (booking.Elvitve) return 'picked-up';
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
       const plannedStart = new Date(booking.foglalaskezdete);
-      if (today < plannedStart) return 'future';
+      if (!isNaN(plannedStart) && now < plannedStart) return 'future';
       return 'waiting';
     },
     getPickupStatusLabel(booking) {
       if (booking.Elvitve) return 'Elvive';
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
       const plannedStart = new Date(booking.foglalaskezdete);
-      if (today < plannedStart) return 'Jövőbeli';
+      if (!isNaN(plannedStart) && now < plannedStart) return 'Jövőbeli';
       return 'Elvitelre vár';
     },
     openPickupModal(booking) {
       this.selectedBooking = booking;
-      this.pickupForm.valos_elvitel = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      this.pickupForm.valos_elvitel = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
       this.showModal = true;
     },
     closeModal() {
@@ -314,17 +352,122 @@ export default {
         if (response.ok) {
           this.closeModal();
           this.fetchBookings();
-          alert('Elvitel sikeresen rögzítve!');
+          window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Elvitel sikeresen rögzítve!', type: 'success' } }));
         } else {
           const err = await response.json();
-          alert(err.error || 'Hiba történt az elvitel rögzítésekor');
+          window.dispatchEvent(new CustomEvent('toast', { detail: { message: err.error || 'Hiba történt az elvitel rögzítésekor', type: 'error' } }));
         }
       } catch (err) {
         console.error(err);
-        alert('Hálózati hiba történt');
+        window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Hálózati hiba történt', type: 'error' } }));
       } finally {
         this.saving = false;
       }
+    },
+
+    // New methods for button logic
+    getPickupButtonClass(booking) {
+      // If car is not available (not elérhető, not berlehető, or Allapot != 'elerheto'), show red
+      if (!this.isCarAvailable(booking)) {
+        return 'unavailable';
+      }
+      
+      const status = this.getPickupStatus(booking);
+      
+      // Active reservations (waiting) should always be green, even if car is rented
+      if (status === 'waiting') {
+        return 'available';
+      }
+      
+      // Future reservations: show red only if car is currently rented out
+      if (status === 'future') {
+        if (this.isCarRentedOut(booking)) {
+          return 'unavailable';
+        }
+        return 'future-available';
+      }
+      
+      return '';
+    },
+
+    getPickupButtonTitle(booking) {
+      // If car is currently rented out, show specific red button tooltip
+      if (this.isCarRentedOut(booking)) {
+        return 'Az autó ki van adva - nem rögzíthető elvitel';
+      }
+      
+      if (!this.isCarAvailable(booking)) {
+        return 'Az autó nem elérhető - nem rögzíthető elvitel';
+      }
+      
+      const status = this.getPickupStatus(booking);
+      if (status === 'waiting') {
+        return 'Aktív foglalás - az elvitel azonnal rögzíthető';
+      } else if (status === 'future') {
+        const now = new Date();
+        const plannedStart = new Date(booking.foglalaskezdete);
+        
+        if (!isNaN(plannedStart) && now >= plannedStart) {
+          return 'Jövőbeli foglalás - az elvitel azonnal rögzíthető (időpont elérve)';
+        } else if (!this.isCarCurrentlyRented(booking.auto_id)) {
+          return 'Jövőbeli foglalás - az elvitel előre is rögzíthető (autó szabad)';
+        } else {
+          return 'Jövőbeli foglalás - az elvitel a tervezett elvitel ideje után rögzíthető';
+        }
+      }
+      
+      return 'Elvitel rögzítése';
+    },
+
+    getPickupButtonLabel(booking) {
+      if (!this.isCarAvailable(booking)) {
+        return '🚫 Nem elérhető';
+      }
+      
+      const status = this.getPickupStatus(booking);
+      if (status === 'waiting') {
+        return '🚗 Elvitel (Aktív)';
+      } else if (status === 'future') {
+        return '🚗 Elvitel (Jövőbeli)';
+      }
+      
+      return '🚗 Elvitel';
+    },
+
+    canPickupNow(booking) {
+      if (!this.isCarAvailable(booking)) {
+        return false;
+      }
+      
+      const status = this.getPickupStatus(booking);
+      // For future bookings, allow pickup if current time is after planned start OR if car is not currently rented
+      if (status === 'future') {
+        const now = new Date();
+        const plannedStart = new Date(booking.foglalaskezdete);
+        
+        // If current time is after planned start, allow pickup
+        if (!isNaN(plannedStart) && now >= plannedStart) {
+          return true;
+        }
+        
+        // Check if the car is currently rented (has an active reservation)
+        // If no active reservation exists, allow early pickup
+        return !this.isCarCurrentlyRented(booking.auto_id);
+      }
+      
+      // For waiting bookings, always allow pickup
+      return true;
+    },
+
+    isCarCurrentlyRented(autoId) {
+      // Check if the car has any active reservations (not yet returned)
+      const now = new Date().toISOString();
+      return this.bookings.some(booking => 
+        booking.auto_id === autoId && 
+        !booking.Visszahozva && 
+        new Date(booking.foglalaskezdete) <= new Date(now) &&
+        new Date(booking.foglalas_vege) >= new Date(now)
+      );
     }
   }
 }
@@ -552,6 +695,8 @@ export default {
 .actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+  min-height: 50px;
 }
 
 .btn-action {
@@ -573,6 +718,41 @@ export default {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(46, 213, 115, 0.4);
 }
+
+.btn-action.pickup.available {
+  background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+  color: white;
+}
+
+.btn-action.pickup.available:hover {
+  background: linear-gradient(135deg, #20c997 0%, #69f0ae 100%);
+  box-shadow: 0 4px 12px rgba(46, 213, 115, 0.6);
+}
+
+.btn-action.pickup.future-available {
+  background: linear-gradient(135deg, #ffa502 0%, #ffd700 100%);
+  color: white;
+}
+
+.btn-action.pickup.future-available:hover {
+  background: linear-gradient(135deg, #ff8c00 0%, #ffed4e 100%);
+  box-shadow: 0 4px 12px rgba(255, 165, 2, 0.6);
+}
+
+.btn-action.pickup.unavailable {
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+  color: white;
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-action.pickup.unavailable:hover {
+  transform: none;
+  box-shadow: none;
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+}
+
 
 .picked-up-text {
   color: #2ed573;

@@ -127,7 +127,7 @@
 
           <div class="form-group">
             <label>Elvitel Dátuma</label>
-            <input type="date" v-model="createForm.elvitel" required>
+            <input type="datetime-local" v-model="createForm.elvitel" required>
           </div>
 
           <div class="form-group">
@@ -155,7 +155,7 @@
 
           <div class="form-group">
             <label>Visszaadás Dátuma</label>
-            <input type="date" v-model="returnForm.vissza" required>
+            <input type="datetime-local" v-model="returnForm.vissza" required>
           </div>
 
           <div class="form-group">
@@ -200,7 +200,11 @@ export default {
       },
       createForm: {
         auto_id: '',
-        elvitel: new Date().toISOString().slice(0, 10),
+        elvitel: (() => {
+          const now = new Date();
+          const pad = (n) => String(n).padStart(2, '0');
+          return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        })(),
         Kilometer_kezdet: 0
       },
       carSearchQuery: '',
@@ -294,12 +298,23 @@ export default {
       }
     },
     formatDate(dateStr) {
-      return new Date(dateStr).toLocaleDateString('hu-HU');
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return '-';
+      return date.toLocaleString('hu-HU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     },
     openReturnModal(record) {
       this.selectedRecord = record;
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
       this.returnForm = {
-        vissza: new Date().toISOString().slice(0, 10),
+        vissza: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`,
         Kilometer_veg: record.Kilometer_kezdet || 0
       };
       this.showReturnModal = true;

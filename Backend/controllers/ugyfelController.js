@@ -202,7 +202,7 @@ exports.getBookingHistory = async (req, res) => {
                     attributes: ['AutoID', 'Rendszam', 'Marka', 'Modell', 'Evjarat', 'NapiAr', 'Allapot']
                 }
             ],
-            order: [['Letrehozasdatuma', 'DESC']]
+            order: [['foglalaskezdete', 'DESC']]
         });
 
         // Lekérjük az AutoKibe bejegyzéseket is
