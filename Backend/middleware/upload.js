@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
     // Accept images only
-    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         return cb(new Error('Csak képfájlokat tölthet fel!'), false);
     }
     cb(null, true);

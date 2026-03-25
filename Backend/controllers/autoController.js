@@ -62,7 +62,7 @@ exports.create = async (req, res) => {
             // Construct the full URL for the image
             const protocol = req.protocol;
             const host = req.get('host');
-            autoData.KepURL = `${protocol}://${host}/uploads/cars/${req.file.filename}`;
+            autoData.KepURL = `http://autokolcsonzesonline.com/uploads/cars/${req.file.filename}`;
         }
 
         const newAuto = await Auto.create(autoData);
@@ -78,7 +78,7 @@ exports.update = async (req, res) => {
         if (req.file) {
             const protocol = req.protocol;
             const host = req.get('host');
-            autoData.KepURL = `${protocol}://${host}/uploads/cars/${req.file.filename}`;
+            autoData.KepURL = `http://autokolcsonzesonline.com/uploads/cars/${req.file.filename}`;
         }
 
         const [updated] = await Auto.update(autoData, {
